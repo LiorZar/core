@@ -275,38 +275,47 @@ class _ScriptRun:
         self._script.last_action = self._action.get(CONF_ALIAS, "wait template")
         self._log("Executing step %s", self._script.last_action)
 
+        try:
+            delay = self._action[CONF_TIMEOUT].total_seconds()
+        except KeyError:
+            delay = None
+        self._variables["wait"] = {"remaining": delay, "completed": False}
+
         wait_template = self._action[CONF_WAIT_TEMPLATE]
         wait_template.hass = self._hass
 
         # check if condition already okay
         if condition.async_template(self._hass, wait_template, self._variables):
+            self._variables["wait"]["completed"] = True
             return
 
         @callback
         def async_script_wait(entity_id, from_s, to_s):
             """Handle script after template condition is true."""
+            self._variables["wait"] = {
+                "remaining": to_context.remaining if to_context else delay,
+                "completed": True,
+            }
             done.set()
 
+        to_context = None
         unsub = async_track_template(
             self._hass, wait_template, async_script_wait, self._variables
         )
 
         self._changed()
-        try:
-            delay = self._action[CONF_TIMEOUT].total_seconds()
-        except KeyError:
-            delay = None
         done = asyncio.Event()
         tasks = [
             self._hass.async_create_task(flag.wait()) for flag in (self._stop, done)
         ]
         try:
-            async with timeout(delay):
+            async with timeout(delay) as to_context:
                 await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
         except asyncio.TimeoutError:
             if not self._action.get(CONF_CONTINUE_ON_TIMEOUT, True):
                 self._log(_TIMEOUT_MSG)
                 raise _StopScript
+            self._variables["wait"]["remaining"] = 0.0
         finally:
             for task in tasks:
                 task.cancel()
@@ -528,14 +537,21 @@ class _ScriptRun:
         """Wait for a trigger event."""
         self._script.last_action = self._action.get(CONF_ALIAS, "wait for trigger")
         self._log("Executing step %s", self._script.last_action)
-        self._changed()
 
-        done = asyncio.Event()
+        try:
+            delay = self._action[CONF_TIMEOUT].total_seconds()
+        except KeyError:
+            delay = None
+        self._variables["wait"] = {"remaining": delay, "trigger": None}
 
         async def async_done(variables, skip_condition=False, context=None):
-            self._variables["wait_trigger"] = variables["trigger"]
+            self._variables["wait"] = {
+                "remaining": to_context.remaining if to_context else delay,
+                "trigger": variables["trigger"],
+            }
             done.set()
 
+        to_context = None
         info = {"name": self._script.name, "home_assistant_start": False}
         # pylint: disable=protected-access
         triggers = self._script._get_wait_triggers(self._step)
@@ -553,21 +569,19 @@ class _ScriptRun:
         if not removes:
             return
 
-        try:
-            delay = self._action[CONF_TIMEOUT].total_seconds()
-        except KeyError:
-            delay = None
+        self._changed()
+        done = asyncio.Event()
         tasks = [
             self._hass.async_create_task(flag.wait()) for flag in (self._stop, done)
         ]
         try:
-            async with timeout(delay):
+            async with timeout(delay) as to_context:
                 await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
         except asyncio.TimeoutError:
             if not self._action.get(CONF_CONTINUE_ON_TIMEOUT, True):
                 self._log(_TIMEOUT_MSG)
                 raise _StopScript
-            self._variables["wait_trigger"] = None
+            self._variables["wait"]["remaining"] = 0.0
         finally:
             for task in tasks:
                 task.cancel()
