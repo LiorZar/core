@@ -532,6 +532,11 @@ def template_complex(value: Any) -> Any:
     return value
 
 
+positive_time_period_template = vol.Any(
+    vol.All(time_period, positive_timedelta), template, template_complex
+)
+
+
 def datetime(value: Any) -> datetime_sys:
     """Validate datetime."""
     if isinstance(value, datetime_sys):
@@ -1017,9 +1022,7 @@ CONDITION_SCHEMA: vol.Schema = key_value_schemas(
 _SCRIPT_DELAY_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_ALIAS): string,
-        vol.Required(CONF_DELAY): vol.Any(
-            vol.All(time_period, positive_timedelta), template, template_complex
-        ),
+        vol.Required(CONF_DELAY): positive_time_period_template,
     }
 )
 
@@ -1027,7 +1030,7 @@ _SCRIPT_WAIT_TEMPLATE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_ALIAS): string,
         vol.Required(CONF_WAIT_TEMPLATE): template,
-        vol.Optional(CONF_TIMEOUT): vol.All(time_period, positive_timedelta),
+        vol.Optional(CONF_TIMEOUT): positive_time_period_template,
         vol.Optional(CONF_CONTINUE_ON_TIMEOUT): boolean,
     }
 )
@@ -1081,7 +1084,7 @@ _SCRIPT_WAIT_FOR_TRIGGER_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_ALIAS): string,
         vol.Required(CONF_WAIT_FOR_TRIGGER): TRIGGER_SCHEMA,
-        vol.Optional(CONF_TIMEOUT): vol.All(time_period, positive_timedelta),
+        vol.Optional(CONF_TIMEOUT): positive_time_period_template,
         vol.Optional(CONF_CONTINUE_ON_TIMEOUT): boolean,
     }
 )

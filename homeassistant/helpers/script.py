@@ -1,6 +1,6 @@
 """Helpers to execute scripts."""
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import partial
 import importlib
 import itertools
@@ -244,20 +244,24 @@ class _ScriptRun:
             level=level,
         )
 
-    async def _async_delay_step(self):
-        """Handle delay."""
+    def _get_pos_time_period_template(self, key):
         try:
-            delay = vol.All(cv.time_period, cv.positive_timedelta)(
-                template.render_complex(self._action[CONF_DELAY], self._variables)
+            return vol.All(cv.time_period, cv.positive_timedelta)(
+                template.render_complex(self._action[key], self._variables)
             )
         except (exceptions.TemplateError, vol.Invalid) as ex:
             self._log(
-                "Error rendering %s delay template: %s",
+                "Error rendering %s %s template: %s",
                 self._script.name,
+                key,
                 ex,
                 level=logging.ERROR,
             )
             raise _StopScript
+
+    async def _async_delay_step(self):
+        """Handle delay."""
+        delay = self._get_pos_time_period_template(CONF_DELAY)
 
         self._script.last_action = self._action.get(CONF_ALIAS, f"delay {delay}")
         self._log("Executing step %s", self._script.last_action)
@@ -272,13 +276,18 @@ class _ScriptRun:
 
     async def _async_wait_template_step(self):
         """Handle a wait template."""
-        self._script.last_action = self._action.get(CONF_ALIAS, "wait template")
-        self._log("Executing step %s", self._script.last_action)
-
         try:
-            delay = self._action[CONF_TIMEOUT].total_seconds()
+            delay = self._get_pos_time_period_template(CONF_TIMEOUT).total_seconds()
         except KeyError:
             delay = None
+
+        self._script.last_action = self._action.get(CONF_ALIAS, "wait template")
+        self._log(
+            "Executing step %s%s",
+            self._script.last_action,
+            "" if delay is None else f" (timeout: {timedelta(seconds=delay)})",
+        )
+
         self._variables["wait"] = {"remaining": delay, "completed": False}
 
         wait_template = self._action[CONF_WAIT_TEMPLATE]
@@ -535,13 +544,18 @@ class _ScriptRun:
 
     async def _async_wait_for_trigger_step(self):
         """Wait for a trigger event."""
-        self._script.last_action = self._action.get(CONF_ALIAS, "wait for trigger")
-        self._log("Executing step %s", self._script.last_action)
-
         try:
-            delay = self._action[CONF_TIMEOUT].total_seconds()
+            delay = self._get_pos_time_period_template(CONF_TIMEOUT).total_seconds()
         except KeyError:
             delay = None
+
+        self._script.last_action = self._action.get(CONF_ALIAS, "wait for trigger")
+        self._log(
+            "Executing step %s%s",
+            self._script.last_action,
+            "" if delay is None else f" (timeout: {timedelta(seconds=delay)})",
+        )
+
         self._variables["wait"] = {"remaining": delay, "trigger": None}
 
         async def async_done(variables, skip_condition=False, context=None):
