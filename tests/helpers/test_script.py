@@ -798,6 +798,34 @@ async def test_wait_variables_out(hass, mode, action_type):
             assert float(remaining) == 0.0
 
 
+async def test_wait_for_trigger_invalid(hass):
+    """Test invalid wait_for_trigger."""
+    with pytest.raises(vol.Invalid):
+        cv.SCRIPT_SCHEMA({"wait_for_trigger": {"platform": "not_a_valid_platform"}})
+
+
+async def test_wait_for_trigger_bad(hass, caplog):
+    """Test bad wait_for_trigger."""
+    script_obj = script.Script(
+        hass,
+        cv.SCRIPT_SCHEMA(
+            {"wait_for_trigger": {"platform": "state", "entity_id": "sensor.abc"}}
+        ),
+    )
+
+    async def async_attach_trigger_mock(*args, **kwargs):
+        return None
+
+    with mock.patch(
+        "homeassistant.components.automation.state.async_attach_trigger",
+        wraps=async_attach_trigger_mock,
+    ):
+        hass.async_create_task(script_obj.async_run())
+        await hass.async_block_till_done()
+
+    assert "Error setting up trigger" in caplog.text
+
+
 async def test_condition_basic(hass):
     """Test if we can use conditions in a script."""
     event = "test_event"
