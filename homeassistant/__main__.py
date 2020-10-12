@@ -283,6 +283,7 @@ def main() -> int:
 
         return scripts.run(args.script)
 
+    args.config = "/workspaces/core/config"
     config_dir = os.path.abspath(os.path.join(os.getcwd(), args.config))
     ensure_config_path(config_dir)
 

@@ -1,0 +1,12 @@
+{
+  "domain": "conx",
+  "name": "conx",
+  "config_flow": false,
+  "documentation": "https://www.home-assistant.io/integrations/conx",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": []
+}

@@ -1,0 +1,50 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+media_player:
+
+discovery:
+
+
+# Text to speech
+# Example configuration.yaml entry for Google Translate TTS service
+tts:
+  - platform: google_translate
+    cache: true
+    cache_dir: /tmp/tts
+    time_memory: 300
+    base_url: http://127.0.0.1:8123
+    service_name: google_say
+
+conx:
+  port: xx
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+switch: !include switches.yaml
+
+light:
+  - platform: dmx
+    host: 192.168.1.25 #House DMX Controller (eDMX King)
+    port: 6454
+    dmx_channels: 512
+    default_level: 0
+    universe: 0
+    devices:
+      #לדים ארון מטבח
+      - channel: 1
+        transition: 2
+        name: mitbah
+        type: dimmer
+#logger:
+#  default: info
+#  logs:
+#    custom_components.conx: debug
+sensor:
+  - platform: sql
+    queries:
+      - name: Sun state
+        query: "SELECT * FROM states WHERE entity_id = 'sun.sun' ORDER BY state_id DESC LIMIT 1;"
+        column: 'state'

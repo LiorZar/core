@@ -1,5 +1,8 @@
-config/*
 config2/*
+config/.cloud/*
+config/.storage/*
+config/.HA_VERSION
+config/*.db
 
 tests/testing_config/deps
 tests/testing_config/home-assistant.log

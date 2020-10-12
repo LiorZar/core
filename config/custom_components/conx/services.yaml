@@ -1,0 +1,9 @@
+istate:
+  description: gets the initial state of this entitiy_id (just before last system shutdown)
+  fields:
+    id:
+      description: The entity id
+      example: light.kitchen_main_lamp
+    attr:
+      description: if no attr is define return the state else return the attribute of the state
+      example: humidity

@@ -1,0 +1,22 @@
+- id: '1601727723607'
+  alias: switch right
+  description: ''
+  trigger:
+  - entity_id: switch.lioz
+    from: 'off'
+    platform: state
+    to: 'on'
+  - entity_id: switch.lioz
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data_template:
+      value: '{% if is_state(''switch.lioz'', ''on'') %} r u fucking sure {{ states("input_number.number_2")
+        }} {% else %} off {% endif -%}
+
+        '
+    entity_id: input_text.text_1
+    service: input_text.set_value
+  mode: single
