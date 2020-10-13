@@ -17,7 +17,25 @@ tts:
     service_name: google_say
 
 conx:
-  port: xx
+  dmx:
+    - name: "dmx1"
+      ip: "192.168.1.25"
+      universe: 1
+      channels: 32
+      level: 255
+      fps: 30
+
+    - name: "dmx2"
+      universe: 2
+      channels: 256
+
+    - name: "dmx13"
+      universe: 13
+
+    - name: "dmx4"
+      universe: 4
+
+
 
 group: !include groups.yaml
 automation: !include automations.yaml

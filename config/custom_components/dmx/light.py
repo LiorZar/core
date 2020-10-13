@@ -472,17 +472,6 @@ class DMXLight(LightEntity):
         )
         self.async_schedule_update_ha_state()
 
-        addr = ("192.168.1.25", 6455)
-        packet = bytearray()
-        packet.extend(("Hello so").encode())
-
-        try:
-            self._socket.sendto(packet, addr)
-        except Exception as e:
-            print(e)
-
-        print("send")
-
     @asyncio.coroutine
     def async_turn_off(self, **kwargs):
         """Instruct the light to turn off.
