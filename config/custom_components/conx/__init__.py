@@ -65,3 +65,4 @@ class ConX:
         self.hass.services.async_register(DOMAIN, "restore", self.db.restore_state)
         self.hass.services.async_register(DOMAIN, "save", self.db.save_state_srv)
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
+        self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)

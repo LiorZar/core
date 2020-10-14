@@ -30,3 +30,16 @@ channel:
     value:
       description: the value(s) to set the channel to. 50, [0,100], [100,0]
       example: 50
+
+universe:
+  description: set a universe parameters
+  fields:
+    name:
+      description: The name of the universe
+      example: dmx1
+    universe:
+      description: the port index. a value [0-255]
+      example: 1
+    subnet:
+      description: the net/subnet value [0-255]
+      example: 10

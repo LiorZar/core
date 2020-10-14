@@ -131,6 +131,25 @@ class DMX(threading.Thread):
 
         return True
 
+    def set_universe(self, call):
+        print("set_universe", call)
+        name = call.data.get("name")
+        universe = call.data.get("universe")
+        subnet = call.data.get("subnet")
+        if name == None:
+            return False
+
+        unv: Universe = self.universes[name]
+        if unv == None:
+            return False
+
+        if universe != None:
+            unv.universe = universe
+        if subnet != None:
+            unv.subnet = subnet
+
+        return True
+
     def send(self, unv: Universe):
         """Send the current state of DMX values to the gateway via UDP packet."""
         # Copy the base packet then add the channel array
