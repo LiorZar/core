@@ -23,7 +23,10 @@ CONFIG_SCHEMA = vol.Schema(
                             vol.Required("name"): cv.string,
                             vol.Optional("ip", default="255.255.255.255"): cv.string,
                             vol.Required("universe"): vol.All(
-                                vol.Coerce(int), vol.Range(min=1, max=255)
+                                vol.Coerce(int), vol.Range(min=0, max=255)
+                            ),
+                            vol.Required("subnet", default=0): vol.All(
+                                vol.Coerce(int), vol.Range(min=0, max=255)
                             ),
                             vol.Optional("port", default=6454): cv.port,
                             vol.Optional("channels", default=16): vol.All(

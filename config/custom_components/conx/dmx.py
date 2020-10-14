@@ -17,18 +17,20 @@ class Universe:
         self.lock = lock
         self.name = config["name"]
         self.universe = config["universe"]
+        self.subnet = config["subnet"]
         self.ip = config["ip"]
         self.port = config["port"]
         self.level = config["level"]
         self.fps = config["fps"]
         self.keep = config["keep"]
-        self.frameTime = 1.0 / self.fps if self.fps > 0 else 0
+        self.frameTime = 1.0 / self.fps if self.fps > 0 else 1000000
         self.channelCount = config["channels"]
         self.channels = [self.level] * self.channelCount
         self.timestamp = time.perf_counter()
         self.update = True
         self.keepTimestamp = self.timestamp
         self.keepDirty = True
+        self.seq = 1
 
         if state == None or state.get("state") == None:
             return
@@ -60,7 +62,7 @@ class Universe:
         vals = [int(max(min(x * 2.55, 255), 0)) for x in vals]
 
         for i in range(0, cnt):
-            j = idx[i]
+            j = idx[i] - 1
             v = vals[i]
             if j < self.channelCount:
                 self.channels[j] = v
@@ -108,7 +110,6 @@ class DMX(threading.Thread):
         packet.append(0x00)  # Null terminate Art-Net
         packet.extend([0x00, 0x50])  # Opcode ArtDMX 0x5000 (Little endian)
         packet.extend([0x00, 0x0E])  # Protocol version 14
-        packet.extend([0x00, 0x00])  # Sequence, Physical
         self._base_packet = packet
 
         self.active = True
@@ -134,7 +135,8 @@ class DMX(threading.Thread):
         """Send the current state of DMX values to the gateway via UDP packet."""
         # Copy the base packet then add the channel array
         packet = self._base_packet[:]
-        packet.extend([unv.universe, 0x00])  # Universe
+        packet.extend(bytes([unv.seq, unv.universe]))  # Sequence, Physical
+        packet.extend([unv.universe, unv.subnet])  # Universe
         packet.extend(pack(">h", unv.channelCount))
         self.lock.acquire()
         try:
@@ -161,6 +163,6 @@ class DMX(threading.Thread):
                     self.send(unv)
                 if unv.should_keep():
                     self.keep(unv)
-            time.sleep(0.025)
+            time.sleep(0.01)
 
         _LOGGER.debug("DMX interface thread stopped")
