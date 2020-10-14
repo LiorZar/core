@@ -21,13 +21,13 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the Arduino platform."""
     conx = hass.data[DOMAIN]
 
     switches = []
     switches.append(ConXSwitch(hass, config[CONF_IDX], config[CONF_NAME], conx))
-    add_entities(switches)
+    async_add_entities(switches)
 
 
 class ConXSwitch(SwitchEntity, RestoreEntity):

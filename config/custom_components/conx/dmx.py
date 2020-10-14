@@ -5,15 +5,16 @@ import threading
 from struct import pack
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import DOMAIN, EVENT_UNIVERSE_CHANGE
 from .db import DB
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class Universe:
-    def __init__(self, config: dict, lock, state):
+    def __init__(self, hass: HomeAssistant, config: dict, lock, state):
         print("Init Universe", config, state)
+        self.hass = hass
         self.lock = lock
         self.name = config["name"]
         self.universe = config["universe"]
@@ -59,13 +60,43 @@ class Universe:
                     vals[i] = st + i * dt
 
         cnt = len(idx)
-        vals = [int(max(min(x * 2.55, 255), 0)) for x in vals]
+        vals = [int(max(min(round(x * 2.55), 255), 0)) for x in vals]
 
+        self.lock.acquire()
+        try:
+            for i in range(0, cnt):
+                j = idx[i] - 1
+                v = vals[i]
+                if j < self.channelCount:
+                    self.channels[j] = v
+        finally:
+            self.lock.release()
+
+        self.hass.bus.async_fire(EVENT_UNIVERSE_CHANGE + self.name)
+        self.update = True
+        self.keepDirty = True
+
+    def getChannels(self, idx):
+        cnt = len(idx)
+        vals = [0] * cnt
         for i in range(0, cnt):
             j = idx[i] - 1
-            v = vals[i]
             if j < self.channelCount:
-                self.channels[j] = v
+                vals[i] = self.channels[j]
+        return vals
+
+    def setChannels(self, idx, vals):
+        cnt = len(idx)
+
+        self.lock.acquire()
+        try:
+            for i in range(0, cnt):
+                j = idx[i] - 1
+                v = vals[i]
+                if j < self.channelCount:
+                    self.channels[j] = v
+        finally:
+            self.lock.release()
 
         self.update = True
         self.keepDirty = True
@@ -99,7 +130,9 @@ class DMX(threading.Thread):
         self.universes = {}
         self.lock = threading.Lock()
         for unv in self.config:
-            u = Universe(unv, self.lock, self.db.get_state(DOMAIN + "." + unv["name"]))
+            u = Universe(
+                hass, unv, self.lock, self.db.get_state(DOMAIN + "." + unv["name"])
+            )
             self.universes[u.name] = u
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
@@ -114,6 +147,9 @@ class DMX(threading.Thread):
 
         self.active = True
         self.start()
+
+    def get_universe(self, name):
+        return self.universes[name]
 
     def set_channel(self, call):
         print("set_channel", call)
@@ -136,6 +172,7 @@ class DMX(threading.Thread):
         name = call.data.get("name")
         universe = call.data.get("universe")
         subnet = call.data.get("subnet")
+        fps = call.data.get("fps")
         if name == None:
             return False
 
@@ -147,6 +184,9 @@ class DMX(threading.Thread):
             unv.universe = universe
         if subnet != None:
             unv.subnet = subnet
+        if fps != None:
+            self.fps = fps
+            self.frameTime = 1.0 / self.fps if self.fps > 0 else 1000000
 
         return True
 

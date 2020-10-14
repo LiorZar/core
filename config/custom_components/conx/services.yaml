@@ -43,3 +43,6 @@ universe:
     subnet:
       description: the net/subnet value [0-255]
       example: 10
+    fps:
+      description: the frame per second to send artnet. 0 means only on change
+      example: 25
