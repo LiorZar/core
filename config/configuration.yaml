@@ -20,20 +20,29 @@ conx:
   dmx:
     - name: "dmx1"
       ip: "192.168.1.25"
-      universe: 1
+      universe: 0
       channels: 32
       level: 255
-      fps: 30
+      fps: 20
 
     - name: "dmx2"
-      universe: 2
+      ip: "192.168.1.25"
+      universe: 1
       channels: 256
+      fps: 20
+
 
     - name: "dmx13"
-      universe: 13
+      ip: "192.168.1.25"
+      universe: 16
+      level: 50
+      fps: 20
 
     - name: "dmx4"
-      universe: 4
+      ip: "192.168.1.25"
+      universe: 3
+      level: 150
+      fps: 20
 
 
 
@@ -44,18 +53,18 @@ scene: !include scenes.yaml
 switch: !include switches.yaml
 
 light:
-  - platform: dmx
-    host: 192.168.1.25 #House DMX Controller (eDMX King)
-    port: 6454
-    dmx_channels: 512
-    default_level: 0
-    universe: 0
-    devices:
-      #לדים ארון מטבח
-      - channel: 1
-        transition: 2
-        name: mitbah
+  - platform: conx
+    dmx:
+      - dmxName: dmx1
+        channel: 1
+        name: conxDimmer
         type: dimmer
+
+      - dmxName: dmx1
+        channel: 10
+        name: conxColor
+        type: rgba
+
 #logger:
 #  default: info
 #  logs:
