@@ -46,3 +46,34 @@ universe:
     fps:
       description: the frame per second to send artnet. 0 means only on change
       example: 25
+
+fade:
+  description: fade any entity with any service
+  fields:
+    id:
+      description: The entity id
+      example: light.kitchen_main_lamp
+    service:
+      description: the service to call to
+      example: light.turn_on
+    duration:
+      description: the fade time in seconds
+      example: 2.5
+    start:
+      description: Optional. The attrbiutes and values to start from. This value is not must, system will take the current entity values
+      example: "{brightness: 128, hs_color:[100,10]}"
+    end:
+      description:  The attrbiutes and values to goto.
+      example: "{brightness: 255, hs_color: [300,100]}"
+    ease:
+      description: Optional. The fade method to control Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Elastic, Back, Bounce, each one have In, Out and InOut
+      example: OutSine
+    delay:
+      description: Optional. The delay time before animation starts, by default it is 0
+      example: 2
+    loop:
+      description: Optional. how many loops to repeat. default is 1, 0 is endless loop
+      example: 1
+    loopDelay:
+      description: Optional. The time to wait before you start a new loop. default is 0
+      example: 1.2

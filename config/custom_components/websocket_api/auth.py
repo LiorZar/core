@@ -96,11 +96,11 @@ class AuthPhase:
             for user in users:
                 if user.name == msg["username"]:
                     refresh_token: RefreshToken = None
-                    for token in user.refresh_tokens.values():
+                    """for token in user.refresh_tokens.values():
                         if token.client_id == msg["guid"]:
                             refresh_token = token
                             break
-
+                    """
                     if refresh_token is None:
                         refresh_token = (
                             await self._hass.auth.async_create_refresh_token(
@@ -120,6 +120,7 @@ class AuthPhase:
                         return await self._async_finish_auth(
                             refresh_token.user, refresh_token
                         )
+                    break
 
         self._send_message(auth_invalid_message("Invalid access token or password"))
         await process_wrong_login(self._request)

@@ -40,6 +40,9 @@ class DB:
 
         print(self.initStates)
 
+    def onTick(self, elapse: float):
+        pass
+
     def connection(self):
         id = threading.get_ident()
         conn = self.connections.get(id)

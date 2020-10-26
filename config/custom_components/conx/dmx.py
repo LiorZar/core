@@ -27,9 +27,9 @@ class Universe:
         self.frameTime = 1.0 / self.fps if self.fps > 0 else 1000000
         self.channelCount = config["channels"]
         self.channels = [self.level] * self.channelCount
-        self.timestamp = time.perf_counter()
+        self.duration = 0
         self.update = True
-        self.keepTimestamp = self.timestamp
+        self.keepDuration = 0
         self.keepDirty = True
         self.seq = 1
 
@@ -101,29 +101,26 @@ class Universe:
         self.update = True
         self.keepDirty = True
 
-    def should_send(self):
-        ts = time.perf_counter()
-        es = ts - self.timestamp
-        if not self.update and es < self.frameTime:
+    def should_send(self, elapse: float):
+        self.duration += elapse
+        if not self.update and self.duration < self.frameTime:
             return False
         self.update = False
-        self.timestamp = ts
+        self.duration = 0.0
         return True
 
-    def should_keep(self):
-        ts = time.perf_counter()
-        es = ts - self.keepTimestamp
-        if not self.keepDirty or es < 1.0:
+    def should_keep(self, elapse: float):
+        self.keepDuration += elapse
+        if not self.keepDirty or self.keepDuration < 1.0:
             return False
         self.keepDirty = False
-        self.keepTimestamp = ts
+        self.keepDuration = 0
         return True
 
 
-class DMX(threading.Thread):
+class DMX:
     def __init__(self, hass: HomeAssistant, db: DB, config: dict):
         print("Starting DMX server")
-        threading.Thread.__init__(self)
         self.hass = hass
         self.db = db
         self.config = config.get("dmx")
@@ -144,9 +141,6 @@ class DMX(threading.Thread):
         packet.extend([0x00, 0x50])  # Opcode ArtDMX 0x5000 (Little endian)
         packet.extend([0x00, 0x0E])  # Protocol version 14
         self._base_packet = packet
-
-        self.active = True
-        self.start()
 
     def get_universe(self, name):
         return self.universes[name]
@@ -212,16 +206,10 @@ class DMX(threading.Thread):
         finally:
             self.lock.release()
 
-    def run(self):
-        """Send All."""
-        _LOGGER.debug("DMX interface thread started")
-        while self.active:
-            for u in self.universes:
-                unv: Universe = self.universes[u]
-                if unv.should_send():
-                    self.send(unv)
-                if unv.should_keep():
-                    self.keep(unv)
-            time.sleep(0.01)
-
-        _LOGGER.debug("DMX interface thread stopped")
+    def onTick(self, elapse: float):
+        for u in self.universes:
+            unv: Universe = self.universes[u]
+            if unv.should_send(elapse):
+                self.send(unv)
+            if unv.should_keep(elapse):
+                self.keep(unv)

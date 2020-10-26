@@ -30,6 +30,9 @@ class UDP:
         )
         self.task = hass.async_create_task(self.listen)
 
+    def onTick(self, elapse: float):
+        pass
+
     def onMessage(self, data, addr):
         print("onMessage ", data, addr)
 

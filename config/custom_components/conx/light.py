@@ -4,15 +4,12 @@ from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
 from homeassistant.core import HomeAssistant
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
-    ATTR_COLOR_TEMP,
     ATTR_HS_COLOR,
     ATTR_RGB_COLOR,
-    ATTR_XY_COLOR,
     LightEntity,
     PLATFORM_SCHEMA,
     SUPPORT_BRIGHTNESS,
     SUPPORT_COLOR,
-    SUPPORT_COLOR_TEMP,
 )
 from homeassistant.util.color import color_rgb_to_rgbw
 import homeassistant.helpers.config_validation as cv
@@ -118,7 +115,6 @@ class DMXLight(LightEntity):
 
         self._brightness = light.get("level")
         self._rgb = light.get("color", COLOR_MAP.get(self._type))
-        self._color_temp = int((self.min_mireds + self.max_mireds) / 2)
 
         # Apply maps and calculations
         self._channel_count = CHANNEL_COUNT_MAP.get(self._type, 1)
@@ -163,10 +159,6 @@ class DMXLight(LightEntity):
             return None
 
     @property
-    def color_temp(self):
-        return self._color_temp
-
-    @property
     def supported_features(self):
         return self._features
 
@@ -176,23 +168,16 @@ class DMXLight(LightEntity):
 
     @property
     def state_attributes(self):
-        if not self.is_on:
-            return None
-
         data = {}
         supported_features = self.supported_features
 
         if supported_features & SUPPORT_BRIGHTNESS:
             data[ATTR_BRIGHTNESS] = self.brightness
 
-        if supported_features & SUPPORT_COLOR_TEMP:
-            data[ATTR_COLOR_TEMP] = self.color_temp
-
         if supported_features & SUPPORT_COLOR and self.hs_color:
             hs_color = self.hs_color
             data[ATTR_HS_COLOR] = (round(hs_color[0], 3), round(hs_color[1], 3))
             data[ATTR_RGB_COLOR] = self._rgb
-            data[ATTR_XY_COLOR] = color_util.color_hs_to_xy(*hs_color)
 
         return {key: val for key, val in data.items() if val is not None}
 
@@ -208,9 +193,6 @@ class DMXLight(LightEntity):
 
         if ATTR_HS_COLOR in kwargs:
             self._rgb = color_util.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
-
-        if ATTR_COLOR_TEMP in kwargs:
-            self._color_temp = kwargs[ATTR_COLOR_TEMP]
 
         self.update_universe()
 
