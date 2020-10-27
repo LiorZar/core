@@ -50,7 +50,7 @@ universe:
 fade:
   description: fade any entity with any service
   fields:
-    id:
+    entity_id:
       description: The entity id
       example: light.kitchen_main_lamp
     service:

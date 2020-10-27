@@ -3,6 +3,7 @@ from typing import Any, Callable, List, Optional
 from homeassistant.core import HomeAssistant, State
 
 import math
+from .const import clamp
 
 
 class Ease:
@@ -670,8 +671,7 @@ class Tween:
             self.state = "PLAY"
 
     def setCurrent(self, progress: float):
-        progress = self.ease(progress)
-        progress = max(0, min(1, progress))
+        progress = clamp(self.ease(progress), 0, 1)
         for key in self.eprops:
             self.cprops[key] = self.setProp(
                 self.sprops[key], self.eprops[key], progress
@@ -679,18 +679,21 @@ class Tween:
 
     def setProp(self, s, e, progress: float):
         if type(e) is float or type(e) is int:
-            return s * (1 - progress) + e * progress
+            return clamp(s * (1 - progress) + e * progress, s, e)
         if type(e) is list:
             res = []
             for i in range(len(e)):
-                res.append(s[i] * (1 - progress) + e[i] * progress)
+                a = clamp(s[i] * (1 - progress) + e[i] * progress, s[i], e[i])
+                res.append(a)
             return res
 
         return None
 
     def setState(self):
-        self.hass.services.call(self.service[0], self.service[1], self.cprops)
-        pass
+        try:
+            self.hass.services.call(self.service[0], self.service[1], self.cprops)
+        except:
+            print("setState failed", self.service[0], self.service[1], self.cprops)
 
     def toStart(self):
         self.setCurrent(0)

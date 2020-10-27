@@ -30,7 +30,7 @@ class FDE:
     def fade(self, call):
         print("fade", call)
         data = call.data
-        id = data.get("id")
+        id = data.get("entity_id")
         self.lock.acquire()
         try:
             if None != self.tweens.get(id):
