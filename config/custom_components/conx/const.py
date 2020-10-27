@@ -7,4 +7,6 @@ EVENT_UNIVERSE_CHANGE = "universe_change_"
 
 
 def clamp(value, minVal, maxVal):
-    return min(maxVal, max(minVal, value))
+    if minVal < maxVal:
+        return min(maxVal, max(minVal, value))
+    return min(minVal, max(maxVal, value))
