@@ -34,7 +34,7 @@ CONF_LIGHT_TYPES = [
 ]
 
 # Number of channels used by each light type
-CHANNEL_COUNT_MAP, FEATURE_MAP, COLOR_MAP = {}, {}, {}
+CHANNEL_COUNT_MAP, FEATURE_MAP = {}, {}
 CHANNEL_COUNT_MAP[CONF_LIGHT_TYPE_DIMMER] = 1
 CHANNEL_COUNT_MAP[CONF_LIGHT_TYPE_RGB] = 3
 CHANNEL_COUNT_MAP[CONF_LIGHT_TYPE_RGBA] = 4
@@ -45,12 +45,6 @@ FEATURE_MAP[CONF_LIGHT_TYPE_DIMMER] = SUPPORT_BRIGHTNESS
 FEATURE_MAP[CONF_LIGHT_TYPE_RGB] = SUPPORT_BRIGHTNESS | SUPPORT_COLOR
 FEATURE_MAP[CONF_LIGHT_TYPE_RGBA] = SUPPORT_BRIGHTNESS | SUPPORT_COLOR
 FEATURE_MAP[CONF_LIGHT_TYPE_SWITCH] = 0
-
-# Default color for each light type if not specified in configuration
-COLOR_MAP[CONF_LIGHT_TYPE_DIMMER] = None
-COLOR_MAP[CONF_LIGHT_TYPE_RGB] = [255, 255, 255]
-COLOR_MAP[CONF_LIGHT_TYPE_RGBA] = [255, 255, 255]
-COLOR_MAP[CONF_LIGHT_TYPE_SWITCH] = None
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -113,8 +107,8 @@ class DMXLight(LightEntity):
 
         self._type = light.get(CONF_TYPE)
 
-        self._brightness = light.get("level")
-        self._rgb = light.get("color", COLOR_MAP.get(self._type))
+        self._brightness = 0
+        self._rgb = [0, 0, 0]
 
         # Apply maps and calculations
         self._channel_count = CHANNEL_COUNT_MAP.get(self._type, 1)
@@ -124,11 +118,6 @@ class DMXLight(LightEntity):
             for channel in range(self._channel, self._channel + self._channel_count)
         ]
         self._features = FEATURE_MAP.get(self._type)
-
-        # Brightness needs to be set to the maximum default RGB level, then
-        # scale up the RGB values to what HA uses
-        if self._rgb:
-            self._brightness = max(self._rgb) * (self._brightness / 255)
 
         self.read_values()
 
@@ -206,10 +195,8 @@ class DMXLight(LightEntity):
         hsv = None
         vals = self._unviverse.getChannels(self._channels)
         if self._type == CONF_LIGHT_TYPE_RGB:
-            hsv = color_util.color_RGB_to_hsv(
-                vals[0] / 255, vals[1] / 255, vals[2] / 255
-            )
-            self._rgb = color_util.color_hsv_to_RGB(hsv[0], hsv[1], 100)
+            hsv = color_util.color_RGB_to_hsv(vals[0], vals[1], vals[2])
+            self._rgb = vals[0:3]
             self._brightness = round(hsv[2] * 2.55)
         elif self._type == CONF_LIGHT_TYPE_RGBA:
             self._rgb = vals[0:3]

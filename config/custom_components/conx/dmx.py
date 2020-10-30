@@ -25,10 +25,12 @@ class Universe:
         self.fps = config["fps"]
         self.keep = config["keep"]
         self.frameTime = 1.0 / self.fps if self.fps > 0 else 1000000
+        self.minFrameTime = self.frameTime if self.fps > 0 else 0.04
         self.channelCount = config["channels"]
         self.channels = [self.level] * self.channelCount
         self.duration = 0
         self.update = True
+        self.keepTime = 10.0
         self.keepDuration = 0
         self.keepDirty = True
         self.seq = 1
@@ -103,15 +105,19 @@ class Universe:
 
     def should_send(self, elapse: float):
         self.duration += elapse
-        if not self.update and self.duration < self.frameTime:
+        if not (
+            (self.update and self.duration >= self.minFrameTime)
+            or self.duration >= self.frameTime
+        ):
             return False
+
         self.update = False
         self.duration = 0.0
         return True
 
     def should_keep(self, elapse: float):
         self.keepDuration += elapse
-        if not self.keepDirty or self.keepDuration < 1.0:
+        if not self.keepDirty or self.keepDuration < self.keepTime:
             return False
         self.keepDirty = False
         self.keepDuration = 0
