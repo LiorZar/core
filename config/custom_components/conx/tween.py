@@ -610,7 +610,7 @@ class Tween:
         self.hass = hass
         self.service = service.split(".")
         self.entity_id: str = entity_id
-        self.duration: float = duration
+        self.duration: float = duration if duration > 0 else 0.001
         self.ease: Callable[[float], float] = ease
         self.delay: float = delay if None != delay else 0
         self.loop: int = loop if None != loop else 1
@@ -695,10 +695,6 @@ class Tween:
         except:
             print("setState failed", self.service[0], self.service[1], self.cprops)
 
-    def toStart(self):
-        self.setCurrent(0)
-        self.setState()
-
     def toCurrent(self):
         self.setCurrent(self.progress)
         self.setState()
@@ -727,7 +723,7 @@ class Tween:
         if self.state == "DELAY":
             if elapsed < 0:
                 return False
-            self.state == "PLAY"
+            self.state = "PLAY"
 
         if self.state != "PLAY":
             return False
@@ -740,7 +736,6 @@ class Tween:
                     self.state = "END"
                     return True
 
-            self.toStart()
             self.elapsed = diff
             if self.loopDelay > 0:
                 self.elapsed -= self.loopDelay
