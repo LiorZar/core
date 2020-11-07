@@ -1,5 +1,5 @@
 import logging
-
+from timeit import default_timer as timer
 from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
 from homeassistant.core import HomeAssistant
 from homeassistant.components.light import (
@@ -97,6 +97,7 @@ def scale_rgb_to_brightness(rgb, brightness):
 class DMXLight(LightEntity):
     def __init__(self, conx, light):
         self._conx = conx
+        self._db = conx.db
         self._dmx: DMX = conx.dmx
 
         # Fixture configuration
@@ -104,7 +105,6 @@ class DMXLight(LightEntity):
         self._unviverse: Universe = self._dmx.get_universe(self._dmxName)
         self._channel = light.get("channel")
         self._name = light.get(CONF_NAME)
-
         self._type = light.get(CONF_TYPE)
 
         self._brightness = 0
@@ -127,6 +127,13 @@ class DMXLight(LightEntity):
         # Send default levels to the controller
         # self.update_universe()
         _LOGGER.debug(f"Intialized DMX light {self._name}")
+        self.haTS = timer()
+
+    async def async_added_to_hass(self):
+        self._db.onEntityAdded(self)
+
+    async def async_will_remove_from_hass(self):
+        self._db.onEntityRemoved(self)
 
     @property
     def name(self):
@@ -138,7 +145,7 @@ class DMXLight(LightEntity):
 
     @property
     def is_on(self):
-        return self._state == STATE_ON
+        return self.brightness > 0
 
     @property
     def hs_color(self):
@@ -171,14 +178,13 @@ class DMXLight(LightEntity):
         return {key: val for key, val in data.items() if val is not None}
 
     async def async_turn_on(self, **kwargs):
-        self._state = STATE_ON
+        if len(kwargs) <= 0:
+            if self._brightness == 0:
+                self._brightness = 255
 
         # Update state from service call
         if ATTR_BRIGHTNESS in kwargs:
             self._brightness = kwargs[ATTR_BRIGHTNESS]
-
-        if self._brightness == 0:
-            self._brightness = 255
 
         if ATTR_HS_COLOR in kwargs:
             self._rgb = color_util.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
@@ -186,7 +192,6 @@ class DMXLight(LightEntity):
         self.update_universe()
 
     async def async_turn_off(self, **kwargs):
-        self._state = STATE_OFF
         if self._brightness > 0:
             self._brightness = 0
         self.update_universe()
@@ -203,11 +208,6 @@ class DMXLight(LightEntity):
             self._brightness = vals[3]
         else:
             self._brightness = vals[0]
-
-        if self._brightness > 0:
-            self._state = STATE_ON
-        else:
-            self._state = STATE_OFF
 
     def dmx_values(self):
         # Select which values to send over DMX
@@ -230,10 +230,17 @@ class DMXLight(LightEntity):
 
     def update_universe(self):
         self._unviverse.setChannels(self._channels, self.dmx_values())
-        self.async_write_ha_state()
+        self.writeState()
 
     def on_universe_change(self, event):
         self.read_values()
+        self.writeState()
+
+    def writeState(self):
+        ts = timer()
+        if ts - self.haTS < 0.125:
+            return
+        self.haTS = ts
         self.async_write_ha_state()
 
     def update(self):

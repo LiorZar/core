@@ -12,9 +12,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class Universe:
-    def __init__(self, hass: HomeAssistant, config: dict, lock, state):
-        print("Init Universe", config, state)
+    def __init__(self, hass: HomeAssistant, db: DB, config: dict, lock):
+        print("Init Universe", config)
         self.hass = hass
+        self.db = db
         self.lock = lock
         self.name = config["name"]
         self.universe = config["universe"]
@@ -35,14 +36,14 @@ class Universe:
         self.keepDirty = True
         self.seq = 1
 
-        if state == None or state.get("state") == None:
+        state = db.getData("dmx", self.name)
+        if state == None:
             return
 
-        s = state.get("state")
-        for i in range(0, len(s), 2):
+        for i in range(0, len(state), 2):
             j = i // 2
             if j < self.channelCount:
-                self.channels[j] = int(s[i : i + 2], 16)
+                self.channels[j] = int(state[i : i + 2], 16)
 
     def setChannel(self, ch, val):
         idx = [ch]
@@ -133,9 +134,7 @@ class DMX:
         self.universes = {}
         self.lock = threading.Lock()
         for unv in self.config:
-            u = Universe(
-                hass, unv, self.lock, self.db.get_state(DOMAIN + "." + unv["name"])
-            )
+            u = Universe(hass, db, unv, self.lock)
             self.universes[u.name] = u
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
@@ -205,12 +204,11 @@ class DMX:
             self.lock.release()
 
     def keep(self, unv: Universe):
-        self.lock.acquire()
-        try:
-            str = "".join("{:02x}".format(x) for x in unv.channels)
-            self.db.save_state(DOMAIN + "." + unv.name, str)
-        finally:
-            self.lock.release()
+        state = "".join("{:02x}".format(x) for x in unv.channels)
+        self.db.setData("dmx", unv.name, state)
+
+    def onStop(self):
+        pass
 
     def onTick(self, elapse: float):
         for u in self.universes:

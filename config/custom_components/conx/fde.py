@@ -17,15 +17,28 @@ class FDE:
         self.lock = threading.Lock()
         self.tweens: Dict[str, Tween] = {}
 
+    def onStop(self):
+        pass
+
     def onTick(self, elapse):
         remove = []
-        for entity_id in self.tweens:
-            tw = self.tweens[entity_id]
+        self.lock.acquire()
+        try:
+            tws = self.tweens.copy()
+        finally:
+            self.lock.release()
+
+        for entity_id in tws:
+            tw = tws[entity_id]
             if True == tw.onTick(elapse):
                 remove.append(entity_id)
 
-        for entity_id in remove:
-            del self.tweens[entity_id]
+        self.lock.acquire()
+        try:
+            for entity_id in remove:
+                del self.tweens[entity_id]
+        finally:
+            self.lock.release()
 
     def fade(self, call):
         print("fade", call)

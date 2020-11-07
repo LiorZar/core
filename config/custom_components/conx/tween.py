@@ -1,9 +1,10 @@
 from __future__ import division
 from typing import Any, Callable, List, Optional
 from homeassistant.core import HomeAssistant, State
+from homeassistant.helpers.entity_registry import EntityRegistry
 
 import math
-from .const import clamp
+from .const import DOMAIN, clamp
 
 
 class Ease:
@@ -608,6 +609,7 @@ class Tween:
     ):
         self._valid = False
         self.hass = hass
+        self.db = hass.data[DOMAIN].db
         self.service = service.split(".")
         self.entity_id: str = entity_id
         self.duration: float = duration if duration > 0 else 0.001
@@ -670,6 +672,10 @@ class Tween:
             self.elapsed = 0
             self.state = "PLAY"
 
+    def onEnded(self):
+        self.db.async_entity_write_ha_state(self.entity_id)
+        return True
+
     def setCurrent(self, progress: float):
         progress = clamp(self.ease(progress), 0, 1)
         for key in self.eprops:
@@ -692,8 +698,8 @@ class Tween:
     def setState(self):
         try:
             self.hass.services.call(self.service[0], self.service[1], self.cprops)
-        except:
-            print("setState failed", self.service[0], self.service[1], self.cprops)
+        except Exception as e:
+            print("setState failed", e, self.service[0], self.service[1], self.cprops)
 
     def toCurrent(self):
         self.setCurrent(self.progress)
@@ -734,7 +740,7 @@ class Tween:
                 self.loopCounter += 1
                 if self.loopCounter >= self.loop:
                     self.state = "END"
-                    return True
+                    return self.onEnded()
 
             self.elapsed = diff
             if self.loopDelay > 0:
