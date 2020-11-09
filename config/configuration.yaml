@@ -5,6 +5,12 @@ media_player:
 
 discovery:
 
+# Example filter to include specified domains and exclude specified entities
+recorder:
+  exclude:
+    domains:
+      - light
+
 
 # Text to speech
 # Example configuration.yaml entry for Google Translate TTS service
@@ -19,30 +25,15 @@ tts:
 conx:
   dmx:
     - name: "dmx1"
-      ip: "192.168.1.25"
+      ip: "192.168.1.36"
       universe: 0
       channels: 32
-      level: 255
       fps: 20
 
     - name: "dmx2"
-      ip: "192.168.1.25"
+      ip: "192.168.1.36"
       universe: 1
-      channels: 256
-      fps: 20
-
-
-    - name: "dmx13"
-      ip: "192.168.1.25"
-      universe: 16
-      level: 50
-      fps: 20
-
-    - name: "dmx4"
-      ip: "192.168.1.25"
-      universe: 3
-      level: 150
-      fps: 20
+      channels: 32
 
 
 
@@ -57,21 +48,60 @@ light:
     dmx:
       - dmxName: dmx1
         channel: 1
-        name: conxDimmer
+        name: conxDimmer1
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 2
+        name: conxDimmer2
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 3
+        name: conxDimmer3
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 4
+        name: conxDimmer4
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 5
+        name: conxDimmer5
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 6
+        name: conxDimmer6
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 7
+        name: conxDimmer7
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 8
+        name: conxDimmer8
+        type: dimmer
+
+      - dmxName: dmx1
+        channel: 9
+        name: conxDimmer9
         type: dimmer
 
       - dmxName: dmx1
         channel: 10
         name: conxColor
-        type: rgba
+        type: rgb
 
-#logger:
-#  default: info
-#  logs:
-#    custom_components.conx: debug
-sensor:
-  - platform: sql
-    queries:
-      - name: Sun state
-        query: "SELECT * FROM states WHERE entity_id = 'sun.sun' ORDER BY state_id DESC LIMIT 1;"
-        column: 'state'
+      - dmxName: dmx2
+        channel: 1
+        name: conxDimmer22
+        type: dimmer
+
+      - dmxName: dmx2
+        channel: 10
+        name: conxColor2
+        type: rgba

@@ -11,6 +11,7 @@ from homeassistant.components.light import (
     SUPPORT_BRIGHTNESS,
     SUPPORT_COLOR,
 )
+from homeassistant.helpers import entity_platform
 from homeassistant.util.color import color_rgb_to_rgbw
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.color as color_util
@@ -76,6 +77,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     conx = hass.data[DOMAIN]
     dmx = config.get("dmx")
 
+    conx.db.platforms["light"] = entity_platform.current_platform.get()
     lights = []
     for light in dmx:
         lights.append(DMXLight(conx, light))
@@ -130,10 +132,10 @@ class DMXLight(LightEntity):
         self.haTS = timer()
 
     async def async_added_to_hass(self):
-        self._db.onEntityAdded(self)
+        pass
 
     async def async_will_remove_from_hass(self):
-        self._db.onEntityRemoved(self)
+        pass
 
     @property
     def name(self):
@@ -184,7 +186,7 @@ class DMXLight(LightEntity):
 
         # Update state from service call
         if ATTR_BRIGHTNESS in kwargs:
-            self._brightness = kwargs[ATTR_BRIGHTNESS]
+            self._brightness = round(kwargs[ATTR_BRIGHTNESS])
 
         if ATTR_HS_COLOR in kwargs:
             self._rgb = color_util.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
@@ -241,8 +243,7 @@ class DMXLight(LightEntity):
         if ts - self.haTS < 0.125:
             return
         self.haTS = ts
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
-    def update(self):
+    def async_update(self):
         """Fetch update state."""
-        print("update", self._name)

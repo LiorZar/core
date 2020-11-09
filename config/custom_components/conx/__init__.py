@@ -1,5 +1,6 @@
 """The conx integration."""
 import time
+import asyncio
 import logging
 import threading
 import voluptuous as vol
@@ -9,7 +10,7 @@ from homeassistant.components import websocket_api
 
 from .const import DOMAIN
 from .db import DB
-from .net import UDP
+from .net import UDP, TCP
 from .dmx import DMX
 from .fde import FDE
 from .edt import EDT
@@ -42,7 +43,18 @@ CONFIG_SCHEMA = vol.Schema(
                             vol.Optional("keep", default=True): cv.boolean,
                         }
                     ],
-                )
+                ),
+                vol.Optional("automata"): vol.All(
+                    cv.ensure_list,
+                    [
+                        {
+                            vol.Required("name"): cv.string,
+                            vol.Required("ip"): cv.string,
+                            vol.Required("port"): cv.port,
+                            vol.Required("type"): cv.string,
+                        }
+                    ],
+                ),
             }
         )
     },
@@ -83,6 +95,7 @@ class ConX(threading.Thread):
         self.config = config[DOMAIN]
         self.db = DB(hass, self.config)
         self.udp = UDP(hass, self.db, self.config)
+        self.tcp = TCP(hass, self.db, self.config)
         self.dmx = DMX(hass, self.db, self.config)
         self.fde = FDE(hass, self.db, self.config)
         # self.edt = EDT(hass, self.db, self.config)
@@ -98,6 +111,8 @@ class ConX(threading.Thread):
                 cmd, self.websocket_handle, SCHEMA_WEBSOCKET
             )
 
+        self.tcp.Connect("lior", "192.168.1.36", 1001)
+        self.tcp.Connect("moshi", "192.168.1.36", 1002)
         self.active = True
         self.start()
 
@@ -107,6 +122,7 @@ class ConX(threading.Thread):
 
         self.db.onStop()
         self.udp.onStop()
+        self.tcp.onStop()
         self.dmx.onStop()
         self.fde.onStop()
         # self.edt.onStop()
@@ -118,6 +134,7 @@ class ConX(threading.Thread):
     def onTick(self, elapse: float):
         self.db.onTick(elapse)
         self.udp.onTick(elapse)
+        self.tcp.onTick(elapse)
         self.dmx.onTick(elapse)
         self.fde.onTick(elapse)
         # self.edt.onTick(elapse)

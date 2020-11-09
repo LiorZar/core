@@ -13,6 +13,7 @@ from homeassistant.util.yaml import load_yaml, save_yaml
 from .const import DOMAIN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity_platform import EntityPlatform
 from homeassistant.components.recorder import CONF_DB_URL, DEFAULT_DB_FILE, DEFAULT_URL
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ class DB:
         self.hass = hass
         self.initStates = {}
         self.connections = {}
-        self.entities: Dict[str, Entity] = {}
+        self.platforms: Dict[str, EntityPlatform] = {}
         self.dataDirty = False
         self.saveDuration = 0
 
@@ -99,32 +100,13 @@ class DB:
             self.lock.release()
         return data
 
-    def async_entity_write_ha_state(self, entity_id: str):
-        e = self.getEntity(entity_id)
-        if e != None:
-            e.async_write_ha_state()
+    def getEntity(self, entity_id: str) -> Entity:
+        domain = entity_id.split(".")[0]
+        platform: EntityPlatform = self.platforms.get(domain)
+        if None == platform:
+            return None
 
-    def getEntity(self, entity_id: str):
-        self.lock.acquire()
-        try:
-            e = self.entities[entity_id]
-        finally:
-            self.lock.release()
-        return e
-
-    def onEntityAdded(self, entity: Entity):
-        self.lock.acquire()
-        try:
-            self.entities[entity.entity_id] = entity
-        finally:
-            self.lock.release()
-
-    def onEntityRemoved(self, entity: Entity):
-        self.lock.acquire()
-        try:
-            del self.entities[entity.entity_id]
-        finally:
-            self.lock.release()
+        return platform.entities.get(entity_id)
 
     def connection(self):
         id = threading.get_ident()

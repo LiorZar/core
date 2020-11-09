@@ -1,7 +1,7 @@
-from __future__ import division
 from typing import Any, Callable, List, Optional
 from homeassistant.core import HomeAssistant, State
-from homeassistant.helpers.entity_registry import EntityRegistry
+from homeassistant.helpers.entity import Entity
+
 
 import math
 from .const import DOMAIN, clamp
@@ -597,7 +597,8 @@ class Tween:
     def __init__(
         self,
         hass: HomeAssistant,
-        service: str,
+        service: Callable[[Entity, Any], None],
+        entity: Entity,
         entity_id: str,
         sprops,
         eprops,
@@ -609,8 +610,8 @@ class Tween:
     ):
         self._valid = False
         self.hass = hass
-        self.db = hass.data[DOMAIN].db
-        self.service = service.split(".")
+        self.service = service
+        self.entity = entity
         self.entity_id: str = entity_id
         self.duration: float = duration if duration > 0 else 0.001
         self.ease: Callable[[float], float] = ease
@@ -655,7 +656,7 @@ class Tween:
                             eprops[key].append(sprops[key][elen:])
 
         self.sprops = sprops
-        self.cprops = {"entity_id": entity_id}
+        self.cprops = {}
         self.eprops = eprops
         self.setCurrent(0)
         self._valid = True
@@ -673,7 +674,7 @@ class Tween:
             self.state = "PLAY"
 
     def onEnded(self):
-        self.db.async_entity_write_ha_state(self.entity_id)
+        self.entity.async_schedule_update_ha_state()
         return True
 
     def setCurrent(self, progress: float):
@@ -696,10 +697,7 @@ class Tween:
         return None
 
     def setState(self):
-        try:
-            self.hass.services.call(self.service[0], self.service[1], self.cprops)
-        except Exception as e:
-            print("setState failed", e, self.service[0], self.service[1], self.cprops)
+        self.service(self.entity, self.cprops)
 
     def toCurrent(self):
         self.setCurrent(self.progress)

@@ -1,7 +1,9 @@
 import logging
+import asyncio
 import threading
 from homeassistant.core import HomeAssistant
-from typing import Any, Dict
+from homeassistant.helpers.entity import Entity
+from typing import Any, Dict, Callable
 
 from .const import DOMAIN
 from .db import DB
@@ -16,6 +18,8 @@ class FDE:
         self.db = db
         self.lock = threading.Lock()
         self.tweens: Dict[str, Tween] = {}
+        self.services: Dict[str, Callable[[Entity, Any], None]] = {}
+        self.services["light.turn_on"] = self.light_turn_on
 
     def onStop(self):
         pass
@@ -44,13 +48,22 @@ class FDE:
         print("fade", call)
         data = call.data
         id = data.get("entity_id")
+        entity: Entity = self.db.getEntity(id)
+        if None == entity:
+            return False
+
+        service = self.services.get(data.get("service"))
+        if None == service:
+            return False
+
         self.lock.acquire()
         try:
             if None != self.tweens.get(id):
                 del self.tweens[id]
             tw = Tween(
                 self.hass,
-                data.get("service"),
+                service,
+                entity,
                 id,
                 data.get("start"),
                 data.get("end"),
@@ -65,3 +78,11 @@ class FDE:
                 tw.Start()
         finally:
             self.lock.release()
+
+    def light_turn_on(self, entity: Entity, props):
+        try:
+            return asyncio.run_coroutine_threadsafe(
+                entity.async_turn_on(**props), self.hass.loop
+            ).result()
+        except Exception as e:
+            print("light_turn_on failed", e, props)
