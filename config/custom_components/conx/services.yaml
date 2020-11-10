@@ -1,23 +1,3 @@
-restore:
-  description: restore the initial state of this entitiy_id (just before last system shutdown)
-  fields:
-    id:
-      description: The entity id
-      example: light.kitchen_main_lamp
-    attr:
-      description: if no attr is define return the state else return the attribute of the state
-      example: humidity
-
-save:
-  description: save a state to database
-  fields:
-    id:
-      description: The entity id
-      example: light.kitchen_main_lamp
-    state:
-      description: the value to save
-      example: 5000
-
 channel:
   description: set a channel(s) value
   fields:
@@ -51,13 +31,16 @@ fade:
   description: fade any entity with any service
   fields:
     entity_id:
-      description: The entity id
+      description: The entity id or [entity1, entity2, entity3]
       example: light.kitchen_main_lamp
     service:
       description: the service to call to
       example: light.turn_on
-    duration:
+    transition:
       description: the fade time in seconds
+      example: 2.5
+    offset:
+      description: the spread of time in seconds must be lower than transition
       example: 2.5
     start:
       description: Optional. The attrbiutes and values to start from. This value is not must, system will take the current entity values

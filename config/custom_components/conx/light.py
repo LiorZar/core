@@ -131,12 +131,6 @@ class DMXLight(LightEntity):
         _LOGGER.debug(f"Intialized DMX light {self._name}")
         self.haTS = timer()
 
-    async def async_added_to_hass(self):
-        pass
-
-    async def async_will_remove_from_hass(self):
-        pass
-
     @property
     def name(self):
         return self._name

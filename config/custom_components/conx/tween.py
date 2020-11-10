@@ -4,7 +4,7 @@ from homeassistant.helpers.entity import Entity
 
 
 import math
-from .const import DOMAIN, clamp
+from .const import DOMAIN, clamp, fract
 
 
 class Ease:
@@ -600,9 +600,11 @@ class Tween:
         service: Callable[[Entity, Any], None],
         entity: Entity,
         entity_id: str,
+        factor: float,
         sprops,
         eprops,
         duration: float,
+        offset: float,
         ease: Callable[[float], float],
         delay: float,
         loop: int,
@@ -614,6 +616,8 @@ class Tween:
         self.entity = entity
         self.entity_id: str = entity_id
         self.duration: float = duration if duration > 0 else 0.001
+        self.offset: float = offset if None != offset else 0
+        self.factor: float = clamp(factor * self.offset / self.duration, 0, 1)
         self.ease: Callable[[float], float] = ease
         self.delay: float = delay if None != delay else 0
         self.loop: int = loop if None != loop else 1
@@ -679,10 +683,9 @@ class Tween:
 
     def setCurrent(self, progress: float):
         progress = clamp(self.ease(progress), 0, 1)
+        f = fract(progress + self.factor)
         for key in self.eprops:
-            self.cprops[key] = self.setProp(
-                self.sprops[key], self.eprops[key], progress
-            )
+            self.cprops[key] = self.setProp(self.sprops[key], self.eprops[key], f)
 
     def setProp(self, s, e, progress: float):
         if type(e) is float or type(e) is int:

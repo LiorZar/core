@@ -44,38 +44,68 @@ class FDE:
         finally:
             self.lock.release()
 
-    def fade(self, call):
-        print("fade", call)
-        data = call.data
-        id = data.get("entity_id")
+    def getEntities(self, id: [str, list]) -> list:
+        entities = []
+        if type(id) is list:
+            idx = 0
+            l = len(id) - 1
+            if l <= 0:
+                l = 1
+            for i in id:
+                entity: Entity = self.db.getEntity(i)
+                if None == entity:
+                    return None
+                entities.append({"id": i, "entity": entity, "f": idx / l})
+                idx = idx + 1
+            return entities
+
         entity: Entity = self.db.getEntity(id)
         if None == entity:
-            return False
+            return None
+        entities.append({"id": id, "entity": entity, "f": 0})
+        return entities
 
-        service = self.services.get(data.get("service"))
-        if None == service:
-            return False
+    def fade(self, call):
+        print("fade", call)
+        try:
+            data = call.data
+            service = self.services.get(data.get("service"))
+            if None == service:
+                return False
+
+            entities = self.getEntities(data.get("entity_id"))
+            if None == entities:
+                return False
+
+        except Exception as ex:
+            print("fade fail", ex)
 
         self.lock.acquire()
         try:
-            if None != self.tweens.get(id):
-                del self.tweens[id]
-            tw = Tween(
-                self.hass,
-                service,
-                entity,
-                id,
-                data.get("start"),
-                data.get("end"),
-                data.get("duration"),
-                data.get("ease"),
-                data.get("delay"),
-                data.get("loop"),
-                data.get("loopDelay"),
-            )
-            if tw.valid:
-                self.tweens[id] = tw
-                tw.Start()
+            for e in entities:
+                id = e["id"]
+                if None != self.tweens.get(id):
+                    del self.tweens[id]
+                tw = Tween(
+                    self.hass,
+                    service,
+                    e["entity"],
+                    id,
+                    e["f"],
+                    data.get("start"),
+                    data.get("end"),
+                    data.get("transition"),
+                    data.get("offset"),
+                    data.get("ease"),
+                    data.get("delay"),
+                    data.get("loop"),
+                    data.get("loopDelay"),
+                )
+                if tw.valid:
+                    self.tweens[id] = tw
+                    tw.Start()
+        except Exception as ex:
+            print("fade fail", ex)
         finally:
             self.lock.release()
 
