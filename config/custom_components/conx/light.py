@@ -180,10 +180,14 @@ class DMXLight(LightEntity):
 
         # Update state from service call
         if ATTR_BRIGHTNESS in kwargs:
-            self._brightness = round(kwargs[ATTR_BRIGHTNESS])
+            self._brightness = int(kwargs[ATTR_BRIGHTNESS])
 
         if ATTR_HS_COLOR in kwargs:
             self._rgb = color_util.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
+
+        if ATTR_RGB_COLOR in kwargs:
+            fRGB = kwargs[ATTR_RGB_COLOR]
+            self._rgb = (int(fRGB[0]), int(fRGB[1]), int(fRGB[2]))
 
         self.update_universe()
 
