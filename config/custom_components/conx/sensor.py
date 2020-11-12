@@ -1,12 +1,18 @@
-"""Support for switching conx pins on and off."""
 import logging
-import socket
+
 import voluptuous as vol
 
-from homeassistant.components import recorder
-from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchEntity
-from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
+from homeassistant.core import HomeAssistant
+from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.const import (
+    CONF_NAME,
+    CONF_TYPE,
+    STATE_ON,
+    STATE_OFF,
+    CONF_UNIT_OF_MEASUREMENT,
+    CONF_VALUE_TEMPLATE,
+)
 from homeassistant.helpers import entity_platform
 import homeassistant.helpers.config_validation as cv
 
@@ -37,24 +43,24 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     conx = hass.data[DOMAIN]
     automata = config.get("automata")
 
-    conx.db.platforms["switch"] = entity_platform.current_platform.get()
-    switches = []
-    for sw in automata:
-        switches.append(AutomataSwitch(conx, sw))
-    async_add_entities(switches)
+    conx.db.platforms["sensor"] = entity_platform.current_platform.get()
+    sensors = []
+    for sensor in automata:
+        sensors.append(AutomataSensor(conx, sensor))
+    async_add_entities(sensors)
 
 
-class AutomataSwitch(SwitchEntity, RestoreEntity):
-    def __init__(self, conx, sw):
+class AutomataSensor(BinarySensorEntity):
+    def __init__(self, conx, sensor):
         self._conx = conx
         self._db = conx.db
         self._automata: Automata = conx.automata
 
-        self._boxName = sw.get("boxName")
+        self._boxName = sensor.get("boxName")
         self._box: AutomataBox = self._automata.boxes[self._boxName]
-        self._channel = sw.get("channel")
-        self._name = sw.get(CONF_NAME)
-        self._on = None
+        self._channel = sensor.get("channel")
+        self._name = sensor.get(CONF_NAME)
+        self._on = False
 
         conx.hass.bus.async_listen(
             EVENT_AUTOMATA_BOX_CHANGE + self._boxName, self.on_box_change
@@ -66,18 +72,6 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
         self._on = event.data["on"]
         self.async_schedule_update_ha_state()
 
-    async def async_added_to_hass(self):
-        await super().async_added_to_hass()
-        if self._on is not None:
-            return
-
-        state = await self.async_get_last_state()
-        self._on = state and state.state == STATE_ON
-
-    @property
-    def should_poll(self) -> bool:
-        return False
-
     @property
     def name(self):
         return self._name
@@ -86,15 +80,21 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
     def is_on(self):
         return self._on
 
-    async def async_turn_on(self, **kwargs):
-        self._on = True
-        self._box.SendON(self._channel)
-        self.async_schedule_update_ha_state()
+    @property
+    def state(self):
+        return self._on
 
-    async def async_turn_off(self, **kwargs):
-        self._on = False
-        self._box.SendOFF(self._channel)
-        self.async_schedule_update_ha_state()
+    @property
+    def unit_of_measurement(self):
+        return None
+
+    @property
+    def device_class(self):
+        return None
+
+    @property
+    def should_poll(self):
+        return False
 
     def async_update(self):
         pass

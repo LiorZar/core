@@ -2,6 +2,7 @@ import logging
 from timeit import default_timer as timer
 from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_HS_COLOR,
@@ -19,6 +20,7 @@ import voluptuous as vol
 
 from .const import DOMAIN, EVENT_UNIVERSE_CHANGE
 from .dmx import DMX, Universe
+from .automata import Automata, AutomataBox
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,7 +70,19 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                     ),
                 }
             ],
-        )
+        ),
+        vol.Optional("automata"): vol.All(
+            cv.ensure_list,
+            [
+                {
+                    vol.Required("boxName"): cv.string,
+                    vol.Required("channel"): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=20)
+                    ),
+                    vol.Required(CONF_NAME): cv.string,
+                }
+            ],
+        ),
     }
 )
 
@@ -76,11 +90,14 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     conx = hass.data[DOMAIN]
     dmx = config.get("dmx")
+    automata = config.get("automata")
 
     conx.db.platforms["light"] = entity_platform.current_platform.get()
     lights = []
     for light in dmx:
         lights.append(DMXLight(conx, light))
+    for light in automata:
+        lights.append(AutomataLight(conx, light))
     async_add_entities(lights)
 
     return True
@@ -244,4 +261,59 @@ class DMXLight(LightEntity):
         self.async_schedule_update_ha_state()
 
     def async_update(self):
-        """Fetch update state."""
+        pass
+
+
+class AutomataLight(LightEntity, RestoreEntity):
+    def __init__(self, conx, light):
+        self._conx = conx
+        self._db = conx.db
+        self._automata: Automata = conx.automata
+
+        # Fixture configuration
+        self._boxName = light.get("boxName")
+        self._box: AutomataBox = self._automata.boxes[self._boxName]
+        self._channel = light.get("channel")
+        self._name = light.get(CONF_NAME)
+
+        self._on = None
+        self._features = FEATURE_MAP.get(CONF_LIGHT_TYPE_SWITCH)
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        if self._on is not None:
+            return
+
+        state = await self.async_get_last_state()
+        self._on = state and state.state == STATE_ON
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def is_on(self):
+        return self._on
+
+    @property
+    def supported_features(self):
+        return self._features
+
+    @property
+    def should_poll(self):
+        return False
+
+    async def async_turn_on(self, **kwargs):
+        self._on = True
+        if self._box is not None:
+            self._box.SendON(self._channel)
+        self.async_schedule_update_ha_state()
+
+    async def async_turn_off(self, **kwargs):
+        self._on = False
+        if self._box is not None:
+            self._box.SendOFF(self._channel)
+        self.async_schedule_update_ha_state()
+
+    def async_update(self):
+        pass

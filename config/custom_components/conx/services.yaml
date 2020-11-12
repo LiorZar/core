@@ -60,3 +60,14 @@ fade:
     loopDelay:
       description: Optional. The time to wait before you start a new loop. default is 0
       example: 1.2
+
+automata_send:
+  description: send packet to automata box
+  fields:
+    name:
+      description: The name of the automatabox
+      example: auto1
+    data:
+      description: data to send
+      example: "[1=ON]"
+

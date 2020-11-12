@@ -1,0 +1,94 @@
+loop:
+  alias: Loop
+  sequence:
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer1
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer2
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer3
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer4
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer5
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer6
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer7
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer8
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer9
+      service: light.turn_on
+      duration: 10
+      start:
+        brightness: 0
+      end:
+        brightness: 255
+      loop: 10
+  mode: single

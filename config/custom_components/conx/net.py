@@ -4,7 +4,7 @@ import select
 import logging
 import threading
 
-from typing import Any, Dict
+from typing import Any, Dict, Callable
 
 from homeassistant.util import get_local_ip
 from homeassistant.core import HomeAssistant
@@ -14,43 +14,113 @@ from .db import DB
 _LOGGER = logging.getLogger(__name__)
 
 
+class Connection:
+    def __init__(
+        self, id: str, addr: (str, int), onNet: Callable[[str, bytearray], None]
+    ):
+        self.lock = threading.Lock()
+        self.id = id
+        self.addr = addr
+        self.onNet = onNet
+        self.rbuff: bytearray = b""
+        self.wbuff: bytearray = b""
+        self.sock: socket = None
+
+    def clear(self):
+        self.sock = None
+        self.rbuff = b""
+        self.wbuff = b""
+
+    def Send(self, data: bytearray):
+        self.lock.acquire()
+        try:
+            self.wbuff += data
+            print("send", self.id, self.wbuff)
+        finally:
+            self.lock.release()
+
+    def read(self, size: int) -> bool:
+        rv: bool = True
+        self.lock.acquire()
+        try:
+            data = self.sock.recv(size)
+            if len(data) > 0:
+                self.rbuff += data
+            else:
+                rv = False
+        finally:
+            self.lock.release()
+
+        return rv
+
+    def readBuff(self) -> bytearray:
+        data: bytearray = None
+        self.lock.acquire()
+        try:
+            data = self.rbuff
+            self.rbuff = b""
+        finally:
+            self.lock.release()
+
+        return data
+
+    def send(self):
+        self.lock.acquire()
+        try:
+            if len(self.wbuff) > 0:
+                self.sock.send(self.wbuff)
+                self.wbuff = b""
+        finally:
+            self.lock.release()
+
+
 class TCP(threading.Thread):
     def __init__(self, hass: HomeAssistant, db: DB, config: dict):
         threading.Thread.__init__(self)
         self.lock = threading.Lock()
 
         self.sockets: Dict[str, socket] = {}
-        self.connections: Dict[str, Any] = {}
-        # host_ip_addr = socket.gethostbyname(socket.getfqdn())
-        self.host_ip_addr = get_local_ip()
+        self.connections: Dict[str, Connection] = {}
         self.active = True
         self.start()
 
-    def Connect(self, id: str, ip: str, port: int):
-        if id in self.connections:
-            return
+    def Connect(
+        self, id: str, ip: str, port: int, onNet: Callable[[str, bytearray], None]
+    ):
+        self.lock.acquire()
+        try:
+            if id not in self.connections:
+                self.connections[id] = Connection(id, (ip, port), onNet)
+        finally:
+            self.lock.release()
 
-        self.connections[id] = {"id": id, "addr": (ip, port)}
+    def Send(self, id: str, data: bytearray):
+        c: Connection = self._getConnByID(id)
+        if None == c:
+            return False
+        c.Send(data)
 
     def run(self):
         while self.active:
+            self.lock.acquire()
             sockets = []
-            for c in self.connections:
-                if c not in self.sockets:
-                    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    # s.connect(self.connections[c].addr)
-                    try:
-                        s = socket.create_connection(self.connections[c]["addr"], 0.1)
-                        if s != None:
-                            s.setblocking(0)
-                            self.sockets[c] = s
-                            self.connections[c]["socket"] = s
-                            self._onConnected(self.connections[c])
-                    except Exception as ex:
-                        pass
+            try:
+                for c in self.connections:
+                    if c not in self.sockets:
+                        try:
+                            s = socket.create_connection(self.connections[c].addr, 0.1)
+                            if s != None:
+                                s.setblocking(0)
+                                self.sockets[c] = s
+                                self.connections[c].sock = s
+                                self._onConnected(self.connections[c])
+                        except Exception as ex:
+                            pass
 
-            for c in self.sockets:
-                sockets.append(self.sockets[c])
+                for c in self.sockets:
+                    sockets.append(self.sockets[c])
+            finally:
+                self.lock.release()
 
             try:
                 readable, writable, exceptional = select.select(
@@ -66,61 +136,75 @@ class TCP(threading.Thread):
                 for s in exceptional:
                     self._onExp(s)
 
-                # print(writable)
-                # print(exceptional)
-
-                # for s in writable:                    s.send(b"")
-
             except Exception as ex:
-                _LOGGER.error(
-                    "Conx Responder socket exception occurred: %s", ex.__str__
-                )
-                # without the following continue, a second exception occurs
-                # because the data object has not been initialized
+                _LOGGER.error("Conx Responder socket exception occurred: %s", ex)
                 continue
 
     def stop(self):
         self.active = False
         self.join()
 
-    def _getConnection(self, s: socket):
-        for c in self.connections:
-            if s == self.connections[c]["socket"]:
-                return self.connections[c]
-        return None
+    def _getConnByID(self, id: str) -> Connection:
+        conn: Connection = None
+        self.lock.acquire()
+        try:
+            for c in self.connections:
+                if id == self.connections[c].id:
+                    conn = self.connections[c]
+                    break
+        finally:
+            self.lock.release()
+
+        return conn
+
+    def _getConnection(self, s: socket) -> Connection:
+        conn: Connection = None
+        self.lock.acquire()
+        try:
+            for c in self.connections:
+                if s == self.connections[c].sock:
+                    conn = self.connections[c]
+                    break
+        finally:
+            self.lock.release()
+
+        return conn
+
+    def callOnNet(self, c: Connection, cmd: str, data: bytearray):
+        if None == c.onNet:
+            return False
+        c.onNet(cmd, data)
+        return True
 
     def _onConnected(self, c):
-        print(c["id"], "Connected")
+        self.callOnNet(c, "connected", None)
 
     def _onRead(self, s: socket):
-        c = self._getConnection(s)
+        c: Connection = self._getConnection(s)
         if None == c:
             return
 
-        data = s.recv(1024)
-        if len(data) <= 0:
+        if False == c.read(1024):
             self._onExp(s)
             return
 
-        print(c["id"], data)
+        data = c.readBuff()
+        self.callOnNet(c, "read", data)
 
     def _onWrite(self, s: socket):
-        c = self._getConnection(s)
+        c: Connection = self._getConnection(s)
         if None == c:
             return
-        pass
+
+        c.send()
 
     def _onExp(self, s: socket):
-        c = self._getConnection(s)
+        c: Connection = self._getConnection(s)
         if None == c:
             return
-        del self.sockets[c["id"]]
-
-    def _handle_request(self, data):
-        pass
-
-    def _prepare_response(self, search_target, unique_service_name):
-        pass
+        del self.sockets[c.id]
+        c.clear()
+        self.callOnNet(c, "disconnect", None)
 
     def onTick(self, elapse: float):
         pass

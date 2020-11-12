@@ -14,6 +14,7 @@ from .net import UDP, TCP
 from .dmx import DMX
 from .fde import FDE
 from .edt import EDT
+from .automata import Automata
 import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
@@ -98,6 +99,7 @@ class ConX(threading.Thread):
         self.tcp = TCP(hass, self.db, self.config)
         self.dmx = DMX(hass, self.db, self.config)
         self.fde = FDE(hass, self.db, self.config)
+        self.automata = Automata(hass, self.db, self.tcp, self.config)
         # self.edt = EDT(hass, self.db, self.config)
 
         self.hass.services.async_register(DOMAIN, "restore", self.db.restore_state)
@@ -105,14 +107,13 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
+        self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
 
         for cmd in WEBSOCKET_COMMAND:
             self.hass.components.websocket_api.async_register_command(
                 cmd, self.websocket_handle, SCHEMA_WEBSOCKET
             )
 
-        self.tcp.Connect("lior", "192.168.1.36", 1001)
-        self.tcp.Connect("moshi", "192.168.1.36", 1002)
         self.active = True
         self.start()
 

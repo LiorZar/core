@@ -1,3 +1,13 @@
 - platform: conx
-  idx: 10
-  name: lioz
+  automata:
+      - boxName: autoBox3
+        channel: 1
+        name: conxSwitch1
+
+      - boxName: autoBox3
+        channel: 2
+        name: conxSwitch2
+
+      - boxName: autoBox3
+        channel: 3
+        name: conxSwitch3

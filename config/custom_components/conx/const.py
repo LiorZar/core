@@ -1,9 +1,9 @@
 """Constants for the conx integration."""
 
 DOMAIN = "conx"
-CONF_IDX = "idx"
 
 EVENT_UNIVERSE_CHANGE = "universe_change_"
+EVENT_AUTOMATA_BOX_CHANGE = "automata_box_change_"
 
 
 def clamp(value: float, minVal: float, maxVal: float) -> float:
