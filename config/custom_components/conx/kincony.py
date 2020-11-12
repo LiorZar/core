@@ -2,7 +2,7 @@ import logging
 import threading
 from typing import Any, Dict
 
-from .const import DOMAIN, EVENT_AUTOMATA_BOX_CHANGE
+from .const import DOMAIN, EVENT_KINCONY_BOX_CHANGE
 from .db import DB
 from .net import TCP
 from homeassistant.core import HomeAssistant
@@ -11,11 +11,10 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.components.light import LightEntity
 from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
 
-
 _LOGGER = logging.getLogger(__name__)
 
 
-class AutomataBox:
+class KinconyBox:
     def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict, lock):
         self.hass = hass
         self.db = db
@@ -27,55 +26,65 @@ class AutomataBox:
         self.type = config["type"]
 
         self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
-        self.Send(b"[STATUS]")
+        self.Send(b"RELAY-STATE-255")
+        self.Send(b"RELAY-GET_INPUT-255")
 
     def onNet(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
+        # RELAY-SET-255,1,0
+        # RELAY-READ-255,5
+        # RELAY-GET_INPUT-255
         msg: str = data.decode("utf-8")
-        if "[" != msg[0] or msg[-1] != "]":
-            print("bad automata message")
+        if "RELAY" != msg[0:5]:
+            print("bad Kincony message")
             return
 
-        msg = msg[1:-1]
-        if "STATUS" == msg or "OK" == msg:
-            return
-        data = msg.split("=")
+        msg = msg[6:]
+        data = msg.split("-")
         if None == data or len(data) != 2:
-            print("bad automata message")
+            print("bad Kincony message")
             return
 
-        channel: int = int(data[0])
-        on: bool = "ON" == data[1]
+        values = data[1].split(",")
+        if None == values or len(values) < 3:
+            print("bad Kincony values")
+            return
+
+        cmd: str = data[0]
+        channel: int = int(values[1])
+        value: int = int(values[2])
+
         self.hass.bus.async_fire(
-            EVENT_AUTOMATA_BOX_CHANGE + self.name, {"channel": channel, "on": on}
+            EVENT_KINCONY_BOX_CHANGE + self.name,
+            {"cmd": cmd, "channel": channel, "value": value},
         )
 
     def Send(self, data: bytearray):
         self.tcp.Send(self.name, data)
 
-    def SendStatus(self):
-        self.Send(b"[STATUS]")
-
-    def SendOK(self):
-        self.Send(b"[OK]")
-
     def SendON(self, idx: int):
-        self.Send((f"[{idx}=ON]").encode("utf-8"))
+        self.Send((f"RELAY-SET-255,{idx},1").encode("utf-8"))
 
     def SendOFF(self, idx: int):
-        self.Send((f"[{idx}=OFF]").encode("utf-8"))
+        self.Send((f"RELAY-SET-255,{idx},0").encode("utf-8"))
+
+    def SendRelayRead(self, idx: int):
+        self.Send((f"RELAY-READ-255,{idx}").encode("utf-8"))
+
+    def SendInputRead(self, idx: int):
+        self.Send((f"RELAY-GET_INPUT-255,{idx}").encode("utf-8"))
 
 
-class Automata:
+class Kincony:
     def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict):
         self.hass = hass
         self.db = db
         self.tcp = tcp
-        self.config = config.get("automata")
+        self.config = config.get("kincony")
         self.boxes = {}
         self.lock = threading.Lock()
         for box in self.config:
-            b = AutomataBox(hass, db, tcp, box, self.lock)
+            b = KinconyBox(hass, db, tcp, box, self.lock)
             self.boxes[b.name] = b
 
     def send(self, call):
@@ -92,26 +101,26 @@ class Automata:
             print("send fail", ex)
 
 
-class AutomataSwitch(SwitchEntity, RestoreEntity):
+class KinconySwitch(SwitchEntity, RestoreEntity):
     def __init__(self, conx, sw):
         self._conx = conx
         self._db = conx.db
-        self._automata: Automata = conx.automata
+        self._kincony: Kincony = conx.kincony
 
         self._boxName = sw.get("boxName")
-        self._box: AutomataBox = self._automata.boxes[self._boxName]
+        self._box: KinconyBox = self._kincony.boxes[self._boxName]
         self._channel = sw.get("channel")
         self._name = sw.get(CONF_NAME)
         self._on = None
 
         conx.hass.bus.async_listen(
-            EVENT_AUTOMATA_BOX_CHANGE + self._boxName, self.on_box_change
+            EVENT_KINCONY_BOX_CHANGE + self._boxName, self.on_box_change
         )
 
     def on_box_change(self, event):
         if self._channel != event.data["channel"]:
             return
-        self._on = event.data["on"]
+        self._on = 1 == int(event.data["value"])
         self.async_schedule_update_ha_state()
 
     async def async_added_to_hass(self):
@@ -148,15 +157,15 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
         pass
 
 
-class AutomataLight(LightEntity, RestoreEntity):
+class KinconyLight(LightEntity, RestoreEntity):
     def __init__(self, conx, light):
         self._conx = conx
         self._db = conx.db
-        self._automata: Automata = conx.automata
+        self._kincony: Kincony = conx.kincony
 
         # Fixture configuration
         self._boxName = light.get("boxName")
-        self._box: AutomataBox = self._automata.boxes[self._boxName]
+        self._box: KinconyBox = self._kincony.boxes[self._boxName]
         self._channel = light.get("channel")
         self._name = light.get(CONF_NAME)
 

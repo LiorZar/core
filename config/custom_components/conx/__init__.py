@@ -15,6 +15,7 @@ from .dmx import DMX
 from .fde import FDE
 from .edt import EDT
 from .automata import Automata
+from .kincony import Kincony
 import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,6 +47,17 @@ CONFIG_SCHEMA = vol.Schema(
                     ],
                 ),
                 vol.Optional("automata"): vol.All(
+                    cv.ensure_list,
+                    [
+                        {
+                            vol.Required("name"): cv.string,
+                            vol.Required("ip"): cv.string,
+                            vol.Required("port"): cv.port,
+                            vol.Required("type"): cv.string,
+                        }
+                    ],
+                ),
+                vol.Optional("kincony"): vol.All(
                     cv.ensure_list,
                     [
                         {
@@ -94,12 +106,13 @@ class ConX(threading.Thread):
         self.lock = threading.Lock()
         self.hass = hass
         self.config = config[DOMAIN]
-        self.db = DB(hass, self.config)
-        self.udp = UDP(hass, self.db, self.config)
-        self.tcp = TCP(hass, self.db, self.config)
-        self.dmx = DMX(hass, self.db, self.config)
-        self.fde = FDE(hass, self.db, self.config)
-        self.automata = Automata(hass, self.db, self.tcp, self.config)
+        self.db: DB = DB(hass, self.config)
+        self.udp: UDP = UDP(hass, self.db, self.config)
+        self.tcp: TCP = TCP(hass, self.db, self.config)
+        self.dmx: DMX = DMX(hass, self.db, self.config)
+        self.fde: FDE = FDE(hass, self.db, self.config)
+        self.automata: Automata = Automata(hass, self.db, self.tcp, self.config)
+        self.kincony: Kincony = Kincony(hass, self.db, self.tcp, self.config)
         # self.edt = EDT(hass, self.db, self.config)
 
         self.hass.services.async_register(DOMAIN, "restore", self.db.restore_state)
@@ -108,6 +121,7 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
         self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
+        self.hass.services.async_register(DOMAIN, "kincony_send", self.kincony.send)
 
         for cmd in WEBSOCKET_COMMAND:
             self.hass.components.websocket_api.async_register_command(

@@ -65,9 +65,19 @@ automata_send:
   description: send packet to automata box
   fields:
     name:
-      description: The name of the automatabox
+      description: The name of the automata box
       example: auto1
     data:
       description: data to send
       example: "[1=ON]"
+
+kincony_send:
+  description: send packet to kincony box
+  fields:
+    name:
+      description: The name of the kincony box
+      example: auto1
+    data:
+      description: data to send
+      example: "RELAY-GET_INPUT-255"
 

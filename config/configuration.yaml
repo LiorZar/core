@@ -51,6 +51,12 @@ conx:
       port: 1003
       type: "panel"
 
+  kincony:
+    - name: "kinconyBox1"
+      ip: "192.168.1.36"
+      port: 4196
+      type: "input"
+
 
 
 
@@ -135,6 +141,20 @@ light:
       - boxName: autoBox2
         channel: 3
         name: conxAutoLight3
+
+    kincony:
+      - boxName: kinconyBox1
+        channel: 1
+        name: kinconyLight1
+
+      - boxName: kinconyBox1
+        channel: 2
+        name: kinconyLight2
+
+      - boxName: kinconyBox1
+        channel: 3
+        name: kinconyLight3
+
 
 sensor:
   - platform: conx

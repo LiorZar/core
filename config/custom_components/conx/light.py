@@ -1,53 +1,19 @@
 import logging
-from timeit import default_timer as timer
-from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.components.light import (
-    ATTR_BRIGHTNESS,
-    ATTR_HS_COLOR,
-    ATTR_RGB_COLOR,
-    LightEntity,
-    PLATFORM_SCHEMA,
-    SUPPORT_BRIGHTNESS,
-    SUPPORT_COLOR,
-)
-from homeassistant.helpers import entity_platform
-from homeassistant.util.color import color_rgb_to_rgbw
-import homeassistant.helpers.config_validation as cv
-import homeassistant.util.color as color_util
 import voluptuous as vol
 
-from .const import DOMAIN, EVENT_UNIVERSE_CHANGE
-from .dmx import DMX, Universe
-from .automata import Automata, AutomataBox
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_platform
+from homeassistant.const import CONF_NAME, CONF_TYPE
+from homeassistant.components.light import PLATFORM_SCHEMA
+import homeassistant.helpers.config_validation as cv
+
+
+from .const import DOMAIN
+from .dmx import DMXLight, CONF_LIGHT_TYPE_SWITCH, CONF_LIGHT_TYPES
+from .automata import AutomataLight
+from .kincony import KinconyLight
 
 _LOGGER = logging.getLogger(__name__)
-
-# Light types
-CONF_LIGHT_TYPE_DIMMER = "dimmer"
-CONF_LIGHT_TYPE_RGB = "rgb"
-CONF_LIGHT_TYPE_RGBA = "rgba"
-CONF_LIGHT_TYPE_SWITCH = "switch"
-CONF_LIGHT_TYPES = [
-    CONF_LIGHT_TYPE_DIMMER,
-    CONF_LIGHT_TYPE_RGB,
-    CONF_LIGHT_TYPE_RGBA,
-    CONF_LIGHT_TYPE_SWITCH,
-]
-
-# Number of channels used by each light type
-CHANNEL_COUNT_MAP, FEATURE_MAP = {}, {}
-CHANNEL_COUNT_MAP[CONF_LIGHT_TYPE_DIMMER] = 1
-CHANNEL_COUNT_MAP[CONF_LIGHT_TYPE_RGB] = 3
-CHANNEL_COUNT_MAP[CONF_LIGHT_TYPE_RGBA] = 4
-CHANNEL_COUNT_MAP[CONF_LIGHT_TYPE_SWITCH] = 1
-
-# Features supported by light types
-FEATURE_MAP[CONF_LIGHT_TYPE_DIMMER] = SUPPORT_BRIGHTNESS
-FEATURE_MAP[CONF_LIGHT_TYPE_RGB] = SUPPORT_BRIGHTNESS | SUPPORT_COLOR
-FEATURE_MAP[CONF_LIGHT_TYPE_RGBA] = SUPPORT_BRIGHTNESS | SUPPORT_COLOR
-FEATURE_MAP[CONF_LIGHT_TYPE_SWITCH] = 0
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -83,6 +49,18 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                 }
             ],
         ),
+        vol.Optional("kincony"): vol.All(
+            cv.ensure_list,
+            [
+                {
+                    vol.Required("boxName"): cv.string,
+                    vol.Required("channel"): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=20)
+                    ),
+                    vol.Required(CONF_NAME): cv.string,
+                }
+            ],
+        ),
     }
 )
 
@@ -91,6 +69,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     conx = hass.data[DOMAIN]
     dmx = config.get("dmx")
     automata = config.get("automata")
+    kincony = config.get("kincony")
 
     conx.db.platforms["light"] = entity_platform.current_platform.get()
     lights = []
@@ -98,222 +77,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         lights.append(DMXLight(conx, light))
     for light in automata:
         lights.append(AutomataLight(conx, light))
+    for light in kincony:
+        lights.append(KinconyLight(conx, light))
     async_add_entities(lights)
 
     return True
-
-
-def scale_rgb_to_brightness(rgb, brightness):
-    brightness_scale = brightness / 255
-    scaled_rgb = [
-        round(rgb[0] * brightness_scale),
-        round(rgb[1] * brightness_scale),
-        round(rgb[2] * brightness_scale),
-    ]
-    return scaled_rgb
-
-
-class DMXLight(LightEntity):
-    def __init__(self, conx, light):
-        self._conx = conx
-        self._db = conx.db
-        self._dmx: DMX = conx.dmx
-
-        # Fixture configuration
-        self._dmxName = light.get("dmxName")
-        self._unviverse: Universe = self._dmx.get_universe(self._dmxName)
-        self._channel = light.get("channel")
-        self._name = light.get(CONF_NAME)
-        self._type = light.get(CONF_TYPE)
-
-        self._brightness = 0
-        self._rgb = [0, 0, 0]
-
-        # Apply maps and calculations
-        self._channel_count = CHANNEL_COUNT_MAP.get(self._type, 1)
-
-        self._channels = [
-            channel
-            for channel in range(self._channel, self._channel + self._channel_count)
-        ]
-        self._features = FEATURE_MAP.get(self._type)
-
-        self.read_values()
-
-        conx.hass.bus.async_listen(
-            EVENT_UNIVERSE_CHANGE + self._dmxName, self.on_universe_change
-        )
-        # Send default levels to the controller
-        # self.update_universe()
-        _LOGGER.debug(f"Intialized DMX light {self._name}")
-        self.haTS = timer()
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def brightness(self):
-        return self._brightness
-
-    @property
-    def is_on(self):
-        return self.brightness > 0
-
-    @property
-    def hs_color(self):
-        if self._rgb:
-            return color_util.color_RGB_to_hs(*self._rgb)
-        else:
-            return None
-
-    @property
-    def supported_features(self):
-        return self._features
-
-    @property
-    def should_poll(self):
-        return False
-
-    @property
-    def state_attributes(self):
-        data = {}
-        supported_features = self.supported_features
-
-        if supported_features & SUPPORT_BRIGHTNESS:
-            data[ATTR_BRIGHTNESS] = self.brightness
-
-        if supported_features & SUPPORT_COLOR and self.hs_color:
-            hs_color = self.hs_color
-            data[ATTR_HS_COLOR] = (round(hs_color[0], 3), round(hs_color[1], 3))
-            data[ATTR_RGB_COLOR] = self._rgb
-
-        return {key: val for key, val in data.items() if val is not None}
-
-    async def async_turn_on(self, **kwargs):
-        if len(kwargs) <= 0:
-            if self._brightness == 0:
-                self._brightness = 255
-
-        # Update state from service call
-        if ATTR_BRIGHTNESS in kwargs:
-            self._brightness = int(kwargs[ATTR_BRIGHTNESS])
-
-        if ATTR_HS_COLOR in kwargs:
-            self._rgb = color_util.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
-
-        if ATTR_RGB_COLOR in kwargs:
-            fRGB = kwargs[ATTR_RGB_COLOR]
-            self._rgb = (int(fRGB[0]), int(fRGB[1]), int(fRGB[2]))
-
-        self.update_universe()
-
-    async def async_turn_off(self, **kwargs):
-        if self._brightness > 0:
-            self._brightness = 0
-        self.update_universe()
-
-    def read_values(self):
-        hsv = None
-        vals = self._unviverse.getChannels(self._channels)
-        if self._type == CONF_LIGHT_TYPE_RGB:
-            hsv = color_util.color_RGB_to_hsv(vals[0], vals[1], vals[2])
-            self._rgb = vals[0:3]
-            self._brightness = round(hsv[2] * 2.55)
-        elif self._type == CONF_LIGHT_TYPE_RGBA:
-            self._rgb = vals[0:3]
-            self._brightness = vals[3]
-        else:
-            self._brightness = vals[0]
-
-    def dmx_values(self):
-        # Select which values to send over DMX
-        if False == self.is_on:
-            return [0] * len(self._channels)
-
-        if self._type == CONF_LIGHT_TYPE_RGB:
-            # Scale the RGB colour value to the selected brightness
-            return scale_rgb_to_brightness(self._rgb, self._brightness)
-        elif self._type == CONF_LIGHT_TYPE_RGBA:
-            # Split the white component out from the scaled RGB values
-            return [self._rgb[0], self._rgb[1], self._rgb[2], self._brightness]
-        elif self._type == CONF_LIGHT_TYPE_SWITCH:
-            if self.is_on:
-                return [255]
-            else:
-                return [0]
-        else:
-            return [self._brightness]
-
-    def update_universe(self):
-        self._unviverse.setChannels(self._channels, self.dmx_values())
-        self.writeState()
-
-    def on_universe_change(self, event):
-        self.read_values()
-        self.writeState()
-
-    def writeState(self):
-        ts = timer()
-        if ts - self.haTS < 0.125:
-            return
-        self.haTS = ts
-        self.async_schedule_update_ha_state()
-
-    def async_update(self):
-        pass
-
-
-class AutomataLight(LightEntity, RestoreEntity):
-    def __init__(self, conx, light):
-        self._conx = conx
-        self._db = conx.db
-        self._automata: Automata = conx.automata
-
-        # Fixture configuration
-        self._boxName = light.get("boxName")
-        self._box: AutomataBox = self._automata.boxes[self._boxName]
-        self._channel = light.get("channel")
-        self._name = light.get(CONF_NAME)
-
-        self._on = None
-        self._features = FEATURE_MAP.get(CONF_LIGHT_TYPE_SWITCH)
-
-    async def async_added_to_hass(self):
-        await super().async_added_to_hass()
-        if self._on is not None:
-            return
-
-        state = await self.async_get_last_state()
-        self._on = state and state.state == STATE_ON
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def is_on(self):
-        return self._on
-
-    @property
-    def supported_features(self):
-        return self._features
-
-    @property
-    def should_poll(self):
-        return False
-
-    async def async_turn_on(self, **kwargs):
-        self._on = True
-        if self._box is not None:
-            self._box.SendON(self._channel)
-        self.async_schedule_update_ha_state()
-
-    async def async_turn_off(self, **kwargs):
-        self._on = False
-        if self._box is not None:
-            self._box.SendOFF(self._channel)
-        self.async_schedule_update_ha_state()
-
-    def async_update(self):
-        pass
