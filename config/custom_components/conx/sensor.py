@@ -45,7 +45,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     conx.db.platforms["sensor"] = entity_platform.current_platform.get()
     sensors = []
-    for sensor in automata:
+    for sensor in automata or []:
         sensors.append(AutomataSensor(conx, sensor))
     async_add_entities(sensors)
 
@@ -70,7 +70,7 @@ class AutomataSensor(BinarySensorEntity):
         if self._channel != event.data["channel"]:
             return
         self._on = event.data["on"]
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     @property
     def name(self):

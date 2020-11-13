@@ -678,7 +678,7 @@ class Tween:
             self.state = "PLAY"
 
     def onEnded(self):
-        self.entity.async_schedule_update_ha_state()
+        self.entity.async_write_ha_state()
         return True
 
     def setCurrent(self, progress: float):

@@ -22,6 +22,12 @@ tts:
     base_url: http://127.0.0.1:8123
     service_name: google_say
 
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
 conx:
   dmx:
     - name: "dmx1"
@@ -56,15 +62,6 @@ conx:
       ip: "192.168.1.36"
       port: 4196
       type: "input"
-
-
-
-
-group: !include groups.yaml
-automation: !include automations.yaml
-script: !include scripts.yaml
-scene: !include scenes.yaml
-switch: !include switches.yaml
 
 light:
   - platform: conx
@@ -155,6 +152,33 @@ light:
         channel: 3
         name: kinconyLight3
 
+switch:
+  - platform: conx
+    automata:
+        - boxName: autoBox3
+          channel: 1
+          name: conxSwitch1
+
+        - boxName: autoBox3
+          channel: 2
+          name: conxSwitch2
+
+        - boxName: autoBox3
+          channel: 3
+          name: conxSwitch3
+
+    kincony:
+        - boxName: kinconyBox1
+          channel: 4
+          name: kinconySwitch4
+
+        - boxName: kinconyBox1
+          channel: 5
+          name: kinconySwitch5
+
+        - boxName: kinconyBox1
+          channel: 6
+          name: kinconySwitch6
 
 sensor:
   - platform: conx

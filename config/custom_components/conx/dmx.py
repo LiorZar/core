@@ -173,7 +173,7 @@ class DMX:
         self.config = config.get("dmx")
         self.universes = {}
         self.lock = threading.Lock()
-        for unv in self.config:
+        for unv in self.config or []:
             u = Universe(hass, db, unv, self.lock)
             self.universes[u.name] = u
 
@@ -414,7 +414,7 @@ class DMXLight(LightEntity):
         if ts - self.haTS < 0.125:
             return
         self.haTS = ts
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     def async_update(self):
         pass

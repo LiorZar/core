@@ -3,7 +3,7 @@ import socket
 import select
 import logging
 import threading
-
+from timeit import default_timer as timer
 from typing import Any, Dict, Callable
 
 from homeassistant.util import get_local_ip
@@ -74,6 +74,15 @@ class Connection:
             self.lock.release()
 
 
+class TCPConnThread(threading.Thread):
+    def __init__(self, main: Callable[[], None]):
+        threading.Thread.__init__(self)
+        self.main = main
+
+    def run(self):
+        self.main()
+
+
 class TCP(threading.Thread):
     def __init__(self, hass: HomeAssistant, db: DB, config: dict):
         threading.Thread.__init__(self)
@@ -81,7 +90,10 @@ class TCP(threading.Thread):
 
         self.sockets: Dict[str, socket] = {}
         self.connections: Dict[str, Connection] = {}
+        self.connThread = TCPConnThread(self.handleConnections)
+
         self.active = True
+        self.connThread.start()
         self.start()
 
     def Connect(
@@ -100,10 +112,9 @@ class TCP(threading.Thread):
             return False
         c.Send(data)
 
-    def run(self):
+    def handleConnections(self):
         while self.active:
             self.lock.acquire()
-            sockets = []
             try:
                 for c in self.connections:
                     if c not in self.sockets:
@@ -114,9 +125,16 @@ class TCP(threading.Thread):
                                 self.sockets[c] = s
                                 self.connections[c].sock = s
                                 self._onConnected(self.connections[c])
-                        except Exception as ex:
+                        except:
                             pass
+            finally:
+                self.lock.release()
 
+    def run(self):
+        while self.active:
+            self.lock.acquire()
+            sockets = []
+            try:
                 for c in self.sockets:
                     sockets.append(self.sockets[c])
             finally:

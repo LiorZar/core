@@ -17,6 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class AutomataBox:
     def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict, lock):
+        print("Init AutomataBox", config)
         self.hass = hass
         self.db = db
         self.tcp = tcp
@@ -26,11 +27,13 @@ class AutomataBox:
         self.port = config["port"]
         self.type = config["type"]
 
-        self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
-        self.Send(b"[STATUS]")
+        # self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
+        # self.Send(b"[STATUS]")
 
     def onNet(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
+        if None == data:
+            return
         msg: str = data.decode("utf-8")
         if "[" != msg[0] or msg[-1] != "]":
             print("bad automata message")
@@ -74,7 +77,7 @@ class Automata:
         self.config = config.get("automata")
         self.boxes = {}
         self.lock = threading.Lock()
-        for box in self.config:
+        for box in self.config or []:
             b = AutomataBox(hass, db, tcp, box, self.lock)
             self.boxes[b.name] = b
 
@@ -112,7 +115,7 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
         if self._channel != event.data["channel"]:
             return
         self._on = event.data["on"]
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -137,12 +140,12 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
     async def async_turn_on(self, **kwargs):
         self._on = True
         self._box.SendON(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
         self._box.SendOFF(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     def async_update(self):
         pass
@@ -191,13 +194,13 @@ class AutomataLight(LightEntity, RestoreEntity):
         self._on = True
         if self._box is not None:
             self._box.SendON(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
         if self._box is not None:
             self._box.SendOFF(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     def async_update(self):
         pass

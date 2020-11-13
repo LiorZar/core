@@ -4,6 +4,8 @@ config/.storage/*
 config/.HA_VERSION
 config/*.db*
 config/*.yaml
+config/*.out.*
+config/*.cprof
 
 
 tests/testing_config/deps

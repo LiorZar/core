@@ -31,9 +31,9 @@ class KinconyBox:
 
     def onNet(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
-        # RELAY-SET-255,1,0
-        # RELAY-READ-255,5
-        # RELAY-GET_INPUT-255
+        if None == data:
+            return
+
         msg: str = data.decode("utf-8")
         if "RELAY" != msg[0:5]:
             print("bad Kincony message")
@@ -83,7 +83,7 @@ class Kincony:
         self.config = config.get("kincony")
         self.boxes = {}
         self.lock = threading.Lock()
-        for box in self.config:
+        for box in self.config or []:
             b = KinconyBox(hass, db, tcp, box, self.lock)
             self.boxes[b.name] = b
 
@@ -121,7 +121,7 @@ class KinconySwitch(SwitchEntity, RestoreEntity):
         if self._channel != event.data["channel"]:
             return
         self._on = 1 == int(event.data["value"])
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -146,12 +146,12 @@ class KinconySwitch(SwitchEntity, RestoreEntity):
     async def async_turn_on(self, **kwargs):
         self._on = True
         self._box.SendON(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
         self._box.SendOFF(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     def async_update(self):
         pass
@@ -200,13 +200,13 @@ class KinconyLight(LightEntity, RestoreEntity):
         self._on = True
         if self._box is not None:
             self._box.SendON(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
         if self._box is not None:
             self._box.SendOFF(self._channel)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     def async_update(self):
         pass
