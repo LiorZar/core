@@ -16,7 +16,6 @@ class FDE:
     def __init__(self, hass: HomeAssistant, db: DB, config: dict):
         self.hass = hass
         self.db = db
-        self.lock = threading.Lock()
         self.tweens: Dict[str, Tween] = {}
         self.services: Dict[str, Callable[[Entity, Any], None]] = {}
         self.services["light.turn_on"] = self.light_turn_on
@@ -26,23 +25,15 @@ class FDE:
 
     def onTick(self, elapse):
         remove = []
-        self.lock.acquire()
-        try:
-            tws = self.tweens.copy()
-        finally:
-            self.lock.release()
+        tws = self.tweens.copy()
 
         for entity_id in tws:
             tw = tws[entity_id]
             if True == tw.onTick(elapse):
                 remove.append(entity_id)
 
-        self.lock.acquire()
-        try:
-            for entity_id in remove:
-                del self.tweens[entity_id]
-        finally:
-            self.lock.release()
+        for entity_id in remove:
+            del self.tweens[entity_id]
 
     def getEntities(self, id: [str, list]) -> list:
         entities = []
@@ -80,7 +71,6 @@ class FDE:
         except Exception as ex:
             print("fade fail", ex)
 
-        self.lock.acquire()
         try:
             for e in entities:
                 id = e["id"]
@@ -106,8 +96,6 @@ class FDE:
                     tw.Start()
         except Exception as ex:
             print("fade fail", ex)
-        finally:
-            self.lock.release()
 
     def light_turn_on(self, entity: Entity, props):
         try:

@@ -16,7 +16,6 @@ class EDT:
     def __init__(self, hass: HomeAssistant, db: DB, config: dict):
         self.hass = hass
         self.db = db
-        self.lock = threading.Lock()
         self.cues: Dict[str, Any] = load_yaml(hass.config.path("cues.yaml"))
         self.domains = {"light": True, "switch": True}
         self.fixtureCount: int = 1

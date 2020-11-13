@@ -18,7 +18,6 @@ class Connection:
     def __init__(
         self, id: str, addr: (str, int), onNet: Callable[[str, bytearray], None]
     ):
-        self.lock = threading.Lock()
         self.id = id
         self.addr = addr
         self.onNet = onNet
@@ -32,46 +31,29 @@ class Connection:
         self.wbuff = b""
 
     def Send(self, data: bytearray):
-        self.lock.acquire()
-        try:
-            self.wbuff += data
-            print("send", self.id, self.wbuff)
-        finally:
-            self.lock.release()
+        self.wbuff += data
+        print("send", self.id, self.wbuff)
 
     def read(self, size: int) -> bool:
         rv: bool = True
-        self.lock.acquire()
-        try:
-            data = self.sock.recv(size)
-            if len(data) > 0:
-                self.rbuff += data
-            else:
-                rv = False
-        finally:
-            self.lock.release()
+        data = self.sock.recv(size)
+        if len(data) > 0:
+            self.rbuff += data
+        else:
+            rv = False
 
         return rv
 
     def readBuff(self) -> bytearray:
-        data: bytearray = None
-        self.lock.acquire()
-        try:
-            data = self.rbuff
-            self.rbuff = b""
-        finally:
-            self.lock.release()
+        data: bytearray = self.rbuff
+        self.rbuff = b""
 
         return data
 
     def send(self):
-        self.lock.acquire()
-        try:
-            if len(self.wbuff) > 0:
-                self.sock.send(self.wbuff)
-                self.wbuff = b""
-        finally:
-            self.lock.release()
+        if len(self.wbuff) > 0:
+            self.sock.send(self.wbuff)
+            self.wbuff = b""
 
 
 class TCPConnThread(threading.Thread):
@@ -86,9 +68,7 @@ class TCPConnThread(threading.Thread):
 class TCP(threading.Thread):
     def __init__(self, hass: HomeAssistant, db: DB, config: dict):
         threading.Thread.__init__(self)
-        self.lock = threading.Lock()
 
-        self.sockets: Dict[str, socket] = {}
         self.connections: Dict[str, Connection] = {}
         self.connThread = TCPConnThread(self.handleConnections)
 
@@ -99,12 +79,8 @@ class TCP(threading.Thread):
     def Connect(
         self, id: str, ip: str, port: int, onNet: Callable[[str, bytearray], None]
     ):
-        self.lock.acquire()
-        try:
-            if id not in self.connections:
-                self.connections[id] = Connection(id, (ip, port), onNet)
-        finally:
-            self.lock.release()
+        if id not in self.connections:
+            self.connections[id] = Connection(id, (ip, port), onNet)
 
     def Send(self, id: str, data: bytearray):
         c: Connection = self._getConnByID(id)
@@ -114,31 +90,28 @@ class TCP(threading.Thread):
 
     def handleConnections(self):
         while self.active:
-            self.lock.acquire()
-            try:
-                for c in self.connections:
-                    if c not in self.sockets:
-                        try:
-                            s = socket.create_connection(self.connections[c].addr, 0.1)
-                            if s != None:
-                                s.setblocking(0)
-                                self.sockets[c] = s
-                                self.connections[c].sock = s
-                                self._onConnected(self.connections[c])
-                        except:
-                            pass
-            finally:
-                self.lock.release()
+            connections = self.connections.copy()
+            for cid in connections:
+                c: Connection = connections[cid]
+                if None == c.sock:
+                    try:
+                        s = socket.create_connection(c.addr, 0.1)
+                        if s != None:
+                            s.setblocking(0)
+                            c.sock = s
+                            self._onConnected(c)
+                    except:
+                        pass
 
     def run(self):
         while self.active:
-            self.lock.acquire()
             sockets = []
-            try:
-                for c in self.sockets:
-                    sockets.append(self.sockets[c])
-            finally:
-                self.lock.release()
+            connections = self.connections.copy()
+
+            for cid in connections:
+                c: Connection = connections[cid]
+                if None != c.sock:
+                    sockets.append(c.sock)
 
             try:
                 readable, writable, exceptional = select.select(
@@ -164,27 +137,19 @@ class TCP(threading.Thread):
 
     def _getConnByID(self, id: str) -> Connection:
         conn: Connection = None
-        self.lock.acquire()
-        try:
-            for c in self.connections:
-                if id == self.connections[c].id:
-                    conn = self.connections[c]
-                    break
-        finally:
-            self.lock.release()
+        for c in self.connections:
+            if id == self.connections[c].id:
+                conn = self.connections[c]
+                break
 
         return conn
 
     def _getConnection(self, s: socket) -> Connection:
         conn: Connection = None
-        self.lock.acquire()
-        try:
-            for c in self.connections:
-                if s == self.connections[c].sock:
-                    conn = self.connections[c]
-                    break
-        finally:
-            self.lock.release()
+        for c in self.connections:
+            if s == self.connections[c].sock:
+                conn = self.connections[c]
+                break
 
         return conn
 
@@ -220,7 +185,6 @@ class TCP(threading.Thread):
         c: Connection = self._getConnection(s)
         if None == c:
             return
-        del self.sockets[c.id]
         c.clear()
         self.callOnNet(c, "disconnect", None)
 

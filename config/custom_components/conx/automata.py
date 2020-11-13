@@ -16,19 +16,18 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class AutomataBox:
-    def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict, lock):
+    def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict):
         print("Init AutomataBox", config)
         self.hass = hass
         self.db = db
         self.tcp = tcp
-        self.lock = lock
         self.name = config["name"]
         self.ip = config["ip"]
         self.port = config["port"]
         self.type = config["type"]
 
-        # self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
-        # self.Send(b"[STATUS]")
+        self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
+        self.Send(b"[STATUS]")
 
     def onNet(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
@@ -76,9 +75,8 @@ class Automata:
         self.tcp = tcp
         self.config = config.get("automata")
         self.boxes = {}
-        self.lock = threading.Lock()
         for box in self.config or []:
-            b = AutomataBox(hass, db, tcp, box, self.lock)
+            b = AutomataBox(hass, db, tcp, box)
             self.boxes[b.name] = b
 
     def send(self, call):

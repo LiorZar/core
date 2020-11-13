@@ -1,3 +1,4 @@
+# region imports
 import time
 import socket
 import logging
@@ -23,6 +24,9 @@ import homeassistant.util.color as color_util
 from .db import DB
 from .const import DOMAIN, EVENT_UNIVERSE_CHANGE
 
+# endregion
+
+# region defines
 _LOGGER = logging.getLogger(__name__)
 
 # Light types
@@ -49,14 +53,14 @@ FEATURE_MAP[CONF_LIGHT_TYPE_DIMMER] = SUPPORT_BRIGHTNESS
 FEATURE_MAP[CONF_LIGHT_TYPE_RGB] = SUPPORT_BRIGHTNESS | SUPPORT_COLOR
 FEATURE_MAP[CONF_LIGHT_TYPE_RGBA] = SUPPORT_BRIGHTNESS | SUPPORT_COLOR
 FEATURE_MAP[CONF_LIGHT_TYPE_SWITCH] = 0
+# endregion
 
 
 class Universe:
-    def __init__(self, hass: HomeAssistant, db: DB, config: dict, lock):
+    def __init__(self, hass: HomeAssistant, db: DB, config: dict):
         print("Init Universe", config)
         self.hass = hass
         self.db = db
-        self.lock = lock
         self.name = config["name"]
         self.universe = config["universe"]
         self.subnet = config["subnet"]
@@ -105,15 +109,11 @@ class Universe:
         cnt = len(idx)
         vals = [int(max(min(round(x * 2.55), 255), 0)) for x in vals]
 
-        self.lock.acquire()
-        try:
-            for i in range(0, cnt):
-                j = idx[i] - 1
-                v = vals[i]
-                if j < self.channelCount:
-                    self.channels[j] = v
-        finally:
-            self.lock.release()
+        for i in range(0, cnt):
+            j = idx[i] - 1
+            v = vals[i]
+            if j < self.channelCount:
+                self.channels[j] = v
 
         self.hass.bus.async_fire(EVENT_UNIVERSE_CHANGE + self.name)
         self.update = True
@@ -131,15 +131,11 @@ class Universe:
     def setChannels(self, idx, vals):
         cnt = len(idx)
 
-        self.lock.acquire()
-        try:
-            for i in range(0, cnt):
-                j = idx[i] - 1
-                v = vals[i]
-                if j < self.channelCount:
-                    self.channels[j] = v
-        finally:
-            self.lock.release()
+        for i in range(0, cnt):
+            j = idx[i] - 1
+            v = vals[i]
+            if j < self.channelCount:
+                self.channels[j] = v
 
         self.update = True
         self.keepDirty = True
@@ -172,9 +168,8 @@ class DMX:
         self.db = db
         self.config = config.get("dmx")
         self.universes = {}
-        self.lock = threading.Lock()
         for unv in self.config or []:
-            u = Universe(hass, db, unv, self.lock)
+            u = Universe(hass, db, unv)
             self.universes[u.name] = u
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
@@ -224,8 +219,8 @@ class DMX:
         if subnet != None:
             unv.subnet = subnet
         if fps != None:
-            self.fps = fps
-            self.frameTime = 1.0 / self.fps if self.fps > 0 else 1000000
+            unv.fps = fps
+            unv.frameTime = 1.0 / unv.fps if unv.fps > 0 else 1000000
 
         return True
 
@@ -236,12 +231,8 @@ class DMX:
         packet.extend(bytes([unv.seq, unv.universe]))  # Sequence, Physical
         packet.extend([unv.universe, unv.subnet])  # Universe
         packet.extend(pack(">h", unv.channelCount))
-        self.lock.acquire()
-        try:
-            packet.extend(unv.channels)
-            self._socket.sendto(packet, (unv.ip, unv.port))
-        finally:
-            self.lock.release()
+        packet.extend(unv.channels)
+        self._socket.sendto(packet, (unv.ip, unv.port))
 
     def keep(self, unv: Universe):
         state = "".join("{:02x}".format(x) for x in unv.channels)

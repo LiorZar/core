@@ -103,7 +103,6 @@ async def async_setup(hass: HomeAssistant, config: dict):
 class ConX(threading.Thread):
     def __init__(self, hass: HomeAssistant, config: dict):
         threading.Thread.__init__(self)
-        self.lock = threading.Lock()
         self.hass = hass
         self.config = config[DOMAIN]
         self.db: DB = DB(hass, self.config)

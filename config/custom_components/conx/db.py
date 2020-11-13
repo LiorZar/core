@@ -21,7 +21,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class DB:
     def __init__(self, hass: HomeAssistant, config: dict):
-        self.lock = threading.Lock()
         self.hass = hass
         self.initStates = {}
         self.connections = {}
@@ -80,24 +79,16 @@ class DB:
         save_yaml(self.hass.config.path("db.yaml"), self.data)
 
     def setData(self, group: str, id: str, data):
-        self.lock.acquire()
-        try:
-            if None == self.data.get(group):
-                self.data[group] = {}
-            self.data[group][id] = data
-            self.dataDirty = True
-        finally:
-            self.lock.release()
+        if None == self.data.get(group):
+            self.data[group] = {}
+        self.data[group][id] = data
+        self.dataDirty = True
 
     def getData(self, group: str, id: str):
         data = None
-        self.lock.acquire()
-        try:
-            g = self.data.get(group)
-            if None != g:
-                data = g.get(id)
-        finally:
-            self.lock.release()
+        g = self.data.get(group)
+        if None != g:
+            data = g.get(id)
         return data
 
     def getEntity(self, entity_id: str) -> Entity:
