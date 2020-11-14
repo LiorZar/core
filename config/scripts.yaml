@@ -132,3 +132,23 @@ loop:
       end:
         brightness: 0
   mode: single
+9cut:
+  alias: 9Cut
+  sequence:
+  - service: conx.fade
+    data:
+      entity_id:
+      - light.conxdimmer1
+      - light.conxdimmer2
+      - light.conxdimmer3
+      - light.conxdimmer4
+      - light.conxdimmer5
+      - light.conxdimmer6
+      - light.conxdimmer7
+      - light.conxdimmer8
+      - light.conxdimmer9
+      service: light.turn_on
+      transition: 0
+      end:
+        brightness: 0
+  mode: single

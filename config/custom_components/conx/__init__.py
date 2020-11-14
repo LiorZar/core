@@ -127,6 +127,7 @@ class ConX(threading.Thread):
                 cmd, self.websocket_handle, SCHEMA_WEBSOCKET
             )
 
+        # hass.components.persistent_notification.async_create(f"ConX started", title="ConX")
         self.active = True
         self.start()
 

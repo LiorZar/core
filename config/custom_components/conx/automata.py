@@ -27,10 +27,13 @@ class AutomataBox:
         self.type = config["type"]
 
         self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
-        self.Send(b"[STATUS]")
 
     def onNet(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
+        if "connected" == cmd:
+            self.Send(b"[STATUS]")
+            return
+
         if None == data:
             return
         msg: str = data.decode("utf-8")

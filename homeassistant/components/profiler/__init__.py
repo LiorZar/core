@@ -3,7 +3,7 @@ import asyncio
 import cProfile
 import logging
 import time
-
+from datetime import datetime
 from pyprof2calltree import convert
 import voluptuous as vol
 
@@ -54,7 +54,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 
 async def _async_generate_profile(hass: HomeAssistant, call: ServiceCall):
-    start_time = int(time.time() * 1000000)
+    now = datetime.now()
+    start_time = now.strftime("%H-%M-%S")
+    # start_time = int(s_time * 1000000)
     hass.components.persistent_notification.async_create(
         "The profile started. This notification will be updated when it is complete.",
         title="Profile Started",

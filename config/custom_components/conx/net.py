@@ -115,7 +115,7 @@ class TCP(threading.Thread):
 
             try:
                 readable, writable, exceptional = select.select(
-                    sockets, sockets, sockets, 1
+                    sockets, sockets, sockets, 0.1
                 )
 
                 for s in readable:

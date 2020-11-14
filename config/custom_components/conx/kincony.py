@@ -25,11 +25,14 @@ class KinconyBox:
         self.type = config["type"]
 
         self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
-        self.Send(b"RELAY-STATE-255")
-        self.Send(b"RELAY-GET_INPUT-255")
 
     def onNet(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
+        if "connected" == cmd:
+            self.Send(b"RELAY-STATE-255")
+            self.Send(b"RELAY-GET_INPUT-255")
+            return
+
         if None == data:
             return
 
