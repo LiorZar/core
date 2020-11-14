@@ -1,3 +1,4 @@
+import time
 import asyncio
 import socket
 import select
@@ -90,10 +91,12 @@ class TCP(threading.Thread):
 
     def handleConnections(self):
         while self.active:
+            count: int = 0
             connections = self.connections.copy()
             for cid in connections:
                 c: Connection = connections[cid]
                 if None == c.sock:
+                    count += 1
                     try:
                         s = socket.create_connection(c.addr, 0.1)
                         if s != None:
@@ -102,6 +105,8 @@ class TCP(threading.Thread):
                             self._onConnected(c)
                     except:
                         pass
+            if count <= 0:
+                time.sleep(0.1)
 
     def run(self):
         while self.active:
@@ -112,6 +117,10 @@ class TCP(threading.Thread):
                 c: Connection = connections[cid]
                 if None != c.sock:
                     sockets.append(c.sock)
+
+            if len(sockets) <= 0:
+                time.sleep(0.1)
+                continue
 
             try:
                 readable, writable, exceptional = select.select(

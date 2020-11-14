@@ -227,11 +227,12 @@ class DMX:
     def send(self, unv: Universe):
         """Send the current state of DMX values to the gateway via UDP packet."""
         # Copy the base packet then add the channel array
+        channels = unv.channels[:]
         packet = self._base_packet[:]
         packet.extend(bytes([unv.seq, unv.universe]))  # Sequence, Physical
         packet.extend([unv.universe, unv.subnet])  # Universe
         packet.extend(pack(">h", unv.channelCount))
-        packet.extend(unv.channels)
+        packet.extend(channels)
         self._socket.sendto(packet, (unv.ip, unv.port))
 
     def keep(self, unv: Universe):
