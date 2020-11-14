@@ -123,6 +123,7 @@ class TCP(threading.Thread):
                 continue
 
             try:
+                ts = timer()
                 readable, writable, exceptional = select.select(
                     sockets, sockets, sockets, 0.1
                 )
@@ -135,6 +136,10 @@ class TCP(threading.Thread):
 
                 for s in exceptional:
                     self._onExp(s)
+
+                es = timer() - ts
+                if es < 0.1:
+                    time.sleep(0.1 - es)
 
             except Exception as ex:
                 _LOGGER.error("Conx Responder socket exception occurred: %s", ex)
