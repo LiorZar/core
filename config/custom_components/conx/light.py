@@ -10,7 +10,7 @@ import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN
 from .dmx import DMXLight, CONF_LIGHT_TYPE_SWITCH, CONF_LIGHT_TYPES
-from .automata import AutomataLight
+from .automata import AutomataLight, Automata4ColorLight
 from .kincony import KinconyLight
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,6 +49,16 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                 }
             ],
         ),
+        vol.Optional("auto4color"): vol.All(
+            cv.ensure_list,
+            [
+                {
+                    vol.Required(CONF_NAME): cv.string,
+                    vol.Required("ip"): cv.string,
+                    vol.Required("port"): cv.port,
+                }
+            ],
+        ),
         vol.Optional("kincony"): vol.All(
             cv.ensure_list,
             [
@@ -69,6 +79,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     conx = hass.data[DOMAIN]
     dmx = config.get("dmx")
     automata = config.get("automata")
+    auto4color = config.get("auto4color")
     kincony = config.get("kincony")
 
     conx.db.platforms["light"] = entity_platform.current_platform.get()
@@ -77,6 +88,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         lights.append(DMXLight(conx, light))
     for light in automata or []:
         lights.append(AutomataLight(conx, light))
+    for light in auto4color or []:
+        lights.append(Automata4ColorLight(conx, light))
     for light in kincony or []:
         lights.append(KinconyLight(conx, light))
     async_add_entities(lights)

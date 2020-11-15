@@ -1,6 +1,7 @@
 import logging
 import threading
 from typing import Any, Dict
+from timeit import default_timer as timer
 
 from .const import DOMAIN, EVENT_AUTOMATA_BOX_CHANGE
 from .db import DB
@@ -8,9 +9,20 @@ from .net import TCP
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.components.light import LightEntity
 from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
-
+from homeassistant.components.light import (
+    ATTR_BRIGHTNESS,
+    ATTR_HS_COLOR,
+    ATTR_RGB_COLOR,
+    ATTR_TRANSITION,
+    LightEntity,
+    PLATFORM_SCHEMA,
+    SUPPORT_BRIGHTNESS,
+    SUPPORT_COLOR,
+    SUPPORT_TRANSITION,
+)
+from homeassistant.util.color import color_rgb_to_rgbw
+import homeassistant.util.color as color_util
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -201,6 +213,131 @@ class AutomataLight(LightEntity, RestoreEntity):
         self._on = False
         if self._box is not None:
             self._box.SendOFF(self._channel)
+        self.async_write_ha_state()
+
+    def async_update(self):
+        pass
+
+
+class Automata4ColorLight(LightEntity, RestoreEntity):
+    def __init__(self, conx, light):
+        self._conx = conx
+        self.tcp = conx.tcp
+        self._name = light.get("name")
+        self.ip = light.get("ip")
+        self.port = light.get("port")
+
+        self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNet)
+
+        self._brightness = 0
+        self._rgb = [0, 0, 0]
+        self._transition = 0
+
+        self._features = SUPPORT_BRIGHTNESS | SUPPORT_COLOR | SUPPORT_TRANSITION
+        self.haTS = timer()
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+
+        state = await self.async_get_last_state()
+        if None != state:
+            self._brightness = state and state.state_attributes.get(ATTR_RGB_COLOR)
+            self._rgb = state and state.state_attributes.get(ATTR_RGB_COLOR)
+            self._transition = state and state.state_attributes.get(ATTR_TRANSITION)
+
+    def onNet(self, cmd: str, data: bytearray):
+        print(self.name, cmd, data)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def unq_name(self):
+        return "light4color" + self._name
+
+    @property
+    def brightness(self):
+        return self._brightness
+
+    @property
+    def is_on(self):
+        return self.brightness > 0
+
+    @property
+    def hs_color(self):
+        if self._rgb:
+            return color_util.color_RGB_to_hs(*self._rgb)
+        else:
+            return None
+
+    @property
+    def supported_features(self):
+        return self._features
+
+    @property
+    def should_poll(self):
+        return False
+
+    @property
+    def state_attributes(self):
+        data = {}
+
+        hs_color = self.hs_color
+        data[ATTR_BRIGHTNESS] = self.brightness
+        data[ATTR_HS_COLOR] = (round(hs_color[0], 3), round(hs_color[1], 3))
+        data[ATTR_RGB_COLOR] = self._rgb
+        data[ATTR_TRANSITION] = self._transition
+
+        return {key: val for key, val in data.items() if val is not None}
+
+    async def async_turn_on(self, **kwargs):
+        if len(kwargs) <= 0:
+            if self._brightness == 0:
+                self._brightness = 255
+
+        # Update state from service call
+        if ATTR_BRIGHTNESS in kwargs:
+            self._brightness = int(kwargs[ATTR_BRIGHTNESS])
+
+        if ATTR_HS_COLOR in kwargs:
+            self._rgb = color_util.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
+
+        if ATTR_RGB_COLOR in kwargs:
+            fRGB = kwargs[ATTR_RGB_COLOR]
+            self._rgb = (int(fRGB[0]), int(fRGB[1]), int(fRGB[2]))
+
+        if ATTR_TRANSITION in kwargs:
+            self._transition = int(kwargs[ATTR_TRANSITION])
+
+        self.send4color()
+
+    async def async_turn_off(self, **kwargs):
+        if self._brightness > 0:
+            self._brightness = 0
+        self.send4color()
+
+    def send4color(self):
+        self.tcp.Send(
+            self.unq_name, (f"[R,{self._rgb[0]},{self._transition}]").encode("utf-8")
+        )
+        self.tcp.Send(
+            self.unq_name, (f"[G,{self._rgb[1]},{self._transition}]").encode("utf-8")
+        )
+        self.tcp.Send(
+            self.unq_name, (f"[B,{self._rgb[2]},{self._transition}]").encode("utf-8")
+        )
+        self.tcp.Send(
+            self.unq_name,
+            (f"[W,{self._brightness},{self._transition}]").encode("utf-8"),
+        )
+        self.writeState()
+
+    def writeState(self):
+        ts = timer()
+        if ts - self.haTS < 0.125:
+            return
+        self.haTS = ts
         self.async_write_ha_state()
 
     def async_update(self):

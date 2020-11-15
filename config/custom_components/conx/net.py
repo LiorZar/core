@@ -32,6 +32,10 @@ class Connection:
         self.wbuff = b""
 
     def Send(self, data: bytearray):
+        if None == self.sock:
+            print(self.id, " is not connected")
+            return
+
         self.wbuff += data
         print("send", self.id, self.wbuff)
 

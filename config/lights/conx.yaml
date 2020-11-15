@@ -73,6 +73,10 @@
     channel: 3
     name: conxAutoLight3
 
+  auto4color:
+  - name: fuckingAuto
+    ip: "192.168.1.36"
+    port: 1005
 
   kincony:
   - boxName: kinconyBox1
