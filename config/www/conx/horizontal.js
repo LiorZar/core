@@ -5,7 +5,7 @@ class ConxHorizontal extends HTMLSvgElement
     constructor() 
     {
         super()
-        this.id     = "conv-vertical-"+Date.now()
+        this.id     = "conx-horizontal"
     }
 
     connectedCallback() 
@@ -19,11 +19,11 @@ class ConxHorizontal extends HTMLSvgElement
         })
     }
 
-    setConfig()
+    setParams()
     {
     }
 
-    getConfig()
+    getParams()
     {
     }
 

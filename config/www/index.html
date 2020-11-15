@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script type="module" src="conx.js"></script>
+  </head>
+  <body>
+    <div id="div-0" style="width: 300px; height: 300px" >
+      <conx-wheel-knob/>
+    </div>
+    <div>
+      <button onclick="onClicksetParams()">Set Config</button>
+    </div>
+    <div id="div-2" style="width: 500px; height: 80px" >
+      <conx-slider id="hh" params='{"align":0}'/>
+    </div>
+    <div id="div-3" style="width: 70px; height: 300px;">
+      <conx-slider id="vv"/>
+    </div>
+    <div>
+      <button onclick="onClickRotate1()">Rotate</button>
+    </div>
+    <div id="div-4" style="width: 300px; height: 60px;">
+      <conx-button />
+    </div>
+    <div>
+      <button onclick="onClickSetBtn()">Set Config</button>
+    </div>
+    <div id="div-5" style="width: 200px; height: 80px;">
+      <conx-toggle />
+    </div>
+    <div>
+      <button onClick="onClickSetToggle()">Set Config</button>
+    </div>    
+  </body>
+  <script>
+    function onClicksetParams(){
+      let cst_el1 = document.getElementById("div-0")
+      let slider
+      // find child wheel-knob element
+      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
+      {
+        if(cst_el1.childNodes[j].nodeName == "CONX-WHEEL-KNOB")
+        {
+          slider= cst_el1.childNodes[j]
+        }
+      }
+      // set config to wheel-knob
+      slider.setParams({value:15, fill: "#904020", background:"#919191", frame:"#333333", isShowPercent: true, pheight: 40})
+    }
+    var i = 1
+    function onClickRotate1(){
+      let cst_el1 = document.getElementById("div-2")
+      let slider
+      // find child conx-slider element
+      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
+      {
+        if(cst_el1.childNodes[j].nodeName == "CONX-SLIDER")
+        {
+          slider= cst_el1.childNodes[j]
+        }
+      }
+      // set config to conx-slider
+      slider.setParams({align: i%2, value:5, fill: "#333333", background:"#999999", frame:"#aaaaaa", isShowPercent: true})
+      i++
+    }
+    function onClickSetBtn(){
+      let cst_el1 = document.getElementById("div-4")
+      let btn
+      // find child conx-button element
+      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
+      {
+        if(cst_el1.childNodes[j].nodeName == "CONX-BUTTON")
+        {
+          btn= cst_el1.childNodes[j]
+        }
+      }
+      // set config to wheel-knob
+      btn.setParams({ background: "#4BC065", clickColor: "red", title: "Config",})
+    }
+    function onClickSetToggle(){
+      let cst_el1 = document.getElementById("div-5")
+      let toggle
+      // find child conx-button element
+      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
+      {
+        if(cst_el1.childNodes[j].nodeName == "CONX-TOGGLE")
+        {
+          toggle= cst_el1.childNodes[j]
+        }
+      }
+      // set config to wheel-knob
+      toggle.setParams({ backgroundOn: "red", backgroundOff: "blue", frameOn: "grey", frameOff: "pink", isOn: true})
+    }
+  </script>
+</html>

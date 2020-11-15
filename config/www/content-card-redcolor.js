@@ -1,55 +1,66 @@
 import "./conx.js";
-import { HTMLSvgElement } from "./conx/svg.js"
+import { glo } from "./conx/glo.js"
 
-class ContentCardRedColor extends HTMLSvgElement  {
-    constructor() {
-        super();
-        
+class ContentCardExample extends HTMLElement {
+    set hass(hass) {
+        this._hass = hass;
+        this.state = hass.states[this.entity];
+        if (!this.main)
+            return;
+
+        this.updateState();
     }
-	
-	setConfig(config) {
-		this._config = config;
 
-		if (!config.entity) {
-		  throw Error('No entity defined')
-		}
-		
+    updateState() {
+        //glo.trace(this.state);
 
-		this._card_height = config.card_height ? config.card_height : '200px';
+        if (!this.state || !this.main)
+            return;
+        this.main.setParams({ value: this.state.attributes.brightness / 2.55 });
+    }
 
-	  }
+    connectedCallback() {
+        this.innerHTML = `<<ha-card><conx-slider id="main" params='{}' /></<ha-card>`;
+        this.main = glo.getChild(this, "main");
+        this.main.onChange = this.onChange.bind(this);
+        glo.trace("connectedCallback", this.innerHTML, this.main);
+        this.updateState();
+    }
+    onChange(id, val, pval) {
+        //glo.trace("onChange", id, val, pval, this._hass.connection.sendMessagePromise);
+        if (val > 0.5 && pval < 0.5)
+            this._hass.connection.sendMessage({
+                type: "conx/GET"
+            });
+        this._hass.callService("light", "turn_on", {
+            entity_id: this.state.entity_id,
+            brightness: Math.floor(val * 255)
+        });
+    }
 
-	set hass(hass) {
-		if (!hass)
-		  return
-		  
-		this._hass = hass;
+    setConfig(config) {
+        glo.trace("config", config);
+        if (!config.entity) {
+            throw new Error('You need to define an entity');
+        }
+        this.config = config;
+        this.entity = config.entity;
+    }
 
-		var entityState = this._hass.states[this._config.entity].state
-		if (entityState != this.state) {
-		  this.state = entityState; // This triggers _render since LitElement support two way binding
-		}
-	  }
+    getCardSize() {
+        return 10;
+    }
 
-	  static get properties() {
-		return {
-		  hass: Object,
-		  config: Object,
-		  state: String
-		}
-	  }
+    static get properties() {
+        return {
+            config: Object,
+            state: String
+        }
+    }
 
-	  getCardSize() {
-		return 5;
-	  }
-
-	connectedCallback() {
-		this.innerHTML = `<conx-slider />`;
-		console.log(this.innerHTML);
-	  }
 }
 
-customElements.define('content-card-redcolor', ContentCardRedColor);
+customElements.define('content-card-redcolor', ContentCardExample);
 window.customCards = window.customCards || [];
 window.customCards.push({
     type: 'content-card-redcolor',

@@ -1,77 +1,70 @@
 import { HTMLSvgElement } from "./svg.js"
 import { SVGGroup, SVGText, SVGStyle, SVGRect } from "./svgutils.js"
 
-class ConxToggle extends HTMLSvgElement
-{
-    constructor()
-    {
+class ConxToggle extends HTMLSvgElement {
+    constructor() {
         super()
-        this.id     = "btn-"+Date.now()
+        this.id = "conx-toggle"
         this.isOn = false
-        this.config = {
+        this.addParams({
             backgroundOn: "#4BC065",
             backgroundOff: "#c4c4c4",
             frameOn: "white",
             frameOff: "#E5E5E5",
             isOn: true
-        }
+        });
     }
 
-    connectedCallback() 
-    {
-
+    connectedCallback() {
         super.connectedCallback()
         this.enablePointer()
 
-        this.elButton   = document.getElementById(`${this.id}-toggle`)
-        this.elBg       = document.getElementById(`${this.id}-toggle-bg`)
-        this.elFrame    = document.getElementById(`${this.id}-toggle-frame`)
-        this.elGFrame   = document.getElementById(`${this.id}-toggle-g`)
-        this.elText     = document.getElementById(`${this.id}-toggle-text`)
-        this.elStyle    = document.getElementById(`${this.id}-toggle-style`)
+        this.elButton = this.getChild(`${this.id}-toggle`)
+        this.elBg = this.getChild(`${this.id}-toggle-bg`)
+        this.elFrame = this.getChild(`${this.id}-toggle-frame`)
+        this.elGFrame = this.getChild(`${this.id}-toggle-g`)
+        this.elText = this.getChild(`${this.id}-toggle-text`)
+        this.elStyle = this.getChild(`${this.id}-toggle-style`)
 
-        this.setConfig(this.config)
+        this.setParams(this.params)
     }
 
-    setConfig(config)
-    {
-        if(config.backgroundOn) this.config.backgroundOn = config.backgroundOn
-        if(config.backgroundOff) this.config.backgroundOff = config.backgroundOff
-        if(config.frameOn) this.config.frameOn = config.frameOn
-        if(config.frameOff) this.config.frameOff = config.frameOff
-        if(config.isOn) this.config.isOn = config.isOn
+    setParams(params) {
+        if (params.backgroundOn) this.params.backgroundOn = params.backgroundOn
+        if (params.backgroundOff) this.params.backgroundOff = params.backgroundOff
+        if (params.frameOn) this.params.frameOn = params.frameOn
+        if (params.frameOff) this.params.frameOff = params.frameOff
+        if (params.isOn) this.params.isOn = params.isOn
 
         this.update();
     }
 
-    getConfig()
-    {
-        return this.config;
+    getParams() {
+        return this.params;
     }
 
-    renderSVG()
-    {
+    renderSVG() {
         // Create SVGs
         let w = this.parentElement.clientWidth
         let h = this.parentElement.clientHeight
 
-        let g_comp = SVGGroup({id: `${this.id}-toggle-g`})
+        let g_comp = SVGGroup({ id: `${this.id}-toggle-g` })
         let r_bg = SVGRect({
-            x:3, y:0, rx:`${h/2}`, ry: `${h/2}`,
-            width: w-6, height: h,
-            style:{fill:`${this.config.backgroundOff}`, strokeWidth:"5px", stroke:"black"}, 
+            x: 3, y: 0, rx: `${h / 2}`, ry: `${h / 2}`,
+            width: w - 6, height: h,
+            style: { fill: `${this.params.backgroundOff}`, strokeWidth: "5px", stroke: "black" },
             id: `${this.id}-toggle-bg`
         })
 
         let r_frame = SVGRect({
-            x:8, y:5, rx: (h-10)/2, ry: (h-10)/2,
-            width: h-10, height: h-10,
-            style:{fill:`${this.config.frameOff}`, strokeWidth:"5px", stroke:"black"}, 
+            x: 8, y: 5, rx: (h - 10) / 2, ry: (h - 10) / 2,
+            width: h - 10, height: h - 10,
+            style: { fill: `${this.params.frameOff}`, strokeWidth: "5px", stroke: "black" },
             id: `${this.id}-toggle-frame`
         })
-        let r_text  = SVGText({
-            x: h/2+3, y: h/2,
-            style:{dominantBaseline:"middle", fill:"black",textAnchor:"middle",fontSize:`${Math.min(w/10, h/3)}px`}, 
+        let r_text = SVGText({
+            x: h / 2 + 3, y: h / 2,
+            style: { dominantBaseline: "middle", fill: "black", textAnchor: "middle", fontSize: `${Math.min(w / 10, h / 3)}px` },
             id: `${this.id}-toggle-text`
         })
 
@@ -88,16 +81,14 @@ class ConxToggle extends HTMLSvgElement
         style.id = `${this.id}-toggle-style`
         style.setAttribute("type", "text/css");
         this.svg.appendChild(style);
-     
-        if(this.config.isOn)
-        {
+
+        if (this.params.isOn) {
             r_text.setAttribute("class", `${this.id}-move-on-text`)
             r_frame.setAttribute("class", `${this.id}-move-on-frame`)
             r_bg.setAttribute("class", `${this.id}-color-on-background`)
-            r_text.textContent = "ON"    
+            r_text.textContent = "ON"
         }
-        else
-        {
+        else {
             r_text.setAttribute("class", `${this.id}-move-off-text`)
             r_frame.setAttribute("class", `${this.id}-move-off-frame`)
             r_bg.setAttribute("class", `${this.id}-color-off-background`)
@@ -106,8 +97,7 @@ class ConxToggle extends HTMLSvgElement
         return this.svg
     }
 
-    update()
-    {
+    update() {
         let w = this.parentElement.clientWidth
         let h = this.parentElement.clientHeight
         this.elStyle.innerHTML = `
@@ -119,8 +109,8 @@ class ConxToggle extends HTMLSvgElement
                 transform-origin: 50% 50%;
             }
             @keyframes ${this.id}-move-on-anim-frame {
-                from { transform: translate(0, 0); fill: ${this.config.frameOff}}
-                to   { transform: translate(${w-h-6}px, 0); fill: ${this.config.frameOn}}
+                from { transform: translate(0, 0); fill: ${this.params.frameOff}}
+                to   { transform: translate(${w - h - 6}px, 0); fill: ${this.params.frameOn}}
             }
             .${this.id}-move-on-text {
                 animation-name: ${this.id}-move-on-anim-text;
@@ -131,7 +121,7 @@ class ConxToggle extends HTMLSvgElement
             }
             @keyframes ${this.id}-move-on-anim-text {
                 from { transform: translate(0, 0);}
-                to   { transform: translate(${w-h-6}px, 0);}
+                to   { transform: translate(${w - h - 6}px, 0);}
             }
             .${this.id}-color-on-background {
                 animation-name: ${this.id}-color-change-on-background;
@@ -140,8 +130,8 @@ class ConxToggle extends HTMLSvgElement
                 animation-fill-mode: forwards;
             }
             @keyframes ${this.id}-color-change-on-background {
-                from { fill: ${this.config.backgroundOff} }
-                to   { fill: ${this.config.backgroundOn} }
+                from { fill: ${this.params.backgroundOff} }
+                to   { fill: ${this.params.backgroundOn} }
             }
             .${this.id}-move-off-frame {
                 animation-name: ${this.id}-move-off-anim-frame;
@@ -151,8 +141,8 @@ class ConxToggle extends HTMLSvgElement
                 transform-origin: 50% 50%;
             }
             @keyframes ${this.id}-move-off-anim-frame {
-                from { transform: translate(${w-h-6}px, 0); fill: ${this.config.frameOn}}
-                to   { transform: translate(0, 0); fill: ${this.config.frameOff}}
+                from { transform: translate(${w - h - 6}px, 0); fill: ${this.params.frameOn}}
+                to   { transform: translate(0, 0); fill: ${this.params.frameOff}}
             }
             .${this.id}-move-off-text {
                 animation-name: ${this.id}-move-off-anim-text;
@@ -162,7 +152,7 @@ class ConxToggle extends HTMLSvgElement
                 transform-origin: 50% 50%;
             }
             @keyframes ${this.id}-move-off-anim-text {
-                from { transform: translate(${w-h-6}px, 0);}
+                from { transform: translate(${w - h - 6}px, 0);}
                 to   { transform: translate(0, 0);}
             }
             .${this.id}-color-off-background {
@@ -172,23 +162,21 @@ class ConxToggle extends HTMLSvgElement
                 animation-fill-mode: forwards;
             }
             @keyframes ${this.id}-color-change-off-background {
-                from { fill: ${this.config.backgroundOn} }
-                to   { fill: ${this.config.backgroundOff} }
+                from { fill: ${this.params.backgroundOn} }
+                to   { fill: ${this.params.backgroundOff} }
             }
         `
-        if(this.config.isOn)
-        {
+        if (this.params.isOn) {
             this.elText.setAttribute("class", `${this.id}-move-on-text`)
             this.elFrame.setAttribute("class", `${this.id}-move-on-frame`)
             this.elBg.setAttribute("class", `${this.id}-color-on-background`)
-            this.elText.textContent = "ON"    
+            this.elText.textContent = "ON"
         }
-        else
-        {
+        else {
             this.elText.setAttribute("class", `${this.id}-move-off-text`)
             this.elFrame.setAttribute("class", `${this.id}-move-off-frame`)
             this.elBg.setAttribute("class", `${this.id}-color-off-background`)
-            this.elText.textContent = "OFF"    
+            this.elText.textContent = "OFF"
         }
     }
 
@@ -201,7 +189,7 @@ class ConxToggle extends HTMLSvgElement
             case "move":
                 break
             case "up":
-                this.config.isOn = !this.config.isOn
+                this.params.isOn = !this.params.isOn
                 this.update()
                 break
             default:
