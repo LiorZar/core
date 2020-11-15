@@ -3,7 +3,6 @@ config/.cloud/*
 config/.storage/*
 config/.HA_VERSION
 config/*.db*
-config/*.yaml
 config/*.out.*
 config/*.cprof
 

@@ -1,0 +1,88 @@
+- platform: conx
+  dmx:
+    - dmxName: dmx1
+      channel: 1
+      name: conxDimmer1
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 2
+      name: conxDimmer2
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 3
+      name: conxDimmer3
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 4
+      name: conxDimmer4
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 5
+      name: conxDimmer5
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 6
+      name: conxDimmer6
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 7
+      name: conxDimmer7
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 8
+      name: conxDimmer8
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 9
+      name: conxDimmer9
+      type: dimmer
+
+    - dmxName: dmx1
+      channel: 10
+      name: conxColor
+      type: rgb
+
+    - dmxName: dmx2
+      channel: 1
+      name: conxDimmer22
+      type: dimmer
+
+    - dmxName: dmx2
+      channel: 10
+      name: conxColor2
+      type: rgba
+
+  automata:
+  - boxName: autoBox2
+    channel: 1
+    name: conxAutoLight1
+
+  - boxName: autoBox2
+    channel: 2
+    name: conxAutoLight2
+
+  - boxName: autoBox2
+    channel: 3
+    name: conxAutoLight3
+
+
+  kincony:
+  - boxName: kinconyBox1
+    channel: 1
+    name: kinconyLight1
+
+  - boxName: kinconyBox1
+    channel: 2
+    name: kinconyLight2
+
+  - boxName: kinconyBox1
+    channel: 3
+    name: kinconyLight3

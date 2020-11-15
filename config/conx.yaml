@@ -1,0 +1,33 @@
+dmx:
+  - name: "dmx1"
+    ip: "192.168.1.36"
+    universe: 0
+    channels: 32
+    fps: 0
+
+  - name: "dmx2"
+    ip: "192.168.1.36"
+    universe: 1
+    channels: 32
+
+automata:
+  - name: "autoBox1"
+    ip: "192.168.1.36"
+    port: 1001
+    type: "input"
+
+  - name: "autoBox2"
+    ip: "192.168.1.36"
+    port: 1002
+    type: "output"
+
+  - name: "autoBox3"
+    ip: "192.168.1.36"
+    port: 1003
+    type: "panel"
+
+kincony:
+  - name: "kinconyBox1"
+    ip: "192.168.1.36"
+    port: 4196
+    type: "input"

@@ -1,0 +1,19 @@
+dmx:
+- name: dmx1
+  ip: 192.168.1.25
+  universe: 0
+  channels: 32
+  fps: 20
+  subnet: 0
+  keep: true
+  port: 6454
+  level: 0
+- name: dmx2
+  ip: 192.168.1.25
+  universe: 1
+  channels: 32
+  fps: 0
+  subnet: 0
+  keep: true
+  port: 6454
+  level: 0

@@ -1,0 +1,26 @@
+- platform: conx
+  automata:
+      - boxName: autoBox3
+        channel: 1
+        name: conxSwitch1
+
+      - boxName: autoBox3
+        channel: 2
+        name: conxSwitch2
+
+      - boxName: autoBox3
+        channel: 3
+        name: conxSwitch3
+
+  kincony:
+      - boxName: kinconyBox1
+        channel: 4
+        name: kinconySwitch4
+
+      - boxName: kinconyBox1
+        channel: 5
+        name: kinconySwitch5
+
+      - boxName: kinconyBox1
+        channel: 6
+        name: kinconySwitch6

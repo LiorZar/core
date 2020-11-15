@@ -1,0 +1,13 @@
+- platform: conx
+  automata:
+    - boxName: autoBox1
+      channel: 1
+      name: conxSensor1
+
+    - boxName: autoBox1
+      channel: 2
+      name: conxSensor2
+
+    - boxName: autoBox1
+      channel: 3
+      name: conxSensor3
