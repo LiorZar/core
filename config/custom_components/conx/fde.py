@@ -35,7 +35,7 @@ class FDE:
         for entity_id in remove:
             del self.tweens[entity_id]
 
-    def getEntities(self, id: [str, list]) -> list:
+    def getEntities(self, id: [str, list], ran: list) -> list:
         entities = []
         if type(id) is list:
             idx = 0
@@ -47,6 +47,27 @@ class FDE:
                 if None == entity:
                     return None
                 entities.append({"id": i, "entity": entity, "f": idx / l})
+                idx = idx + 1
+            return entities
+
+        if None != ran and type(ran) is list:
+            ids = []
+            if type(ran[0]) is list:
+                for r in ran:
+                    ids += list(range(r[0], r[1], r[2]))
+            else:
+                ids += list(range(ran[0], ran[1], ran[2]))
+
+            idx = 0
+            l = len(ids) - 1
+            if l <= 0:
+                l = 1
+            for i in ids:
+                eid = id + str(i)
+                entity: Entity = self.db.getEntity(eid)
+                if None == entity:
+                    return None
+                entities.append({"id": eid, "entity": entity, "f": idx / l})
                 idx = idx + 1
             return entities
 
@@ -64,7 +85,7 @@ class FDE:
             if None == service:
                 return False
 
-            entities = self.getEntities(data.get("entity_id"))
+            entities = self.getEntities(data.get("entity_id"), data.get("range"))
             if None == entities:
                 return False
 
