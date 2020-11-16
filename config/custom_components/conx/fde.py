@@ -35,6 +35,15 @@ class FDE:
         for entity_id in remove:
             del self.tweens[entity_id]
 
+    def fixRange(self, ran: list):
+        if len(ran) >= 3:
+            pass
+        elif ran[0] < ran[1]:
+            ran += [1]
+        else:
+            ran += [-1]
+        ran[1] += ran[2]
+
     def getEntities(self, id: [str, list], ran: list) -> list:
         entities = []
         if type(id) is list:
@@ -54,8 +63,10 @@ class FDE:
             ids = []
             if type(ran[0]) is list:
                 for r in ran:
+                    self.fixRange(r)
                     ids += list(range(r[0], r[1], r[2]))
             else:
+                self.fixRange(ran)
                 ids += list(range(ran[0], ran[1], ran[2]))
 
             idx = 0
