@@ -49,7 +49,13 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     conx.db.platforms["sensor"] = entity_platform.current_platform.get()
     sensors = []
     for cfg in automata or []:
-        sensors.append(AutomataSensor(conx, cfg))
+        try:
+            sensors.append(AutomataSensor(conx, cfg))
+        except Exception as ex:
+            print(ex)
     for cfg in automata_wglan or []:
-        sensors.append(AutomataWGSensor(conx, cfg))
+        try:
+            sensors.append(AutomataWGSensor(conx, cfg))
+        except Exception as ex:
+            print(ex)
     async_add_entities(sensors)

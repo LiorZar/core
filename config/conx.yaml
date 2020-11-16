@@ -2,13 +2,28 @@ dmx:
   - name: "dmx1"
     ip: "192.168.1.36"
     universe: 0
-    channels: 32
+    channels: 512
     fps: 0
 
   - name: "dmx2"
     ip: "192.168.1.36"
     universe: 1
-    channels: 32
+    channels: 512
+
+  - name: "dmx3"
+    ip: "192.168.1.36"
+    universe: 2
+    channels: 512
+
+  - name: "dmx4"
+    ip: "192.168.1.36"
+    universe: 3
+    channels: 512
+
+  - name: "dmx5"
+    ip: "192.168.1.36"
+    universe: 4
+    channels: 512
 
 automata:
   - name: "autoBox1"
@@ -24,6 +39,26 @@ automata:
   - name: "autoBox3"
     ip: "192.168.1.36"
     port: 1003
+    type: "panel"
+
+  - name: "output_Box1"
+    ip: "192.168.1.36"
+    port: 2003
+    type: "panel"
+
+  - name: "output_Box2"
+    ip: "192.168.1.36"
+    port: 2004
+    type: "panel"
+
+  - name: "output_Box3"
+    ip: "192.168.1.36"
+    port: 2005
+    type: "panel"
+
+  - name: "output_Box4"
+    ip: "192.168.1.36"
+    port: 2006
     type: "panel"
 
 kincony:
