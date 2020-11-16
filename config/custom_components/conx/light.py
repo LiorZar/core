@@ -88,22 +88,22 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         try:
             lights.append(DMXLight(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     for cfg in automata or []:
         try:
             lights.append(AutomataLight(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     for cfg in auto4color or []:
         try:
             lights.append(Automata4ColorLight(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     for cfg in kincony or []:
         try:
             lights.append(KinconyLight(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     async_add_entities(lights)
 
     return True

@@ -54,10 +54,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         try:
             switches.append(AutomataSwitch(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     for cfg in kincony or []:
         try:
             switches.append(KinconySwitch(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     async_add_entities(switches)

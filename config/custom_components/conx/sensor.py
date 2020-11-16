@@ -52,10 +52,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         try:
             sensors.append(AutomataSensor(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     for cfg in automata_wglan or []:
         try:
             sensors.append(AutomataWGSensor(conx, cfg))
         except Exception as ex:
-            print(ex)
+            print(cfg, ex)
     async_add_entities(sensors)
