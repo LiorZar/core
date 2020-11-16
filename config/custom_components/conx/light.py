@@ -84,14 +84,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     conx.db.platforms["light"] = entity_platform.current_platform.get()
     lights = []
-    for light in dmx or []:
-        lights.append(DMXLight(conx, light))
-    for light in automata or []:
-        lights.append(AutomataLight(conx, light))
-    for light in auto4color or []:
-        lights.append(Automata4ColorLight(conx, light))
-    for light in kincony or []:
-        lights.append(KinconyLight(conx, light))
+    for cfg in dmx or []:
+        lights.append(DMXLight(conx, cfg))
+    for cfg in automata or []:
+        lights.append(AutomataLight(conx, cfg))
+    for cfg in auto4color or []:
+        lights.append(Automata4ColorLight(conx, cfg))
+    for cfg in kincony or []:
+        lights.append(KinconyLight(conx, cfg))
     async_add_entities(lights)
 
     return True

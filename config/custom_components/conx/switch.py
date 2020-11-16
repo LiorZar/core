@@ -50,8 +50,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     conx.db.platforms["switch"] = entity_platform.current_platform.get()
     switches = []
-    for sw in automata or []:
-        switches.append(AutomataSwitch(conx, sw))
-    for sw in kincony or []:
-        switches.append(KinconySwitch(conx, sw))
+    for cfg in automata or []:
+        switches.append(AutomataSwitch(conx, cfg))
+    for cfg in kincony or []:
+        switches.append(KinconySwitch(conx, cfg))
     async_add_entities(switches)

@@ -71,7 +71,7 @@ class TCPConnThread(threading.Thread):
 
 
 class TCP(threading.Thread):
-    def __init__(self, hass: HomeAssistant, db: DB, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         threading.Thread.__init__(self)
 
         self.connections: Dict[str, Connection] = {}
@@ -214,9 +214,9 @@ class TCP(threading.Thread):
 
 
 class UDP:
-    def __init__(self, hass: HomeAssistant, db: DB, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         print("Starting UDP server")
-        self.db = db
+        self.db: DB = conx.db
         # host_ip_addr = socket.gethostbyname(socket.getfqdn())
         host_ip_addr = get_local_ip()
         print("host ip addr: ", host_ip_addr)

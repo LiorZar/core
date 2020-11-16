@@ -8,7 +8,9 @@ from .db import DB
 from .net import TCP
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.helpers.entity import Entity
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
@@ -28,11 +30,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class AutomataBox:
-    def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         print("Init AutomataBox", config)
         self.hass = hass
-        self.db = db
-        self.tcp = tcp
+        self.db: DB = conx.db
+        self.tcp: TCP = conx.tcp
         self.name = config["name"]
         self.ip = config["ip"]
         self.port = config["port"]
@@ -84,14 +86,14 @@ class AutomataBox:
 
 
 class Automata:
-    def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         self.hass = hass
-        self.db = db
-        self.tcp = tcp
+        self.db: DB = conx.db
+        self.tcp: TCP = conx.tcp
         self.config = config.get("automata")
         self.boxes = {}
         for box in self.config or []:
-            b = AutomataBox(hass, db, tcp, box)
+            b = AutomataBox(hass, conx, box)
             self.boxes[b.name] = b
 
     def send(self, call):
@@ -109,15 +111,15 @@ class Automata:
 
 
 class AutomataSwitch(SwitchEntity, RestoreEntity):
-    def __init__(self, conx, sw):
+    def __init__(self, conx, config):
         self._conx = conx
-        self._db = conx.db
+        self._db: DB = conx.db
         self._automata: Automata = conx.automata
 
-        self._boxName = sw.get("boxName")
+        self._boxName = config.get("boxName")
         self._box: AutomataBox = self._automata.boxes[self._boxName]
-        self._channel = sw.get("channel")
-        self._name = sw.get(CONF_NAME)
+        self._channel = config.get("channel")
+        self._name = config.get(CONF_NAME)
         self._on = None
 
         conx.hass.bus.async_listen(
@@ -220,12 +222,12 @@ class AutomataLight(LightEntity, RestoreEntity):
 
 
 class Automata4ColorLight(LightEntity, RestoreEntity):
-    def __init__(self, conx, light):
+    def __init__(self, conx, config):
         self._conx = conx
-        self.tcp = conx.tcp
-        self._name = light.get("name")
-        self.ip = light.get("ip")
-        self.port = light.get("port")
+        self.tcp: TCP = conx.tcp
+        self._name = config.get(CONF_NAME)
+        self.ip = config.get("ip")
+        self.port = config.get("port")
 
         self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNet)
 
@@ -240,7 +242,7 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         state = await self.async_get_last_state()
-        if None != state:
+        if None != state and STATE_ON == state.state:
             self._brightness = state and state.state_attributes.get(ATTR_RGB_COLOR)
             self._rgb = state and state.state_attributes.get(ATTR_RGB_COLOR)
             self._transition = state and state.state_attributes.get(ATTR_TRANSITION)
@@ -339,6 +341,97 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
             return
         self.haTS = ts
         self.async_write_ha_state()
+
+    def async_update(self):
+        pass
+
+
+class AutomataSensor(BinarySensorEntity):
+    def __init__(self, conx, config):
+        self._conx = conx
+        self._db: DB = conx.db
+        self._automata: Automata = conx.automata
+
+        self._boxName = config.get("boxName")
+        self._box: AutomataBox = self._automata.boxes[self._boxName]
+        self._channel = config.get("channel")
+        self._name = config.get(CONF_NAME)
+        self._on = False
+
+        conx.hass.bus.async_listen(
+            EVENT_AUTOMATA_BOX_CHANGE + self._boxName, self.on_box_change
+        )
+
+    def on_box_change(self, event):
+        if self._channel != event.data["channel"]:
+            return
+        self._on = event.data["on"]
+        self.async_write_ha_state()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def is_on(self):
+        return self._on
+
+    @property
+    def state(self):
+        return self._on
+
+    @property
+    def unit_of_measurement(self):
+        return None
+
+    @property
+    def device_class(self):
+        return None
+
+    @property
+    def should_poll(self):
+        return False
+
+    def async_update(self):
+        pass
+
+
+class AutomataWGSensor(Entity):
+    def __init__(self, conx, config):
+        self._db: DB = conx.db
+        self.tcp: TCP = conx.tcp
+        self._name = config.get(CONF_NAME)
+        self.ip = config.get("ip")
+        self.port = config.get("port")
+
+        self._state: str = ""
+
+        self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNet)
+
+    def onNet(self, cmd: str, data: bytearray):
+        print(self.name, cmd, data)
+        self._state = data.decode("utf-8")
+        self.async_write_ha_state()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def unq_name(self):
+        return "autoWG" + self._name
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        return "string"
+
+    @property
+    def should_poll(self):
+        return False
 
     def async_update(self):
         pass

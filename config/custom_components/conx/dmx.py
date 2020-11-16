@@ -57,10 +57,10 @@ FEATURE_MAP[CONF_LIGHT_TYPE_SWITCH] = 0
 
 
 class Universe:
-    def __init__(self, hass: HomeAssistant, db: DB, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         print("Init Universe", config)
         self.hass = hass
-        self.db = db
+        self.db: DB = conx.db
         self.name = config["name"]
         self.universe = config["universe"]
         self.subnet = config["subnet"]
@@ -80,7 +80,7 @@ class Universe:
         self.keepDirty = True
         self.seq = 1
 
-        state = db.getData("dmx", self.name)
+        state = self.db.getData("dmx", self.name)
         if state == None:
             return
 
@@ -162,14 +162,14 @@ class Universe:
 
 
 class DMX:
-    def __init__(self, hass: HomeAssistant, db: DB, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         print("Starting DMX server")
         self.hass = hass
-        self.db = db
+        self.db: DB = conx.db
         self.config = config.get("dmx")
         self.universes = {}
         for unv in self.config or []:
-            u = Universe(hass, db, unv)
+            u = Universe(hass, conx, unv)
             self.universes[u.name] = u
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
@@ -262,17 +262,17 @@ def scale_rgb_to_brightness(rgb, brightness):
 
 
 class DMXLight(LightEntity):
-    def __init__(self, conx, light):
+    def __init__(self, conx, config):
         self._conx = conx
-        self._db = conx.db
+        self._db: DB = conx.db
         self._dmx: DMX = conx.dmx
 
         # Fixture configuration
-        self._dmxName = light.get("dmxName")
+        self._dmxName = config.get("dmxName")
         self._unviverse: Universe = self._dmx.get_universe(self._dmxName)
-        self._channel = light.get("channel")
-        self._name = light.get(CONF_NAME)
-        self._type = light.get(CONF_TYPE)
+        self._channel = config.get("channel")
+        self._name = config.get(CONF_NAME)
+        self._type = config.get(CONF_TYPE)
 
         self._brightness = 0
         self._rgb = [0, 0, 0]

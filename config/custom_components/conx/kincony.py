@@ -15,10 +15,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class KinconyBox:
-    def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         self.hass = hass
-        self.db = db
-        self.tcp = tcp
+        self.db: DB = conx.db
+        self.tcp: TCP = conx.tcp
         self.name = config["name"]
         self.ip = config["ip"]
         self.port = config["port"]
@@ -78,14 +78,14 @@ class KinconyBox:
 
 
 class Kincony:
-    def __init__(self, hass: HomeAssistant, db: DB, tcp: TCP, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         self.hass = hass
-        self.db = db
-        self.tcp = tcp
+        self.db: DB = conx.db
+        self.tcp: TCP = conx.tcp
         self.config = config.get("kincony")
         self.boxes = {}
         for box in self.config or []:
-            b = KinconyBox(hass, db, tcp, box)
+            b = KinconyBox(hass, conx, box)
             self.boxes[b.name] = b
 
     def send(self, call):
@@ -103,15 +103,15 @@ class Kincony:
 
 
 class KinconySwitch(SwitchEntity, RestoreEntity):
-    def __init__(self, conx, sw):
+    def __init__(self, conx, config):
         self._conx = conx
-        self._db = conx.db
+        self._db: DB = conx.db
         self._kincony: Kincony = conx.kincony
 
-        self._boxName = sw.get("boxName")
+        self._boxName = config.get("boxName")
         self._box: KinconyBox = self._kincony.boxes[self._boxName]
-        self._channel = sw.get("channel")
-        self._name = sw.get(CONF_NAME)
+        self._channel = config.get("channel")
+        self._name = config.get(CONF_NAME)
         self._on = None
 
         conx.hass.bus.async_listen(
@@ -159,16 +159,16 @@ class KinconySwitch(SwitchEntity, RestoreEntity):
 
 
 class KinconyLight(LightEntity, RestoreEntity):
-    def __init__(self, conx, light):
+    def __init__(self, conx, config):
         self._conx = conx
-        self._db = conx.db
+        self._db: DB = conx.db
         self._kincony: Kincony = conx.kincony
 
         # Fixture configuration
-        self._boxName = light.get("boxName")
+        self._boxName = config.get("boxName")
         self._box: KinconyBox = self._kincony.boxes[self._boxName]
-        self._channel = light.get("channel")
-        self._name = light.get(CONF_NAME)
+        self._channel = config.get("channel")
+        self._name = config.get(CONF_NAME)
 
         self._on = None
         self._features = 0

@@ -13,9 +13,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class FDE:
-    def __init__(self, hass: HomeAssistant, db: DB, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         self.hass = hass
-        self.db = db
+        self.db: DB = conx.db
         self.tweens: Dict[str, Tween] = {}
         self.services: Dict[str, Callable[[Entity, Any], None]] = {}
         self.services["light.turn_on"] = self.light_turn_on

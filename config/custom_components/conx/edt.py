@@ -13,9 +13,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EDT:
-    def __init__(self, hass: HomeAssistant, db: DB, config: dict):
+    def __init__(self, hass: HomeAssistant, conx, config: dict):
         self.hass = hass
-        self.db = db
+        self.db: DB = conx.db
         self.cues: Dict[str, Any] = load_yaml(hass.config.path("cues.yaml"))
         self.domains = {"light": True, "switch": True}
         self.fixtureCount: int = 1

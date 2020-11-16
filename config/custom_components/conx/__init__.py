@@ -106,12 +106,12 @@ class ConX(threading.Thread):
         self.hass = hass
         self.config = config[DOMAIN]
         self.db: DB = DB(hass, self.config)
-        self.udp: UDP = UDP(hass, self.db, self.config)
-        self.tcp: TCP = TCP(hass, self.db, self.config)
-        self.dmx: DMX = DMX(hass, self.db, self.config)
-        self.fde: FDE = FDE(hass, self.db, self.config)
-        self.automata: Automata = Automata(hass, self.db, self.tcp, self.config)
-        self.kincony: Kincony = Kincony(hass, self.db, self.tcp, self.config)
+        self.udp: UDP = UDP(hass, self, self.config)
+        self.tcp: TCP = TCP(hass, self, self.config)
+        self.dmx: DMX = DMX(hass, self, self.config)
+        self.fde: FDE = FDE(hass, self, self.config)
+        self.automata: Automata = Automata(hass, self, self.config)
+        self.kincony: Kincony = Kincony(hass, self, self.config)
         # self.edt = EDT(hass, self.db, self.config)
 
         self.hass.services.async_register(DOMAIN, "restore", self.db.restore_state)
