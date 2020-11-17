@@ -1,6 +1,4 @@
 """Offer event listening automation rules."""
-import logging
-
 import voluptuous as vol
 
 from homeassistant.const import CONF_PLATFORM
@@ -13,12 +11,10 @@ CONF_EVENT_TYPE = "event_type"
 CONF_EVENT_DATA = "event_data"
 CONF_EVENT_CONTEXT = "context"
 
-_LOGGER = logging.getLogger(__name__)
-
 TRIGGER_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_PLATFORM): "event",
-        vol.Required(CONF_EVENT_TYPE): cv.string,
+        vol.Required(CONF_EVENT_TYPE): vol.All(cv.ensure_list, [cv.string]),
         vol.Optional(CONF_EVENT_DATA): dict,
         vol.Optional(CONF_EVENT_CONTEXT): dict,
     }
@@ -36,7 +32,8 @@ async def async_attach_trigger(
     hass, config, action, automation_info, *, platform_type="event"
 ):
     """Listen for events based on configuration."""
-    event_type = config.get(CONF_EVENT_TYPE)
+    event_types = config.get(CONF_EVENT_TYPE)
+    removes = []
 
     event_data_schema = None
     if config.get(CONF_EVENT_DATA):
@@ -86,4 +83,14 @@ async def async_attach_trigger(
             event.context,
         )
 
-    return hass.bus.async_listen(event_type, handle_event)
+    removes = [
+        hass.bus.async_listen(event_type, handle_event) for event_type in event_types
+    ]
+
+    @callback
+    def remove_listen_events():
+        """Remove event listeners."""
+        for remove in removes:
+            remove()
+
+    return remove_listen_events
