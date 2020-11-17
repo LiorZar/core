@@ -10,8 +10,7 @@ export class HTMLSvgElement extends HTMLElement {
 
         this.ns = "http://www.w3.org/2000/svg"
 
-        let svg = document.createElementNS(this.ns, "svg")
-        this.svg = svg
+        this.svg = document.createElementNS(this.ns, "svg")
 
         this._onMousedown = this._onMousedown.bind(this)
         this._onMousemove = this._onMousemove.bind(this)
@@ -22,15 +21,22 @@ export class HTMLSvgElement extends HTMLElement {
         this._onTouchend = this._onTouchend.bind(this)
         this._onTouchmove = this._onTouchmove.bind(this)
         this._onTouchstart = this._onTouchstart.bind(this)
+
+        this.conncted = false;
+
+        let div = document.createElement("div")
+        div.appendChild(this.createSVG())
+        this.innerHTML = div.innerHTML;
     }
     onPointer(e, type) {
         glo.trace("onPointer", e, type, this._touchX, this._touchY);
     }
 
     connectedCallback() {
-        let div = document.createElement("div")
-        div.appendChild(this.renderSVG())
-        this.innerHTML = div.innerHTML;
+        this.conncted = true;
+    }
+    disconnectedCallback() {
+        this.conncted = false;
     }
     addParams(params) {
         for (let a in params) {
@@ -47,7 +53,7 @@ export class HTMLSvgElement extends HTMLElement {
     getChild(id) {
         return glo.getChild(this, id);
     }
-    renderSVG() {
+    createSVG() {
         return this.svg;
     }
 

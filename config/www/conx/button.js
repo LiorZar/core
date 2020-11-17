@@ -10,11 +10,11 @@ class ConxButton extends HTMLSvgElement {
             background: "#919191",
             clickColor: "blue",
             title: "Button",
-        })
+        });
+        this.connectItems();
     }
 
-    connectedCallback() {
-        super.connectedCallback()
+    connectItems() {
         this.enablePointer()
 
         this.elButton = this.getChild(`${this.id}-btn`)
@@ -37,7 +37,7 @@ class ConxButton extends HTMLSvgElement {
         return this.params;
     }
 
-    renderSVG() {
+    createSVG() {
         // Create SVGs
         let w = this.parentElement.clientWidth
         let h = this.parentElement.clientHeight
@@ -46,7 +46,7 @@ class ConxButton extends HTMLSvgElement {
         let r_bg = SVGRect({
             x: 0, y: 0, rx: 10, ry: 10,
             width: "100%", height: "100%",
-            style: { fill: `${this.params.background}`, stroke: "black", strokeWidth: "5px" },
+            style: { stroke: "black", strokeWidth: "5px" },
             id: `${this.id}-btn-bg`
         })
         let t_title = SVGText({
@@ -54,7 +54,6 @@ class ConxButton extends HTMLSvgElement {
             style: { dominantBaseline: "middle", fill: "white", textAnchor: "middle", fontSize: `${Math.min(w / 10, h / 3)}px` },
             id: `${this.id}-btn-title`
         })
-        t_title.textContent = this.params.title
         // Grouping
         g_comp.appendChild(r_bg)
         g_comp.appendChild(t_title)

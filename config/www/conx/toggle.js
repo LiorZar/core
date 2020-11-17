@@ -13,10 +13,10 @@ class ConxToggle extends HTMLSvgElement {
             frameOff: "#E5E5E5",
             isOn: true
         });
+        this.connectItems();
     }
 
-    connectedCallback() {
-        super.connectedCallback()
+    connectItems() {
         this.enablePointer()
 
         this.elButton = this.getChild(`${this.id}-toggle`)
@@ -43,7 +43,7 @@ class ConxToggle extends HTMLSvgElement {
         return this.params;
     }
 
-    renderSVG() {
+    createSVG() {
         // Create SVGs
         let w = this.parentElement.clientWidth
         let h = this.parentElement.clientHeight
@@ -52,14 +52,14 @@ class ConxToggle extends HTMLSvgElement {
         let r_bg = SVGRect({
             x: 3, y: 0, rx: `${h / 2}`, ry: `${h / 2}`,
             width: w - 6, height: h,
-            style: { fill: `${this.params.backgroundOff}`, strokeWidth: "5px", stroke: "black" },
+            style: { strokeWidth: "5px", stroke: "black" },
             id: `${this.id}-toggle-bg`
         })
 
         let r_frame = SVGRect({
             x: 8, y: 5, rx: (h - 10) / 2, ry: (h - 10) / 2,
             width: h - 10, height: h - 10,
-            style: { fill: `${this.params.frameOff}`, strokeWidth: "5px", stroke: "black" },
+            style: { strokeWidth: "5px", stroke: "black" },
             id: `${this.id}-toggle-frame`
         })
         let r_text = SVGText({
@@ -82,18 +82,6 @@ class ConxToggle extends HTMLSvgElement {
         style.setAttribute("type", "text/css");
         this.svg.appendChild(style);
 
-        if (this.params.isOn) {
-            r_text.setAttribute("class", `${this.id}-move-on-text`)
-            r_frame.setAttribute("class", `${this.id}-move-on-frame`)
-            r_bg.setAttribute("class", `${this.id}-color-on-background`)
-            r_text.textContent = "ON"
-        }
-        else {
-            r_text.setAttribute("class", `${this.id}-move-off-text`)
-            r_frame.setAttribute("class", `${this.id}-move-off-frame`)
-            r_bg.setAttribute("class", `${this.id}-color-off-background`)
-            r_text.textContent = "OFF"
-        }
         return this.svg
     }
 

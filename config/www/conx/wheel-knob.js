@@ -17,10 +17,10 @@ class ConxWheelKnob extends HTMLSvgElement {
             title: "Light",
             pheight: 40
         });
+        this.connectItems();
     }
 
-    connectedCallback() {
-        super.connectedCallback()
+    connectItems() {
         this.enablePointer()
 
         this.elSlider = this.getChild(`${this.id}-slider`)
@@ -52,7 +52,7 @@ class ConxWheelKnob extends HTMLSvgElement {
         return this.params;
     }
 
-    renderSVG() {
+    createSVG() {
         let w = this.parentElement.clientWidth
         let h = this.parentElement.clientHeight
         let cx = w / 2, cy = h / 2
@@ -64,42 +64,42 @@ class ConxWheelKnob extends HTMLSvgElement {
         let g_frame = SVGGroup({ id: `${this.id}-slider-g` })
         let r_frame = SVGCircle({
             cx: cx, cy: cy, r: w / 2 - 1,
-            style: { fill: `${this.params.background}`, stroke: "black", strokeWidth: "2px" },
+            style: { stroke: "black", strokeWidth: "2px" },
             id: `${this.id}-slider-frame`
         })
         let arc_params = SVGArc({
             cx: cx, cy: cy,
-            rx: (w - this.params.pheight) / 2 - 2,
-            ry: (w - this.params.pheight) / 2 - 2,
+            rx: (w - 50) / 2 - 2,
+            ry: (w - 50) / 2 - 2,
             t1: t1, DELTA: delta, FAI: fai
         })
         let r_barTotal = SVGPath({
             d: arc_params.join(" "),
-            style: { fill: "none", stroke: `${this.params.frame}`, strokeWidth: "" + this.params.pheight + "px" },
+            style: { fill: "none" },
             id: `${this.id}-slider-bar-total`
         })
 
         let arc_params3 = SVGArc({
             cx: cx, cy: cy,
-            rx: (w - this.params.pheight) / 2 - 3,
-            ry: (w - this.params.pheight) / 2 - 3,
+            rx: (w - 50) / 2 - 3,
+            ry: (w - 50) / 2 - 3,
             t1: t1 - 0.75, DELTA: delta + 1.5, FAI: fai
         })
         let r_barTotal2 = SVGPath({
             d: arc_params3.join(" "),
-            style: { fill: "none", stroke: "black", strokeWidth: "" + (this.params.pheight + 2) + "px" },
+            style: { fill: "none", stroke: "black" },
             id: `${this.id}-slider-bar-total1`
         })
 
         let arc_params2 = SVGArc({
             cx: cx, cy: cy,
-            rx: (w - this.params.pheight) / 2 - 2,
-            ry: (w - this.params.pheight) / 2 - 2,
+            rx: (w - 50) / 2 - 2,
+            ry: (w - 50) / 2 - 2,
             t1: t1, DELTA: delta, FAI: fai
         })
         let r_barProgress = SVGPath({
             d: arc_params2.join(" "),
-            style: { fill: "none", stroke: `${this.params.fill}`, strokeWidth: "" + this.params.pheight + "px" },
+            style: { fill: "none" },
             id: `${this.id}-slider-bar-progress`
         })
 
@@ -108,7 +108,6 @@ class ConxWheelKnob extends HTMLSvgElement {
             style: { fill: "white", textAnchor: "middle", fontSize: `${w / 10}px` },
             id: `${this.id}-slider-title`
         })
-        t_title.textContent = this.params.title
         // Grouping
         g_frame.appendChild(r_frame)
         g_frame.appendChild(r_barTotal2)

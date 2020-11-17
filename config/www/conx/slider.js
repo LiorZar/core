@@ -19,10 +19,11 @@ class ConxSlider extends HTMLSvgElement {
             fill: "red",
             title: "L i g h t"
         });
+
+        this.connectItems();
     }
 
-    connectedCallback() {
-        super.connectedCallback()
+    connectItems() {
         this.enablePointer()
 
         this.elSlider = this.getChild(`${this.id}-slider`)
@@ -56,7 +57,7 @@ class ConxSlider extends HTMLSvgElement {
         return this.params;
     }
 
-    renderSVG() {
+    createSVG() {
         // Create SVGs
         let g_frame = SVGGroup({ id: `${this.id}-slider-g` })
         let r_frame = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "none", stroke: "black", strokeWidth: "5px" }, id: `${this.id}-slider-frame` })
@@ -71,22 +72,7 @@ class ConxSlider extends HTMLSvgElement {
         g_frame.appendChild(r_frame)
 
         this.svg.id = `${this.id}-slider`
-
-        if (this.params.align == 0) {
-            this.svg.setAttribute("width", this.params.width)
-            this.svg.setAttribute("height", this.params.height)
-            t_title.setAttribute("style", SVGStyle({ fill: "white", textAnchor: "middle", fontSize: "20px" }))
-            r_barProgress.setAttribute("style", SVGStyle({ fill: "red", transform: "" }))
-            this.svg.append(g_frame)
-        }
-        else {
-            this.svg.setAttribute("width", this.params.width)
-            this.svg.setAttribute("height", this.params.height)
-            t_title.setAttribute("style", SVGStyle({ fill: "white", textAnchor: "middle", fontSize: "20px", transformOrigin: "50% 50%", transform: "rotate(-90deg)" }))
-            r_barProgress.setAttribute("style", SVGStyle({ fill: "red", transform: "rotate(180deg) translate(-100%, -100%)" }))
-            this.svg.append(g_frame)
-        }
-
+        this.svg.append(g_frame)
         return this.svg
     }
 
