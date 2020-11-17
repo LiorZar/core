@@ -4,7 +4,7 @@ import { GetAngle, SVGPath, SVGCircle, SVGGroup, SVGText, SVGStyle, SVGArc } fro
 class ConxWheelKnob extends HTMLSvgElement {
     constructor() {
         super()
-        this.id = "conx-wheel-knob"
+        // this.id = "conx-wheel-knob"
         this.movable = false
         this.slideLength = -1
         this._val = 0;
@@ -30,7 +30,6 @@ class ConxWheelKnob extends HTMLSvgElement {
         this.elTotal1 = this.getChild(`${this.id}-slider-bar-total1`)
         this.elProgress = this.getChild(`${this.id}-slider-bar-progress`)
         this.elTitle = this.getChild(`${this.id}-slider-title`)
-
         this.setParams(this.params)
     }
 

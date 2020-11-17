@@ -4,7 +4,7 @@ import { SVGRect, SVGGroup, SVGText, SVGStyle } from "./svgutils.js"
 class ConxSlider extends HTMLSvgElement {
     constructor() {
         super()
-        this.id = this.id || "conx-slider";
+        // this.id = this.id || "conx-slider";
         this.movable = false;
         this.slideLength = -1;
         this._val = 0;

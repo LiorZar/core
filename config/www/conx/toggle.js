@@ -4,7 +4,7 @@ import { SVGGroup, SVGText, SVGStyle, SVGRect } from "./svgutils.js"
 class ConxToggle extends HTMLSvgElement {
     constructor() {
         super()
-        this.id = "conx-toggle"
+        // this.id = "conx-toggle"
         this.isOn = false
         this.addParams({
             backgroundOn: "#4BC065",

@@ -5,25 +5,27 @@ class ContentCardExample extends HTMLElement {
     set hass(hass) {
         this._hass = hass;
         this.state = hass.states[this.entity];
-        if (!this.main)
-            return;
 
+        if (!this.main) {
+            this.innerHTML = `<div style="width: 100px; height: 500px"><conx-slider id="main" params='{"align":1}' /></div>`;
+            this.main = glo.getChild(this, "main");
+            this.main.onChange = this.onChange.bind(this);
+            glo.trace("connectedCallback", this.innerHTML, this.main);
+        }
+        
         this.updateState();
     }
 
     updateState() {
         //glo.trace(this.state);
 
-        if (!this.state || !this.main)
+        if (!this.connected || !this.state || !this.main)
             return;
         this.main.setParams({ value: this.state.attributes.brightness / 2.55 });
     }
 
     connectedCallback() {
-        this.innerHTML = `<<ha-card><conx-slider id="main" params='{}' /></<ha-card>`;
-        this.main = glo.getChild(this, "main");
-        this.main.onChange = this.onChange.bind(this);
-        glo.trace("connectedCallback", this.innerHTML, this.main);
+        this.connected = true;
         this.updateState();
     }
     onChange(id, val, pval) {
@@ -39,10 +41,10 @@ class ContentCardExample extends HTMLElement {
     }
 
     setConfig(config) {
-        glo.trace("config", config);
         if (!config.entity) {
             throw new Error('You need to define an entity');
         }
+        glo.trace("config", config);
         this.config = config;
         this.entity = config.entity;
     }
@@ -60,6 +62,62 @@ class ContentCardExample extends HTMLElement {
 
 }
 
+
+/*
+class ContentCardExample extends HTMLElement {
+    constructor() {
+      super();  
+    }
+   
+    
+    
+    set hass(hass) {
+  
+      if (!this.content) {
+        this._timestamp = 0;
+        let card = document.createElement('ha-card');
+        this.content = document.createElement('div');
+        
+        this.content.style.height = '100%';
+        this.content.style.width = '100%';
+  
+        card.appendChild(this.content);
+        this.appendChild(card);
+      }
+  
+      var date = new Date();
+      var timestamp = date.getTime();
+      
+      if(timestamp - this._timestamp > this._refresh){
+        this._timestamp = timestamp;
+      
+      this.content.innerHTML = `
+          <iframe src="https://cumta.morhaviv.com/systems/app/chrome/showRecent.php?id=${parseInt(timestamp / 1000)}" width="100%" height="1000px"></iframe>
+      `;
+      }
+      
+      
+      // this.content.style.textContent = `
+      
+      // `;
+     
+      
+      
+    }
+    
+   
+    setConfig(config) {
+      this._refresh = 5000
+      if(config.refresh){
+        this._refresh = config.refresh * 1000
+      }
+      
+    }
+    getCardSize() {
+      return 2;
+    }
+  }
+*/
 customElements.define('content-card-redcolor', ContentCardExample);
 window.customCards = window.customCards || [];
 window.customCards.push({

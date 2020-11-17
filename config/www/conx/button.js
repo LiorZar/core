@@ -4,7 +4,7 @@ import { SVGGroup, SVGText, SVGStyle, SVGRect } from "./svgutils.js"
 class ConxButton extends HTMLSvgElement {
     constructor() {
         super()
-        this.id = "conx-button"
+        // this.id = "conx-button"
         this.isClicked = false
         this.addParams({
             background: "#919191",
@@ -17,10 +17,10 @@ class ConxButton extends HTMLSvgElement {
     connectItems() {
         this.enablePointer()
 
-        this.elButton = this.getChild(`${this.id}-btn`)
-        this.elBg = this.getChild(`${this.id}-btn-bg`)
-        this.elGFrame = this.getChild(`${this.id}-btn-g`)
-        this.elTitle = this.getChild(`${this.id}-btn-title`)
+        this.elButton = this.getChild(`btn`)
+        this.elBg = this.getChild(`btn-bg`)
+        this.elGFrame = this.getChild(`btn-g`)
+        this.elTitle = this.getChild(`btn-title`)
 
         this.setParams(this.params)
     }
@@ -42,24 +42,15 @@ class ConxButton extends HTMLSvgElement {
         let w = this.parentElement.clientWidth
         let h = this.parentElement.clientHeight
 
-        let g_comp = SVGGroup({ id: `${this.id}-btn-g` })
-        let r_bg = SVGRect({
-            x: 0, y: 0, rx: 10, ry: 10,
-            width: "100%", height: "100%",
-            style: { stroke: "black", strokeWidth: "5px" },
-            id: `${this.id}-btn-bg`
-        })
-        let t_title = SVGText({
-            x: "50%", y: "50%",
-            style: { dominantBaseline: "middle", fill: "white", textAnchor: "middle", fontSize: `${Math.min(w / 10, h / 3)}px` },
-            id: `${this.id}-btn-title`
-        })
+        let g_comp = SVGGroup({ id: `btn-g` })
+        let r_bg = SVGRect({x: 0, y: 0, rx: 10, ry: 10, width: "100%", height: "100%", style: { stroke: "black", strokeWidth: "5px" }, id: `btn-bg`})
+        let t_title = SVGText({x: "50%", y: "50%", style: { dominantBaseline: "middle", fill: "white", textAnchor: "middle", fontSize: `${Math.min(w / 10, h / 3)}px` }, id: `btn-title`})
         // Grouping
         g_comp.appendChild(r_bg)
         g_comp.appendChild(t_title)
 
         this.svg.append(g_comp)
-        this.svg.id = `${this.id}-btn`
+        this.svg.id = `btn`
         this.svg.setAttribute("width", "100%")
         this.svg.setAttribute("height", "100%")
 
