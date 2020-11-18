@@ -660,7 +660,7 @@ class Tween:
                             eprops[key].append(sprops[key][elen:])
 
         self.sprops = sprops
-        self.cprops = {}
+        self.cprops = {"tween": True}
         self.eprops = eprops
         self.setCurrent(0)
         self._valid = True

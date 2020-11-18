@@ -183,16 +183,16 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
 
 
 class AutomataLight(LightEntity, RestoreEntity):
-    def __init__(self, conx, light):
+    def __init__(self, conx, config):
         self._conx = conx
         self._db = conx.db
         self._automata: Automata = conx.automata
 
         # Fixture configuration
-        self._boxName = light.get("boxName")
+        self._boxName = config.get("boxName")
         self._box: AutomataBox = self._automata.boxes[self._boxName]
-        self._channel = light.get("channel")
-        self._name = light.get(CONF_NAME)
+        self._channel = config.get("channel")
+        self._name = config.get(CONF_NAME)
 
         self._on = None
         self._features = 0

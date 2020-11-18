@@ -1,6 +1,7 @@
 # region imports
 import time
 import socket
+import asyncio
 import logging
 import threading
 from struct import pack
@@ -270,9 +271,15 @@ class DMXLight(LightEntity):
         # Fixture configuration
         self._dmxName = config.get("dmxName")
         self._unviverse: Universe = self._dmx.get_universe(self._dmxName)
-        self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
         self._type = config.get(CONF_TYPE)
+        self._fadeOn = config.get("fadeOn")
+        self._fadeOff = config.get("fadeOff")
+        ch = config.get("channel")
+        if isinstance(ch, int):
+            ch = [ch]
+        self._patch = ch
+        self._patchCount = len(ch)
 
         self._brightness = 0
         self._rgb = [0, 0, 0]
@@ -280,10 +287,9 @@ class DMXLight(LightEntity):
         # Apply maps and calculations
         self._channel_count = CHANNEL_COUNT_MAP.get(self._type, 1)
 
-        self._channels = [
-            channel
-            for channel in range(self._channel, self._channel + self._channel_count)
-        ]
+        self._channels = []
+        for a in self._patch:
+            self._channels += [channel for channel in range(a, a + self._channel_count)]
         self._features = FEATURE_MAP.get(self._type)
 
         self.read_values()
@@ -338,10 +344,31 @@ class DMXLight(LightEntity):
 
         return {key: val for key, val in data.items() if val is not None}
 
+    def Fade(self, kwargs, on: bool):
+        for a in kwargs:
+            if type(kwargs[a]) is tuple:
+                kwargs[a] = list(kwargs[a])
+
+        props = {
+            "entity_id": self.entity_id,
+            "service": "light.turn_on",
+            "transition": self._fadeOn if on else self._fadeOff,
+            "end": kwargs,
+        }
+
+        asyncio.run_coroutine_threadsafe(
+            self.hass.services.async_call("conx", "fade", props),
+            self.hass.loop,
+        )
+
     async def async_turn_on(self, **kwargs):
         if len(kwargs) <= 0:
             if self._brightness == 0:
-                self._brightness = 255
+                kwargs[ATTR_BRIGHTNESS] = 255
+
+        if self._fadeOn > 0 and True != kwargs.get("tween"):
+            self.Fade(kwargs, True)
+            return
 
         # Update state from service call
         if ATTR_BRIGHTNESS in kwargs:
@@ -358,7 +385,12 @@ class DMXLight(LightEntity):
 
     async def async_turn_off(self, **kwargs):
         if self._brightness > 0:
-            self._brightness = 0
+            kwargs[ATTR_BRIGHTNESS] = 0
+
+        if self._fadeOff > 0 and True != kwargs.get("tween"):
+            self.Fade(kwargs, False)
+            return
+
         self.update_universe()
 
     def read_values(self):
@@ -381,17 +413,21 @@ class DMXLight(LightEntity):
 
         if self._type == CONF_LIGHT_TYPE_RGB:
             # Scale the RGB colour value to the selected brightness
-            return scale_rgb_to_brightness(self._rgb, self._brightness)
+            return (
+                scale_rgb_to_brightness(self._rgb, self._brightness) * self._patchCount
+            )
         elif self._type == CONF_LIGHT_TYPE_RGBA:
             # Split the white component out from the scaled RGB values
-            return [self._rgb[0], self._rgb[1], self._rgb[2], self._brightness]
+            return [
+                self._rgb[0],
+                self._rgb[1],
+                self._rgb[2],
+                self._brightness,
+            ] * self._patchCount
         elif self._type == CONF_LIGHT_TYPE_SWITCH:
-            if self.is_on:
-                return [255]
-            else:
-                return [0]
+            return [255] * self._patchCount
         else:
-            return [self._brightness]
+            return [self._brightness] * self._patchCount
 
     def update_universe(self):
         self._unviverse.setChannels(self._channels, self.dmx_values())

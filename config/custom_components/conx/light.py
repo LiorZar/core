@@ -8,7 +8,7 @@ from homeassistant.components.light import PLATFORM_SCHEMA
 import homeassistant.helpers.config_validation as cv
 
 
-from .const import DOMAIN
+from .const import DOMAIN, IsIdOrIds
 from .dmx import DMXLight, CONF_LIGHT_TYPE_SWITCH, CONF_LIGHT_TYPES
 from .automata import AutomataLight, Automata4ColorLight
 from .kincony import KinconyLight
@@ -22,13 +22,13 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
             [
                 {
                     vol.Required("dmxName"): cv.string,
-                    vol.Required("channel"): vol.All(
-                        vol.Coerce(int), vol.Range(min=1, max=512)
-                    ),
+                    vol.Required("channel"): IsIdOrIds,
                     vol.Required(CONF_NAME): cv.string,
                     vol.Optional(CONF_TYPE, default=CONF_LIGHT_TYPE_SWITCH): vol.In(
                         CONF_LIGHT_TYPES
                     ),
+                    vol.Optional("fadeOn", default=0): cv.Number,
+                    vol.Optional("fadeOff", default=0): cv.Number,
                     vol.Optional("level", default=0): cv.byte,
                     vol.Optional("color"): vol.All(
                         vol.ExactSequence((cv.byte, cv.byte, cv.byte)),

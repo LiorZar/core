@@ -46,8 +46,10 @@
       type: dimmer
 
     - dmxName: dmx1
-      channel: 10
+      channel: [10,20,23,26,29,32,35,38,41]
       name: conxColor
+      fadeOn: 10
+      fadeOff: 2.5
       type: rgb
 
     - dmxName: dmx2

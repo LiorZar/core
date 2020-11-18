@@ -44,7 +44,7 @@ class FDE:
             ran += [-1]
         ran[1] += ran[2]
 
-    def getEntities(self, id: [str, list], ran: list) -> list:
+    def getEntities(self, id, ran: list) -> list:
         entities = []
         if type(id) is list:
             idx = 0
@@ -90,6 +90,9 @@ class FDE:
 
     def fade(self, call):
         print("fade", call)
+        data = None
+        service = None
+        entities = None
         try:
             data = call.data
             service = self.services.get(data.get("service"))
@@ -102,6 +105,9 @@ class FDE:
 
         except Exception as ex:
             print("fade fail", ex)
+
+        if None == data or None == service or None == entities:
+            print("fade fail, bad data")
 
         try:
             for e in entities:
