@@ -57,6 +57,35 @@ fade:
     loopDelay:
       description: Optional. The time to wait before you start a new loop. default is 0
 
+
+patch:
+  description: will load the config/lights/conx.yaml and add the new patch to its dmx part
+  fields:
+    dmxName:
+      description: the dmx
+      example: dmx1
+
+    channel:
+      description: the starting channel to start the entire patch from
+      example: 1
+
+    name:
+      description: The name initial name of all the light entities
+      example: rgb_
+
+    start:
+      description: the starting number for the name
+      example: 1
+
+    type:
+      description: The type of the light [dimmer,rgb,rgba]
+      example: rgb
+
+    count:
+      description: The number of entites to create
+      example: 10
+
+
 automata_send:
   description: send packet to automata box
   fields:

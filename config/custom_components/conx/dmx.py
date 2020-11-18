@@ -1,4 +1,5 @@
 # region imports
+import yaml
 import time
 import socket
 import asyncio
@@ -8,6 +9,9 @@ from struct import pack
 from timeit import default_timer as timer
 from homeassistant.core import HomeAssistant
 from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
+from homeassistant.util.yaml import load_yaml, save_yaml
+from typing import Any, Dict
+
 
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
@@ -222,6 +226,60 @@ class DMX:
         if fps != None:
             unv.fps = fps
             unv.frameTime = 1.0 / unv.fps if unv.fps > 0 else 1000000
+
+        return True
+
+    def patch(self, call):
+        print("patch", call)
+        dmxName = call.data.get("dmxName")
+        name = call.data.get("name")
+        channel = call.data.get("channel")
+        start = call.data.get("start")
+        type = call.data.get("type")
+        count = call.data.get("count")
+        if (
+            None == dmxName
+            or None == name
+            or None == channel
+            or None == type
+            or None == count
+        ):
+            return False
+
+        channel_count: int = CHANNEL_COUNT_MAP.get(type, 1)
+        data = None
+        dmx = None
+        try:
+            data = load_yaml(self.hass.config.path("lights/conx.yaml"))
+            dmx = data[0]["dmx"]
+        except Exception as e:
+            print(e)
+            return False
+
+        for i in range(count):
+            dmx.append(
+                {
+                    "dmxName": dmxName,
+                    "name": name + str(start + i),
+                    "channel": channel + i * channel_count,
+                    "type": type,
+                }
+            )
+
+        res = yaml.safe_dump(
+            data,
+            default_flow_style=False,
+            indent=2,
+            allow_unicode=True,
+            sort_keys=False,
+        )
+        res = "\n\n  -".join(res.split("\n  -"))
+        res = res.replace(": null\n", ":\n")
+
+        with open(
+            self.hass.config.path("lights/conx.yaml"), "w", encoding="utf-8"
+        ) as outfile:
+            outfile.write(res)
 
         return True
 

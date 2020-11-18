@@ -118,6 +118,7 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "save", self.db.save_state_srv)
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
+        self.hass.services.async_register(DOMAIN, "patch", self.dmx.patch)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
         self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
         self.hass.services.async_register(DOMAIN, "kincony_send", self.kincony.send)

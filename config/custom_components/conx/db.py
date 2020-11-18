@@ -6,8 +6,6 @@ import sqlalchemy
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from typing import Any, Dict
-
-
 from homeassistant.util.yaml import load_yaml, save_yaml
 
 from .const import DOMAIN
