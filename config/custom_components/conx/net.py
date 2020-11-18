@@ -17,19 +17,19 @@ _LOGGER = logging.getLogger(__name__)
 
 class Connection:
     def __init__(
-        self, id: str, addr: (str, int), onNet: Callable[[str, bytearray], None]
+        self, id: str, addr, onNetworkMessage: Callable[[str, bytearray], None]
     ):
         self.id = id
         self.addr = addr
-        self.onNet = onNet
-        self.rbuff: bytearray = b""
-        self.wbuff: bytearray = b""
+        self.onNetworkMessage = onNetworkMessage
+        self.rbuff: bytearray = bytearray(b"")
+        self.wbuff: bytearray = bytearray(b"")
         self.sock: socket = None
 
     def clear(self):
         self.sock = None
-        self.rbuff = b""
-        self.wbuff = b""
+        self.rbuff = bytearray(b"")
+        self.wbuff = bytearray(b"")
 
     def Send(self, data: bytearray):
         if None == self.sock:
@@ -48,12 +48,6 @@ class Connection:
             rv = False
 
         return rv
-
-    def readBuff(self) -> bytearray:
-        data: bytearray = self.rbuff
-        self.rbuff = b""
-
-        return data
 
     def send(self):
         if len(self.wbuff) > 0:
@@ -82,10 +76,14 @@ class TCP(threading.Thread):
         self.start()
 
     def Connect(
-        self, id: str, ip: str, port: int, onNet: Callable[[str, bytearray], None]
+        self,
+        id: str,
+        ip: str,
+        port: int,
+        onNetworkMessage: Callable[[str, bytearray], None],
     ):
         if id not in self.connections:
-            self.connections[id] = Connection(id, (ip, port), onNet)
+            self.connections[id] = Connection(id, (ip, port), onNetworkMessage)
 
     def Send(self, id: str, data: bytearray):
         c: Connection = self._getConnByID(id)
@@ -171,14 +169,14 @@ class TCP(threading.Thread):
 
         return conn
 
-    def callOnNet(self, c: Connection, cmd: str, data: bytearray):
-        if None == c.onNet:
+    def callNetworkMessage(self, c: Connection, cmd: str):
+        if None == c.onNetworkMessage:
             return False
-        c.onNet(cmd, data)
+        c.onNetworkMessage(cmd, c.rbuff)
         return True
 
     def _onConnected(self, c):
-        self.callOnNet(c, "connected", None)
+        self.callNetworkMessage(c, "connected")
 
     def _onRead(self, s: socket):
         c: Connection = self._getConnection(s)
@@ -189,8 +187,7 @@ class TCP(threading.Thread):
             self._onExp(s)
             return
 
-        data = c.readBuff()
-        self.callOnNet(c, "read", data)
+        self.callNetworkMessage(c, "read")
 
     def _onWrite(self, s: socket):
         c: Connection = self._getConnection(s)
@@ -204,7 +201,7 @@ class TCP(threading.Thread):
         if None == c:
             return
         c.clear()
-        self.callOnNet(c, "disconnect", None)
+        self.callNetworkMessage(c, "disconnect")
 
     def onTick(self, elapse: float):
         pass

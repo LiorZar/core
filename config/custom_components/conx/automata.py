@@ -1,3 +1,4 @@
+import re
 import logging
 import threading
 from typing import Any, Dict
@@ -40,34 +41,49 @@ class AutomataBox:
         self.port = config["port"]
         self.type = config["type"]
 
-        self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
+        self.tcp.Connect(self.name, self.ip, self.port, self.onNetworkMessage)
 
-    def onNet(self, cmd: str, data: bytearray):
+    def onNetworkMessage(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
         if "connected" == cmd:
             self.Send(b"[STATUS]")
             return
 
-        if None == data:
-            return
-        msg: str = data.decode("utf-8")
-        if "[" != msg[0] or msg[-1] != "]":
-            print("bad automata message")
+        if "read" != cmd or None == data:
             return
 
-        msg = msg[1:-1]
+        while self.readMsg(data):
+            pass
+
+    def readMsg(self, data: bytearray) -> bool:
+        msg: str = data.decode("utf-8")
+        if len(msg) <= 0:
+            return False
+
+        res = re.search(r"\[(.*?)\]", msg)
+        if None == res:
+            if -1 == msg.find("["):
+                print("bad AutomataBox message")
+            return False
+
+        msg = res.group(1)
+        data[: res.end()] = []
+        print("AutomataBox read", msg)
+
         if "STATUS" == msg or "OK" == msg:
-            return
+            return True
+
         data = msg.split("=")
         if None == data or len(data) != 2:
-            print("bad automata message")
-            return
+            print("bad AutomataBox message")
+            return False
 
         channel: int = int(data[0])
         on: bool = "ON" == data[1]
         self.hass.bus.async_fire(
             EVENT_AUTOMATA_BOX_CHANGE + self.name, {"channel": channel, "on": on}
         )
+        return True
 
     def Send(self, data: bytearray):
         self.tcp.Send(self.name, data)
@@ -229,7 +245,7 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         self.ip = config.get("ip")
         self.port = config.get("port")
 
-        self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNet)
+        self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNetworkMessage)
 
         self._brightness = 0
         self._rgb = [0, 0, 0]
@@ -242,12 +258,12 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         state = await self.async_get_last_state()
-        if None != state and STATE_ON == state.state:
-            self._brightness = state and state.state_attributes.get(ATTR_RGB_COLOR)
-            self._rgb = state and state.state_attributes.get(ATTR_RGB_COLOR)
-            self._transition = state and state.state_attributes.get(ATTR_TRANSITION)
+        if None != state and STATE_ON == state.state and None != state.attributes:
+            self._brightness = state and state.attributes.get(ATTR_BRIGHTNESS)
+            self._rgb = state and state.attributes.get(ATTR_RGB_COLOR)
+            self._transition = state and state.attributes.get(ATTR_TRANSITION)
 
-    def onNet(self, cmd: str, data: bytearray):
+    def onNetworkMessage(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
 
     @property
@@ -264,7 +280,7 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
 
     @property
     def is_on(self):
-        return self.brightness > 0
+        return self._brightness > 0
 
     @property
     def hs_color(self):
@@ -406,12 +422,40 @@ class AutomataWGSensor(Entity):
 
         self._state: str = ""
 
-        self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNet)
+        self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNetworkMessage)
 
-    def onNet(self, cmd: str, data: bytearray):
+    def onNetworkMessage(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
-        self._state = data.decode("utf-8")
+        if "connected" == cmd:
+            return
+
+        if "read" != cmd or None == data:
+            return
+
+        while self.readMsg(data):
+            pass
+
+    def readMsg(self, data: bytearray) -> bool:
+        msg: str = data.decode("utf-8")
+        if len(msg) <= 0:
+            return False
+
+        res = re.search(r"\[(.*?)\]", msg)
+        if None == res:
+            if -1 == msg.find("["):
+                print("bad AutomataWGSensor message")
+            return False
+
+        msg = res.group(1)
+        data[: res.end()] = []
+        print("AutomataWGSensor read", msg)
+
+        if "STATUS" == msg or "OK" == msg:
+            return True
+
+        self._state = msg
         self.async_write_ha_state()
+        return True
 
     @property
     def name(self):

@@ -1,3 +1,4 @@
+import re
 import logging
 import threading
 from typing import Any, Dict
@@ -24,42 +25,52 @@ class KinconyBox:
         self.port = config["port"]
         self.type = config["type"]
 
-        self.tcp.Connect(self.name, self.ip, self.port, self.onNet)
+        self.tcp.Connect(self.name, self.ip, self.port, self.onNetworkMessage)
 
-    def onNet(self, cmd: str, data: bytearray):
+    def onNetworkMessage(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
         if "connected" == cmd:
             self.Send(b"RELAY-STATE-255")
             self.Send(b"RELAY-GET_INPUT-255")
             return
 
-        if None == data:
+        if "read" != cmd or None == data:
             return
 
+        while self.readMsg(data):
+            pass
+
+    def readMsg(self, data: bytearray) -> bool:
         msg: str = data.decode("utf-8")
+        if len(msg) < 5:
+            return False
+
         if "RELAY" != msg[0:5]:
-            print("bad Kincony message")
-            return
+            print("bad KinconyBox message")
+            data[0:5] = []
+            return False
 
         msg = msg[6:]
-        data = msg.split("-")
-        if None == data or len(data) != 2:
-            print("bad Kincony message")
-            return
+        arr = msg.split("-")
+        if None == arr or len(arr) != 2:
+            print("bad KinconyBox message")
+            return False
 
-        values = data[1].split(",")
+        values = arr[1].split(",")
         if None == values or len(values) < 3:
             print("bad Kincony values")
-            return
+            return False
 
-        cmd: str = data[0]
+        cmd: str = arr[0]
         channel: int = int(values[1])
         value: int = int(values[2])
+        data[:] = []
 
         self.hass.bus.async_fire(
             EVENT_KINCONY_BOX_CHANGE + self.name,
             {"cmd": cmd, "channel": channel, "value": value},
         )
+        return True
 
     def Send(self, data: bytearray):
         self.tcp.Send(self.name, data)
