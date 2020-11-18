@@ -449,6 +449,9 @@ class DMXLight(LightEntity):
             self.Fade(kwargs, False)
             return
 
+        if ATTR_BRIGHTNESS in kwargs:
+            self._brightness = int(kwargs[ATTR_BRIGHTNESS])
+
         self.update_universe()
 
     def read_values(self):
