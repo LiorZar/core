@@ -4,7 +4,6 @@ import { SVGGroup, SVGText, SVGStyle, SVGRect } from "./svgutils.js"
 class ConxButton extends HTMLSvgElement {
     constructor() {
         super()
-        // this.id = "conx-button"
         this.isClicked = false
         this.addParams({
             background: "#919191",

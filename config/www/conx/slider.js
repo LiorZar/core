@@ -4,7 +4,6 @@ import { SVGRect, SVGGroup, SVGText, SVGStyle } from "./svgutils.js"
 class ConxSlider extends HTMLSvgElement {
     constructor() {
         super()
-        // this.id = this.id || "conx-slider";
         this.movable = false;
         this.slideLength = -1;
         this._val = 0;
@@ -26,12 +25,12 @@ class ConxSlider extends HTMLSvgElement {
     connectItems() {
         this.enablePointer()
 
-        this.elSlider = this.getChild(`${this.id}-slider`)
-        this.elFrame = this.getChild(`${this.id}-slider-frame`)
-        this.elGFrame = this.getChild(`${this.id}-slider-g`)
-        this.elBarTotal = this.getChild(`${this.id}-slider-bar-total`)
-        this.elBarProgress = this.getChild(`${this.id}-slider-bar-progress`)
-        this.elTitle = this.getChild(`${this.id}-slider-title`)
+        this.elSlider = this.getChild(`slider`)
+        this.elFrame = this.getChild(`slider-frame`)
+        this.elGFrame = this.getChild(`slider-g`)
+        this.elBarTotal = this.getChild(`slider-bar-total`)
+        this.elBarProgress = this.getChild(`slider-bar-progress`)
+        this.elTitle = this.getChild(`slider-title`)
 
         this.setParams(this.params)
     }
@@ -59,11 +58,11 @@ class ConxSlider extends HTMLSvgElement {
 
     createSVG() {
         // Create SVGs
-        let g_frame = SVGGroup({ id: `${this.id}-slider-g` })
-        let r_frame = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "none", stroke: "black", strokeWidth: "5px" }, id: `${this.id}-slider-frame` })
-        let r_barTotal = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "#919191" }, id: `${this.id}-slider-bar-total` })
-        let r_barProgress = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "red" }, id: `${this.id}-slider-bar-progress` })
-        let t_title = SVGText({ x: "50%", y: "51.5%", style: { fill: "white", textAnchor: "middle", fontSize: "20px" }, id: `${this.id}-slider-title` })
+        let g_frame = SVGGroup({ id: `slider-g` })
+        let r_frame = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "none", stroke: "black", strokeWidth: "5px" }, id: `slider-frame` })
+        let r_barTotal = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "#919191" }, id: `slider-bar-total` })
+        let r_barProgress = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "red" }, id: `slider-bar-progress` })
+        let t_title = SVGText({ x: "50%", y: "51.5%", style: { fill: "white", textAnchor: "middle", fontSize: "20px" }, id: `slider-title` })
 
         // Grouping
         g_frame.appendChild(r_barTotal)
@@ -71,7 +70,7 @@ class ConxSlider extends HTMLSvgElement {
         g_frame.appendChild(t_title)
         g_frame.appendChild(r_frame)
 
-        this.svg.id = `${this.id}-slider`
+        this.svg.id = `slider`
         this.svg.append(g_frame)
         return this.svg
     }

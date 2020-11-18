@@ -4,7 +4,6 @@ import { GetAngle, SVGPath, SVGCircle, SVGGroup, SVGText, SVGStyle, SVGArc } fro
 class ConxWheelKnob extends HTMLSvgElement {
     constructor() {
         super()
-        // this.id = "conx-wheel-knob"
         this.movable = false
         this.slideLength = -1
         this._val = 0;
@@ -23,13 +22,14 @@ class ConxWheelKnob extends HTMLSvgElement {
     connectItems() {
         this.enablePointer()
 
-        this.elSlider = this.getChild(`${this.id}-slider`)
-        this.elFrame = this.getChild(`${this.id}-slider-frame`)
-        this.elGFrame = this.getChild(`${this.id}-slider-g`)
-        this.elTotal = this.getChild(`${this.id}-slider-bar-total`)
-        this.elTotal1 = this.getChild(`${this.id}-slider-bar-total1`)
-        this.elProgress = this.getChild(`${this.id}-slider-bar-progress`)
-        this.elTitle = this.getChild(`${this.id}-slider-title`)
+        this.elSlider = this.getChild(`slider`)
+        this.elFrame = this.getChild(`slider-frame`)
+        this.elGFrame = this.getChild(`slider-g`)
+        this.elTotal = this.getChild(`slider-bar-total`)
+        this.elTotal1 = this.getChild(`slider-bar-total1`)
+        this.elProgress = this.getChild(`slider-bar-progress`)
+        this.elTitle = this.getChild(`slider-title`)
+
         this.setParams(this.params)
     }
 
@@ -60,11 +60,11 @@ class ConxWheelKnob extends HTMLSvgElement {
         // fai → rotation on the whole, in radian.
         let delta = 300, t1 = 120, fai = 0
         // Create SVGs
-        let g_frame = SVGGroup({ id: `${this.id}-slider-g` })
+        let g_frame = SVGGroup({ id: `slider-g` })
         let r_frame = SVGCircle({
             cx: cx, cy: cy, r: w / 2 - 1,
             style: { stroke: "black", strokeWidth: "2px" },
-            id: `${this.id}-slider-frame`
+            id: `slider-frame`
         })
         let arc_params = SVGArc({
             cx: cx, cy: cy,
@@ -75,7 +75,7 @@ class ConxWheelKnob extends HTMLSvgElement {
         let r_barTotal = SVGPath({
             d: arc_params.join(" "),
             style: { fill: "none" },
-            id: `${this.id}-slider-bar-total`
+            id: `slider-bar-total`
         })
 
         let arc_params3 = SVGArc({
@@ -87,7 +87,7 @@ class ConxWheelKnob extends HTMLSvgElement {
         let r_barTotal2 = SVGPath({
             d: arc_params3.join(" "),
             style: { fill: "none", stroke: "black" },
-            id: `${this.id}-slider-bar-total1`
+            id: `slider-bar-total1`
         })
 
         let arc_params2 = SVGArc({
@@ -99,13 +99,13 @@ class ConxWheelKnob extends HTMLSvgElement {
         let r_barProgress = SVGPath({
             d: arc_params2.join(" "),
             style: { fill: "none" },
-            id: `${this.id}-slider-bar-progress`
+            id: `slider-bar-progress`
         })
 
         let t_title = SVGText({
             x: "50%", y: "51.5%",
             style: { fill: "white", textAnchor: "middle", fontSize: `${w / 10}px` },
-            id: `${this.id}-slider-title`
+            id: `slider-title`
         })
         // Grouping
         g_frame.appendChild(r_frame)
@@ -115,7 +115,7 @@ class ConxWheelKnob extends HTMLSvgElement {
         g_frame.appendChild(t_title)
 
         this.svg.append(g_frame)
-        this.svg.id = `${this.id}-slider`
+        this.svg.id = `slider`
         this.svg.setAttribute("width", "100%")
         this.svg.setAttribute("height", "100%")
 
@@ -185,7 +185,8 @@ class ConxWheelKnob extends HTMLSvgElement {
                 if (!this.movable) return;
                 let w = this.parentElement.clientWidth
                 let h = this.parentElement.clientHeight
-                let cx = w / 2, cy = h / 2
+                let rect = this.parentElement.getBoundingClientRect()
+                let cx = w / 2+rect.x, cy = h / 2+rect.y
                 let angle = GetAngle(cx, cy, this._touchX, this._touchY);
                 angle = (angle * 180 / Math.PI + 270) % 360
                 angle = (360 - angle + 60) % 360
