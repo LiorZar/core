@@ -9,6 +9,8 @@ from typing import Any, Dict, Callable
 
 from homeassistant.util import get_local_ip
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import Entity
+from homeassistant.const import CONF_NAME
 
 from .db import DB
 
@@ -218,18 +220,20 @@ class UDP:
         host_ip_addr = get_local_ip()
         print("host ip addr: ", host_ip_addr)
         _LOGGER.debug("host ip addr: %s", host_ip_addr)
-        sdp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sdp.setblocking(False)
+        """
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setblocking(False)
 
         # Required for receiving multicast
-        sdp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sdp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-        sdp.bind((host_ip_addr, 10103))
+        self.sock.bind((host_ip_addr, 10103))
         self.listen = hass.loop.create_datagram_endpoint(
-            lambda: UDPServerProtocol(self, hass.loop, sdp), sock=sdp
+            lambda: UDPServerProtocol(self, hass.loop, self.sock), sock=self.sock
         )
         self.task = hass.async_create_task(self.listen)
+        """
 
     def onStop(self):
         pass
@@ -245,14 +249,14 @@ class UDP:
 
 
 class UDPServerProtocol:
-    def __init__(self, udp, loop, sock):
+    def __init__(self, parent, loop, sock):
         """Initialize the UDPServerProtocol."""
 
         self.transport = None
-        self.udp = udp
+        self.parent = parent
         self.loop = loop
         self.sock = sock
-        udp.protocol = self
+        parent.protocol = self
 
     def connection_made(self, transport):
         self.transport = transport
@@ -261,10 +265,10 @@ class UDPServerProtocol:
         _LOGGER.debug("connection_lost: %s", exc)
 
     def datagram_received(self, data, addr):
-        self.udp.onMessage(data, addr)
+        self.parent.onMessage(data, addr)
 
     def error_received(self, exc):
-        self.udp.onError(exc)
+        self.parent.onError(exc)
 
     def close(self):
         if self.transport:
@@ -272,3 +276,61 @@ class UDPServerProtocol:
         self.loop.remove_writer(self.sock.fileno())
         self.loop.remove_reader(self.sock.fileno())
         self.sock.close()
+
+
+class UDPSensor(Entity):
+    def __init__(self, conx, config):
+        self._db: DB = conx.db
+        self.hass = conx.hass
+        self.tcp: TCP = conx.tcp
+        self._name = config.get(CONF_NAME)
+        self.ip = config.get("ip")
+        self.port = config.get("port")
+        self.echo: bool = config.get("echo")
+
+        self._state: str = ""
+
+        host_ip_addr = get_local_ip()
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setblocking(False)
+
+        # Required for receiving multicast
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+        self.sock.bind((host_ip_addr, self.port))
+        self.listen = self.hass.loop.create_datagram_endpoint(
+            lambda: UDPServerProtocol(self, self.hass.loop, self.sock), sock=self.sock
+        )
+        self.task = self.hass.async_create_task(self.listen)
+
+    def onError(self, data, addr):
+        print("onError ", data, addr)
+        self._state = data.decode("utf-8")
+        self.async_write_ha_state()
+
+    def onMessage(self, data, addr):
+        print("onMessage ", data, addr)
+        self._state = data.decode("utf-8")
+        self.async_write_ha_state()
+        if self.echo:
+            self.sock.sendto(data, addr)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        return "string"
+
+    @property
+    def should_poll(self):
+        return False
+
+    def async_update(self):
+        pass

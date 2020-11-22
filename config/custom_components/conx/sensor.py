@@ -10,6 +10,7 @@ import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN, EVENT_AUTOMATA_BOX_CHANGE
 from .automata import AutomataSensor, AutomataWGSensor
+from .net import UDPSensor
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,6 +38,17 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                 }
             ],
         ),
+        vol.Optional("udp"): vol.All(
+            cv.ensure_list,
+            [
+                {
+                    vol.Required(CONF_NAME): cv.string,
+                    vol.Required("ip"): cv.string,
+                    vol.Required("port"): cv.port,
+                    vol.Optional("echo", default=False): cv.boolean,
+                }
+            ],
+        ),
     }
 )
 
@@ -45,6 +57,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     conx = hass.data[DOMAIN]
     automata = config.get("automata")
     automata_wglan = config.get("automata_wglan")
+    udp = config.get("udp")
 
     conx.db.platforms["sensor"] = entity_platform.current_platform.get()
     sensors = []
@@ -56,6 +69,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     for cfg in automata_wglan or []:
         try:
             sensors.append(AutomataWGSensor(conx, cfg))
+        except Exception as ex:
+            print(cfg, ex)
+    for cfg in udp or []:
+        try:
+            sensors.append(UDPSensor(conx, cfg))
         except Exception as ex:
             print(cfg, ex)
     async_add_entities(sensors)
