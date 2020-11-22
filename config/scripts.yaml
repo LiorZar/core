@@ -152,3 +152,15 @@ loop:
       end:
         brightness: 0
   mode: single
+call_according_udp_sensor:
+  alias: Call_according_udp_sensor
+  sequence:
+  - service: script.{{ states('sensor.udpSensor') }}
+    data: {}
+  mode: single
+callscript:
+  alias: CallScript
+  sequence:
+  - service: script.9cut
+    data: {}
+  mode: single
