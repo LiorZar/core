@@ -1,95 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script type="module" src="conx.js"></script>
+    <script type="module" src="conx/conx.js"></script>
   </head>
   <body>
-    <div id="div-2" style="width: 100px; height: 500px" >
-      <conx-slider id="hh" params='{"align":1}'/>
+    <div
+      id="main"
+      style="width: 100%; height: 100%; position: fixed; background: lightblue"
+    >
+      <style>
+        div {
+          overflow: auto;
+          display: inline-block;
+        }
+        table {
+          width: 330px;
+        }
+        td {
+          padding: 0px;
+          width: 80px;
+          height: 80px;
+        }
+        td button {
+          font-weight: bold;
+          font-size: 40px;
+          border: 4px solid #808080;
+          text-align: center;
+          padding: 4px;
+          width: 100%;
+          height: 100%;
+        }
+      </style>
+      <div id="top" style="width: 100%; position: absolute; top: 0">
+        <div
+          id="selection"
+          style="width: 100%; height: 100px; background: gray"
+        >
+          <button type="button">abc</button>
+        </div>
+      </div>
+      <div id="middle"></div>
+      <div id="bottom" style="width: 100%; position: absolute; bottom: 0">
+        <div
+          id="commandLine"
+          style="width: 100%; height: 20px; background: white"
+        >
+          command line
+        </div>
+        <div>
+          <div style="width: 330px; height: 412px; background: gray">
+            <div style="width: 330px; height: 99px; overflow: hidden">
+              <conx-slider id="brightness"
+                params='{"align":0, "thumb":0, "title":"Brightness", "background":"#404040"}'
+              />
+            </div>
+            <div style="width: 330px; height: 99px; overflow: hidden">
+              <conx-slider id="hue" params='{"align":0, "title":"Hue"}' />
+            </div>
+            <div style="width: 330px; height: 99px; overflow: hidden">
+              <conx-slider id="saturation"
+                params='{"align":0, "thumb":0, "title":"Saturation", "background":"white", "foreground":"black"}'
+              />
+            </div>            
+          </div>
+          <div
+            id="numpad"
+            style="width: 330px; height: 412px; background: black"
+          >
+            <table>
+              <tr>
+                <td><button type="button">LG</button></td>
+                <td><button type="button">EN</button></td>
+                <td><button type="button"></button></td>
+                <td><button type="button">SR</button></td>
+              </tr>
+              <tr>
+                <td><button type="button">7</button></td>
+                <td><button type="button">8</button></td>
+                <td><button type="button">9</button></td>
+                <td><button type="button">FL</button></td>
+              </tr>
+              <tr>
+                <td><button type="button">4</button></td>
+                <td><button type="button">5</button></td>
+                <td><button type="button">6</button></td>
+                <td><button type="button">ZR</button></td>
+              </tr>
+              <tr>
+                <td><button type="button">1</button></td>
+                <td><button type="button">2</button></td>
+                <td><button type="button">3</button></td>
+                <td rowspan="2"><button type="button">E</button></td>
+              </tr>
+              <tr>
+                <td colspan="2"><button type="button">0</button></td>
+                <td><button type="button">&#8594;</button></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="div-0" style="width: 300px; height: 300px" >
-      <conx-wheel-knob/>
-    </div>
-    <div>
-      <button onclick="onClicksetParams()">Set Config</button>
-    </div>
-    <div id="div-3" style="width: 70px; height: 300px;">
-      <conx-slider id="vv"/>
-    </div>
-    <div>
-      <button onclick="onClickRotate1()">Rotate</button>
-    </div>
-    <div id="div-4" style="width: 300px; height: 60px;">
-      <conx-button />
-    </div>
-    <div>
-      <button onclick="onClickSetBtn()">Set Config</button>
-    </div>
-    <div id="div-5" style="width: 200px; height: 80px;">
-      <conx-toggle />
-    </div>
-    <div>
-      <button onClick="onClickSetToggle()">Set Config</button>
-    </div>    
   </body>
-  <script>
-    function onClicksetParams(){
-      let cst_el1 = document.getElementById("div-0")
-      let slider
-      // find child wheel-knob element
-      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
-      {
-        if(cst_el1.childNodes[j].nodeName == "CONX-WHEEL-KNOB")
-        {
-          slider= cst_el1.childNodes[j]
-        }
-      }
-      // set config to wheel-knob
-      slider.setParams({value:15, fill: "#904020", background:"#919191", frame:"#333333", isShowPercent: true, pheight: 40})
-    }
-    var i = 1
-    function onClickRotate1(){
-      let cst_el1 = document.getElementById("div-2")
-      let slider
-      // find child conx-slider element
-      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
-      {
-        if(cst_el1.childNodes[j].nodeName == "CONX-SLIDER")
-        {
-          slider= cst_el1.childNodes[j]
-        }
-      }
-      // set config to conx-slider
-      slider.setParams({align: i%2, value:5, fill: "#333333", background:"#999999", frame:"#aaaaaa", isShowPercent: true})
-      i++
-    }
-    function onClickSetBtn(){
-      let cst_el1 = document.getElementById("div-4")
-      let btn
-      // find child conx-button element
-      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
-      {
-        if(cst_el1.childNodes[j].nodeName == "CONX-BUTTON")
-        {
-          btn= cst_el1.childNodes[j]
-        }
-      }
-      // set config to wheel-knob
-      btn.setParams({ background: "#4BC065", clickColor: "red", title: "Config",})
-    }
-    function onClickSetToggle(){
-      let cst_el1 = document.getElementById("div-5")
-      let toggle
-      // find child conx-button element
-      for(let j = 0 ; j < cst_el1.childNodes.length ; j ++)
-      {
-        if(cst_el1.childNodes[j].nodeName == "CONX-TOGGLE")
-        {
-          toggle= cst_el1.childNodes[j]
-        }
-      }
-      // set config to wheel-knob
-      toggle.setParams({ backgroundOn: "red", backgroundOff: "blue", frameOn: "grey", frameOff: "pink", isOn: true})
-    }
-  </script>
 </html>

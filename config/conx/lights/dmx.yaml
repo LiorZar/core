@@ -1,6 +1,5 @@
 - platform: conx
   dmx:
-
   - dmxName: dmx1
     channel: 1
     name: conxDimmer1
@@ -58,9 +57,8 @@
     - 38
     - 41
     name: conxColor
-    fadeOn: 10
-    fadeOff: 2.5
-    type: rgb
+
+    type: dimmer
 
   - dmxName: dmx2
     channel: 1
@@ -71,34 +69,5 @@
     channel: 10
     name: conxColor2
     type: rgba
-  automata:
 
-  - boxName: autoBox2
-    channel: 1
-    name: conxAutoLight1
 
-  - boxName: autoBox2
-    channel: 2
-    name: conxAutoLight2
-
-  - boxName: autoBox2
-    channel: 3
-    name: conxAutoLight3
-  auto4color:
-
-  - name: fuckingAuto
-    ip: 192.168.1.36
-    port: 1005
-  kincony:
-
-  - boxName: kinconyBox1
-    channel: 1
-    name: kinconyLight1
-
-  - boxName: kinconyBox1
-    channel: 2
-    name: kinconyLight2
-
-  - boxName: kinconyBox1
-    channel: 3
-    name: kinconyLight3

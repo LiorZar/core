@@ -1,9 +1,15 @@
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
-media_player:
+#config:
+#frontend:
+#image:
+#person:
+#map:
+#history:
+#logbook:
+#sun:
 
-discovery:
 
 # Example filter to include specified domains and exclude specified entities
 recorder:
@@ -24,14 +30,24 @@ tts:
 
 
 group: !include groups.yaml
-automation: !include_dir_merge_list automations/
+automation: !include_dir_list automation/
+#automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-conx: !include conx.yaml
+conx: !include conx/devices.yaml
+switch automata: !include conx/switches/automata.yaml
+light dmx: !include conx/lights/dmx.yaml
+light kincoy: !include conx/lights/kincony.yaml
+switch kincony: !include conx/switches/kincony.yaml
+sensor automata: !include conx/sensors/automata.yaml
+light moshiko_i_can_write_what_ever_i_like: !include conx/lights/automata.yaml
 
-
-light: !include_dir_merge_list lights/
-switch: !include_dir_merge_list switches/
-sensor: !include_dir_merge_list sensors/
-
+panel_custom:
+  - name: conx-editor-panel
+    url_path: conx-editor
+    sidebar_title: Conx Editor
+    sidebar_icon: mdi:server
+    module_url: /local/conx/conx.js
+    config:
+      hello: world

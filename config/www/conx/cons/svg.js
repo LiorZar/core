@@ -10,7 +10,9 @@ export class HTMLSvgElement extends HTMLElement {
 
         this.ns = "http://www.w3.org/2000/svg"
 
-        this.svg = document.createElementNS(this.ns, "svg")
+        this.svg = document.createElementNS(this.ns, "svg");
+        //this.svg.innerHTML = `<defs id="defs"/>`;
+        //this.defs = glo.getChild( this.svg, "defs" );
 
         this._onMousedown = this._onMousedown.bind(this)
         this._onMousemove = this._onMousemove.bind(this)
@@ -31,7 +33,9 @@ export class HTMLSvgElement extends HTMLElement {
     onPointer(e, type) {
         glo.trace("onPointer", e, type, this._touchX, this._touchY);
     }
-
+    addDefs( ihtml ){
+        this.svg.innerHTML = `<defs>${ihtml}</defs>`;
+    }
     connectedCallback() {
         this.conncted = true;
     }
@@ -40,7 +44,7 @@ export class HTMLSvgElement extends HTMLElement {
     }
     addParams(params) {
         for (let a in params) {
-            if (!this.params[a])
+            if (undefined === this.params[a])
                 this.params[a] = params[a];
         }
     }

@@ -1,3 +1,4 @@
+import { glo } from "./glo.js"
 import { HTMLSvgElement } from "./svg.js"
 import { SVGRect, SVGGroup, SVGText, SVGStyle } from "./svgutils.js"
 
@@ -7,18 +8,20 @@ class ConxSlider extends HTMLSvgElement {
         this.movable = false;
         this.slideLength = -1;
         this._val = 0;
+        this.addDefs(glo.grad("hhue"));
         this.addParams({
             align: 0, // 0 for horizontal, 1 for vertical
             width: "100%",
             height: "100%",
             isShowPercent: true,
+            thumb: 1,
             value: 30,
             frame: "black",
-            background: "#919191",
+            background: "url(#hue)",
+            foreground: "white",
             fill: "red",
             title: "L i g h t"
         });
-
         this.connectItems();
     }
 
@@ -58,11 +61,14 @@ class ConxSlider extends HTMLSvgElement {
 
     createSVG() {
         // Create SVGs
+        let defs = document.createElementNS(this.ns, "defs");
+        defs.innerHTML = glo.grad("hhue");
+        this.svg.appendChild(defs);
         let g_frame = SVGGroup({ id: `slider-g` })
         let r_frame = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "none", stroke: "black", strokeWidth: "5px" }, id: `slider-frame` })
         let r_barTotal = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "#919191" }, id: `slider-bar-total` })
         let r_barProgress = SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "red" }, id: `slider-bar-progress` })
-        let t_title = SVGText({ x: "50%", y: "51.5%", style: { fill: "white", textAnchor: "middle", fontSize: "20px" }, id: `slider-title` })
+        let t_title = SVGText({ x: "50%", y: "60%", style: { fill: this.params.foreground, textAnchor: "middle", fontSize: "20px" }, id: `slider-title` })
 
         // Grouping
         g_frame.appendChild(r_barTotal)
@@ -79,13 +85,13 @@ class ConxSlider extends HTMLSvgElement {
         if (this.params.align == 0) {
             this.elSlider.setAttribute("width", this.params.width)
             this.elSlider.setAttribute("height", this.params.height)
-            this.elTitle.setAttribute("style", SVGStyle({ fill: "white", textAnchor: "middle", fontSize: "20px" }))
+            this.elTitle.setAttribute("style", SVGStyle({ fill: this.params.foreground, textAnchor: "middle", fontSize: "20px" }))
             this.elBarProgress.setAttribute("style", SVGStyle({ fill: this.params.fill }))
         }
         else {
             this.elSlider.setAttribute("width", this.params.height)
             this.elSlider.setAttribute("height", this.params.width)
-            this.elTitle.setAttribute("style", SVGStyle({ fill: "white", textAnchor: "middle", fontSize: "20px", transformOrigin: "50% 50%", transform: "rotate(-90deg)" }))
+            this.elTitle.setAttribute("style", SVGStyle({ fill: this.params.foreground, textAnchor: "middle", fontSize: "20px", transformOrigin: "50% 50%", transform: "rotate(-90deg)" }))
             this.elBarProgress.setAttribute("style", SVGStyle({ fill: this.params.fill, transform: "rotate(180deg) translate(-100%, -100%)" }))
         }
 
@@ -112,12 +118,26 @@ class ConxSlider extends HTMLSvgElement {
         else
             this.elTitle.textContent = this.params.title
         if (this.params.align == 0) {
-            this.elBarProgress.setAttribute("width", "" + offset + "%")
-            this.elBarProgress.setAttribute("height", "100%")
+            if (this.params.thumb > 0) {
+                this.elBarProgress.setAttribute("x", "" + offset - this.params.thumb + "%")
+                this.elBarProgress.setAttribute("width", "" + this.params.thumb + "%")
+                this.elBarProgress.setAttribute("height", "100%")
+            }
+            else {
+                this.elBarProgress.setAttribute("width", "" + offset + "%")
+                this.elBarProgress.setAttribute("height", "100%")
+            }            
         }
         else {
-            this.elBarProgress.setAttribute("height", "" + offset + "%")
-            this.elBarProgress.setAttribute("width", "100%")
+            if (this.params.thumb > 0) {
+                this.elBarProgress.setAttribute("y", "" + offset - this.params.thumb + "%")
+                this.elBarProgress.setAttribute("height", "" + this.params.thumb + "%")
+                this.elBarProgress.setAttribute("width", "100%")
+            }
+            else {
+                this.elBarProgress.setAttribute("height", "" + offset + "%")
+                this.elBarProgress.setAttribute("width", "100%")
+            }
         }
     }
 
