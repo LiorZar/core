@@ -20,7 +20,7 @@ class Ease:
         x1 (int, float): The x coordinate of the line's start point.
         y1 (int, float): The y coordinate of the line's start point.
         x2 (int, float): The x coordinate of the line's end point.
-        y2 (int, float): The y coordiante of the line's end point.
+        y2 (int, float): The y coordinate of the line's end point.
 
         Returns:
         [(x1, y1), (x2, y2), (x3, y3), ...]
@@ -76,7 +76,7 @@ class Ease:
         x1 (int, float): The x coordinate of the line's start point.
         y1 (int, float): The y coordinate of the line's start point.
         x2 (int, float): The x coordinate of the line's end point.
-        y2 (int, float): The y coordiante of the line's end point.
+        y2 (int, float): The y coordinate of the line's end point.
         n (float): Progress along the line. 0.0 is the start point, 1.0 is the end point. 0.5 is the midpoint. This value can be less than 0.0 or greater than 1.0.
 
         Returns:

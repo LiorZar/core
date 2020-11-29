@@ -357,7 +357,7 @@ class DMXLight(LightEntity):
         )
         # Send default levels to the controller
         # self.update_universe()
-        _LOGGER.debug(f"Intialized DMX light {self._name}")
+        _LOGGER.debug(f"Initialized DMX light {self._name}")
         self.haTS = timer()
 
     @property

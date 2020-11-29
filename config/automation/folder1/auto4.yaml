@@ -1,17 +1,18 @@
-alias: auto4
-description: ''
-trigger:
-- platform: state
-  entity_id: light.conxdimmer7
-  from: 'on'
-  to: 'off'
-condition: []
-action:
-- service: conx.fade
-  data:
-    entity_id: light.conxdimmer8
-    service: light.turn_on
-    transition: 2.5
-    end:
-      brightness: 255
-mode: single
+  alias: auto4
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.conxdimmer7
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: conx.fade
+    data:
+      entity_id: light.conxdimmer8
+      service: light.turn_on
+      transition: 2.5
+      end:
+        brightness: 255
+  mode: single
+  

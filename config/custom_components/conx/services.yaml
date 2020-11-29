@@ -34,7 +34,7 @@ fade:
       description: The entity id or [entity1, entity2, entity3]
       example: light.kitchen_main_lamp
     range:
-      description: while entity_id is part of the name, use range to add mutiple entites. Example entity_id=rgb_ and range=[1,4] will be [rgb_1,rgb_2,rgb_3,rgb_4]
+      description: while entity_id is part of the name, use range to add multiple entities. Example entity_id=rgb_ and range=[1,4] will be [rgb_1,rgb_2,rgb_3,rgb_4]
     service:
       description: the service to call to
       example: light.turn_on
@@ -49,7 +49,7 @@ fade:
       description:  The attrbiutes and values to goto.
       example: "{brightness: 255, hs_color: [300,100]}"
     ease:
-      description: Optional. The fade method to control Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Elastic, Back, Bounce, each one have In, Out and InOut
+      description: Optional. The fade method to control Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Elastic, Back, Bounce, each one have In, Out and input, in out
     delay:
       description: Optional. The delay time before animation starts, by default it is 0
     loop:
@@ -82,7 +82,7 @@ patch:
       example: rgb
 
     count:
-      description: The number of entites to create
+      description: The number of entities to create
       example: 10
 
 
