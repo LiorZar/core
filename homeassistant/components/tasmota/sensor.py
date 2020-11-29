@@ -2,6 +2,7 @@
 from typing import Optional
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from hatasmota import status_sensor
 from hatasmota.const import (
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER as TASMOTA_CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
@@ -76,6 +77,9 @@ from hatasmota.const import (
 =======
 from hatasmota import const as hc, status_sensor
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
+from hatasmota import const as hc, status_sensor
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 from homeassistant.components import sensor
 from homeassistant.const import (
@@ -114,7 +118,11 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .const import DATA_REMOVE_DISCOVER_COMPONENT, DOMAIN as TASMOTA_DOMAIN
+=======
+from .const import DATA_REMOVE_DISCOVER_COMPONENT
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .const import DATA_REMOVE_DISCOVER_COMPONENT
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -126,6 +134,7 @@ ICON = "icon"
 
 # A Tasmota sensor type may be mapped to either a device class or an icon, not both
 SENSOR_DEVICE_CLASS_ICON_MAP = {
+<<<<<<< HEAD
 <<<<<<< HEAD
     SENSOR_AMBIENT: {DEVICE_CLASS: DEVICE_CLASS_ILLUMINANCE},
     SENSOR_APPARENT_POWERUSAGE: {DEVICE_CLASS: DEVICE_CLASS_POWER},
@@ -199,6 +208,8 @@ SENSOR_UNIT_MAP = {
     TASMOTA_TEMP_KELVIN: TEMP_KELVIN,
     TASMOTA_VOLT: VOLT,
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     hc.SENSOR_AMBIENT: {DEVICE_CLASS: DEVICE_CLASS_ILLUMINANCE},
     hc.SENSOR_APPARENT_POWERUSAGE: {DEVICE_CLASS: DEVICE_CLASS_POWER},
     hc.SENSOR_BATTERY: {DEVICE_CLASS: DEVICE_CLASS_BATTERY},
@@ -270,6 +281,9 @@ SENSOR_UNIT_MAP = {
     hc.TEMP_FAHRENHEIT: TEMP_FAHRENHEIT,
     hc.TEMP_KELVIN: TEMP_KELVIN,
     hc.VOLT: VOLT,
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }
 
@@ -292,7 +306,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     ] = async_dispatcher_connect(
         hass,
 <<<<<<< HEAD
+<<<<<<< HEAD
         TASMOTA_DISCOVERY_ENTITY_NEW.format(sensor.DOMAIN, TASMOTA_DOMAIN),
+=======
+        TASMOTA_DISCOVERY_ENTITY_NEW.format(sensor.DOMAIN),
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         TASMOTA_DISCOVERY_ENTITY_NEW.format(sensor.DOMAIN),
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -309,7 +327,10 @@ class TasmotaSensor(TasmotaAvailability, TasmotaDiscoveryUpdate, Entity):
 
         super().__init__(
 <<<<<<< HEAD
+<<<<<<< HEAD
             discovery_update=self.discovery_update,
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             **kwds,

@@ -10,7 +10,11 @@ from homeassistant.helpers import device_registry, entity, update_coordinator
 from . import ShellyDeviceRestWrapper, ShellyDeviceWrapper
 from .const import COAP, DATA_CONFIG_ENTRY, DOMAIN, REST
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .utils import get_entity_name, get_rest_value_from_path
+=======
+from .utils import async_remove_shelly_entity, get_entity_name
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .utils import async_remove_shelly_entity, get_entity_name
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -69,29 +73,41 @@ async def async_setup_entry_rest(
     entities = []
     for sensor_id in sensors:
 <<<<<<< HEAD
+<<<<<<< HEAD
         _desc = sensors.get(sensor_id)
 
         if not wrapper.device.settings.get("sleep_mode"):
             entities.append(_desc)
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         description = sensors.get(sensor_id)
 
         if not wrapper.device.settings.get("sleep_mode"):
             entities.append((sensor_id, description))
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     if not entities:
         return
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     async_add_entities([sensor_class(wrapper, description) for description in entities])
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     async_add_entities(
         [
             sensor_class(wrapper, sensor_id, description)
             for sensor_id, description in entities
         ]
     )
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
@@ -119,6 +135,7 @@ class RestAttributeDescription:
     """Class to describe a REST sensor."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     path: str
     name: str
     # Callable = lambda attr_info: unit
@@ -129,6 +146,8 @@ class RestAttributeDescription:
     default_enabled: bool = True
     attributes: Optional[dict] = None
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     name: str
     icon: Optional[str] = None
     unit: Optional[str] = None
@@ -136,6 +155,9 @@ class RestAttributeDescription:
     device_class: Optional[str] = None
     default_enabled: bool = True
     device_state_attributes: Optional[Callable[[dict], Optional[dict]]] = None
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
@@ -147,7 +169,11 @@ class ShellyBlockEntity(entity.Entity):
         self.wrapper = wrapper
         self.block = block
 <<<<<<< HEAD
+<<<<<<< HEAD
         self._name = get_entity_name(wrapper, block)
+=======
+        self._name = get_entity_name(wrapper.device, block)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         self._name = get_entity_name(wrapper.device, block)
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -217,7 +243,11 @@ class ShellyBlockAttributeEntity(ShellyBlockEntity, entity.Entity):
         self._unit = unit
         self._unique_id = f"{super().unique_id}-{self.attribute}"
 <<<<<<< HEAD
+<<<<<<< HEAD
         self._name = get_entity_name(wrapper, block, self.description.name)
+=======
+        self._name = get_entity_name(wrapper.device, block, self.description.name)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         self._name = get_entity_name(wrapper.device, block, self.description.name)
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -286,17 +316,24 @@ class ShellyRestAttributeEntity(update_coordinator.CoordinatorEntity):
 
     def __init__(
 <<<<<<< HEAD
+<<<<<<< HEAD
         self, wrapper: ShellyDeviceWrapper, description: RestAttributeDescription
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         self,
         wrapper: ShellyDeviceWrapper,
         attribute: str,
         description: RestAttributeDescription,
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ) -> None:
         """Initialize sensor."""
         super().__init__(wrapper)
         self.wrapper = wrapper
+<<<<<<< HEAD
 <<<<<<< HEAD
         self.description = description
 
@@ -305,10 +342,15 @@ class ShellyRestAttributeEntity(update_coordinator.CoordinatorEntity):
         self.path = self.description.path
         self._attributes = self.description.attributes
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         self.attribute = attribute
         self.description = description
         self._name = get_entity_name(wrapper.device, None, self.description.name)
         self._last_value = None
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     @property
@@ -336,16 +378,22 @@ class ShellyRestAttributeEntity(update_coordinator.CoordinatorEntity):
     @property
     def attribute_value(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
         """Attribute."""
         return get_rest_value_from_path(
             self.wrapper.device.status, self.description.device_class, self.path
         )
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         """Value of sensor."""
         self._last_value = self.description.value(
             self.wrapper.device.status, self._last_value
         )
         return self._last_value
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     @property
@@ -367,6 +415,7 @@ class ShellyRestAttributeEntity(update_coordinator.CoordinatorEntity):
     def unique_id(self):
         """Return unique ID of entity."""
 <<<<<<< HEAD
+<<<<<<< HEAD
         return f"{self.wrapper.mac}-{self.description.path}"
 
     @property
@@ -385,6 +434,8 @@ class ShellyRestAttributeEntity(update_coordinator.CoordinatorEntity):
 
         return {_description: _attribute_value}
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         return f"{self.wrapper.mac}-{self.attribute}"
 
     @property
@@ -394,4 +445,7 @@ class ShellyRestAttributeEntity(update_coordinator.CoordinatorEntity):
             return None
 
         return self.description.device_state_attributes(self.wrapper.device.status)
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

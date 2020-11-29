@@ -72,11 +72,19 @@ async def async_setup_entry_gw(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             raise ConfigEntryNotReady
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     except Smile.InvalidAuthentication:
         _LOGGER.error("Invalid username or Smile ID")
         return False
 
     except Smile.PlugwiseError as err:
+=======
+    except InvalidAuthentication:
+        _LOGGER.error("Invalid username or Smile ID")
+        return False
+
+    except PlugwiseException as err:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     except InvalidAuthentication:
         _LOGGER.error("Invalid username or Smile ID")

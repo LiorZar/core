@@ -7,12 +7,21 @@
     "bellows==0.21.0",
     "pyserial==3.4",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "zha-quirks==0.0.46",
     "zigpy-cc==0.5.2",
     "zigpy-deconz==0.11.0",
     "zigpy==0.27.0",
     "zigpy-xbee==0.13.0",
     "zigpy-zigate==0.7.2",
+=======
+    "zha-quirks==0.0.47",
+    "zigpy-cc==0.5.2",
+    "zigpy-deconz==0.11.0",
+    "zigpy==0.28.1",
+    "zigpy-xbee==0.13.0",
+    "zigpy-zigate==0.7.3",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     "zha-quirks==0.0.47",
     "zigpy-cc==0.5.2",

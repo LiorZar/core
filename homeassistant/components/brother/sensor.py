@@ -1,7 +1,10 @@
 """Support for the Brother service."""
 <<<<<<< HEAD
+<<<<<<< HEAD
 from datetime import timedelta
 
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.const import DEVICE_CLASS_TIMESTAMP

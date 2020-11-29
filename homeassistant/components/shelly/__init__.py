@@ -28,6 +28,10 @@ from .const import (
     DATA_CONFIG_ENTRY,
     DOMAIN,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    INPUTS_EVENTS_DICT,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     INPUTS_EVENTS_DICT,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -39,6 +43,10 @@ from .const import (
     UPDATE_PERIOD_MULTIPLIER,
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+from .utils import get_device_name
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .utils import get_device_name
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -63,11 +71,14 @@ async def get_coap_context(hass):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 def get_device_name(device):
     """Naming for device."""
     return device.settings["name"] or device.settings["device"]["hostname"]
 
 
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def async_setup(hass: HomeAssistant, config: dict):
@@ -125,6 +136,10 @@ class ShellyDeviceWrapper(update_coordinator.DataUpdateCoordinator):
     def __init__(self, hass, entry, device: aioshelly.Device):
         """Initialize the Shelly device wrapper."""
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        self.device_id = None
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         self.device_id = None
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -155,7 +170,10 @@ class ShellyDeviceWrapper(update_coordinator.DataUpdateCoordinator):
 
         self.device.subscribe_updates(self.async_set_updated_data)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
         self._async_remove_input_events_handler = self.async_add_listener(
             self._async_input_events_handler
@@ -196,6 +214,9 @@ class ShellyDeviceWrapper(update_coordinator.DataUpdateCoordinator):
                     event_type,
                     self.name,
                 )
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     async def _async_update_data(self):
@@ -244,6 +265,7 @@ class ShellyDeviceWrapper(update_coordinator.DataUpdateCoordinator):
 
 class ShellyDeviceRestWrapper(update_coordinator.DataUpdateCoordinator):
     """Rest Wrapper for a Shelly device with Home Assistant specific functions."""
+<<<<<<< HEAD
 
 <<<<<<< HEAD
     def shutdown(self):
@@ -262,6 +284,12 @@ class ShellyDeviceRestWrapper(update_coordinator.DataUpdateCoordinator):
         """Initialize the Shelly device wrapper."""
 
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
+
+    def __init__(self, hass, device: aioshelly.Device):
+        """Initialize the Shelly device wrapper."""
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         super().__init__(
             hass,
             _LOGGER,
@@ -275,7 +303,11 @@ class ShellyDeviceRestWrapper(update_coordinator.DataUpdateCoordinator):
         try:
             async with async_timeout.timeout(5):
 <<<<<<< HEAD
+<<<<<<< HEAD
                 _LOGGER.debug("REST update for %s", get_device_name(self.device))
+=======
+                _LOGGER.debug("REST update for %s", self.name)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 _LOGGER.debug("REST update for %s", self.name)
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

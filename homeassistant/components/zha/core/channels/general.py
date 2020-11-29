@@ -20,7 +20,11 @@ from ..const import (
     SIGNAL_UPDATE_DEVICE,
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .base import ClientChannel, ZigbeeChannel, parse_and_log_command
+=======
+from .base import ChannelStatus, ClientChannel, ZigbeeChannel, parse_and_log_command
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .base import ChannelStatus, ClientChannel, ZigbeeChannel, parse_and_log_command
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -84,11 +88,15 @@ class BasicChannel(ZigbeeChannel):
         """Initialize channel."""
         if not self._ch_pool.skip_configuration or from_cache:
 <<<<<<< HEAD
+<<<<<<< HEAD
             power_source = await self.get_attribute_value(
                 "power_source", from_cache=from_cache
             )
             if power_source is not None:
                 self._power_source = power_source
+=======
+            await self.get_attribute_value("power_source", from_cache=from_cache)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             await self.get_attribute_value("power_source", from_cache=from_cache)
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

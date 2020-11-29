@@ -17,7 +17,11 @@ async def test_adam_climate_entity_attributes(hass, mock_smile_adam):
     attrs = state.attributes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     assert attrs["hvac_modes"] == ["heat", "auto"]
+=======
+    assert attrs["hvac_modes"] == [HVAC_MODE_HEAT, HVAC_MODE_AUTO]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     assert attrs["hvac_modes"] == [HVAC_MODE_HEAT, HVAC_MODE_AUTO]
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -37,7 +41,11 @@ async def test_adam_climate_entity_attributes(hass, mock_smile_adam):
     attrs = state.attributes
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     assert attrs["hvac_modes"] == ["heat", "auto"]
+=======
+    assert attrs["hvac_modes"] == [HVAC_MODE_HEAT, HVAC_MODE_AUTO]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     assert attrs["hvac_modes"] == [HVAC_MODE_HEAT, HVAC_MODE_AUTO]
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

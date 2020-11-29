@@ -31,6 +31,7 @@ class RainMachineFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def __init__(self):
         """Initialize the config flow."""
         self.data_schema = vol.Schema(
@@ -49,6 +50,8 @@ class RainMachineFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors if errors else {},
         )
 
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     @staticmethod

@@ -6,7 +6,11 @@ from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .const import DATA_REMOVE_DISCOVER_COMPONENT, DOMAIN as TASMOTA_DOMAIN
+=======
+from .const import DATA_REMOVE_DISCOVER_COMPONENT
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .const import DATA_REMOVE_DISCOVER_COMPONENT
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

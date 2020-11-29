@@ -19,6 +19,10 @@ from tests.common import (
     async_get_device_automations,
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+from tests.components.blueprint.conftest import stub_blueprint_populate  # noqa
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from tests.components.blueprint.conftest import stub_blueprint_populate  # noqa
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

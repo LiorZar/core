@@ -65,7 +65,11 @@ async def test_controlling_state_via_mqtt(hass, mqtt_mock, setup_tasmota):
         hass, "tasmota_49A3BC/stat/RESULT", '{"Switch1":{"Action":"ON"}}'
     )
 <<<<<<< HEAD
+<<<<<<< HEAD
     state = hass.states.get("binary_sensor.test")
+=======
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -75,7 +79,11 @@ async def test_controlling_state_via_mqtt(hass, mqtt_mock, setup_tasmota):
         hass, "tasmota_49A3BC/stat/RESULT", '{"Switch1":{"Action":"OFF"}}'
     )
 <<<<<<< HEAD
+<<<<<<< HEAD
     state = hass.states.get("binary_sensor.test")
+=======
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -88,10 +96,73 @@ async def test_controlling_state_via_mqtt(hass, mqtt_mock, setup_tasmota):
 
     async_fire_mqtt_message(hass, "tasmota_49A3BC/tele/SENSOR", '{"Switch1":"OFF"}')
     state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
+<<<<<<< HEAD
+=======
     assert state.state == STATE_OFF
 
     # Test polled state update
     async_fire_mqtt_message(
+        hass, "tasmota_49A3BC/stat/STATUS10", '{"StatusSNS":{"Switch1":"ON"}}'
+    )
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
+    assert state.state == STATE_ON
+
+    async_fire_mqtt_message(
+        hass, "tasmota_49A3BC/stat/STATUS10", '{"StatusSNS":{"Switch1":"OFF"}}'
+    )
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
+    assert state.state == STATE_OFF
+
+
+async def test_controlling_state_via_mqtt_switchname(hass, mqtt_mock, setup_tasmota):
+    """Test state update via MQTT."""
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    config["swc"][0] = 1
+    config["swn"][0] = "Custom Name"
+    mac = config["mac"]
+
+    async_fire_mqtt_message(
+        hass,
+        f"{DEFAULT_PREFIX}/{mac}/config",
+        json.dumps(config),
+    )
+    await hass.async_block_till_done()
+
+    state = hass.states.get("binary_sensor.custom_name")
+    assert state.state == "unavailable"
+    assert not state.attributes.get(ATTR_ASSUMED_STATE)
+
+    async_fire_mqtt_message(hass, "tasmota_49A3BC/tele/LWT", "Online")
+    state = hass.states.get("binary_sensor.custom_name")
+    assert state.state == STATE_OFF
+    assert not state.attributes.get(ATTR_ASSUMED_STATE)
+
+    # Test normal state update
+    async_fire_mqtt_message(
+        hass, "tasmota_49A3BC/stat/RESULT", '{"Custom Name":{"Action":"ON"}}'
+    )
+    state = hass.states.get("binary_sensor.custom_name")
+    assert state.state == STATE_ON
+
+    async_fire_mqtt_message(
+        hass, "tasmota_49A3BC/stat/RESULT", '{"Custom Name":{"Action":"OFF"}}'
+    )
+    state = hass.states.get("binary_sensor.custom_name")
+    assert state.state == STATE_OFF
+
+    # Test periodic state update
+    async_fire_mqtt_message(hass, "tasmota_49A3BC/tele/SENSOR", '{"Custom Name":"ON"}')
+    state = hass.states.get("binary_sensor.custom_name")
+    assert state.state == STATE_ON
+
+    async_fire_mqtt_message(hass, "tasmota_49A3BC/tele/SENSOR", '{"Custom Name":"OFF"}')
+    state = hass.states.get("binary_sensor.custom_name")
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+    assert state.state == STATE_OFF
+
+    # Test polled state update
+    async_fire_mqtt_message(
+<<<<<<< HEAD
         hass, "tasmota_49A3BC/stat/STATUS10", '{"StatusSNS":{"Switch1":"ON"}}'
     )
     state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
@@ -154,6 +225,8 @@ async def test_controlling_state_via_mqtt_switchname(hass, mqtt_mock, setup_tasm
 <<<<<<< HEAD
         hass, "tasmota_49A3BC/stat/STATUS10", '{"StatusSNS":{"Switch1":"ON"}}'
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         hass, "tasmota_49A3BC/stat/STATUS10", '{"StatusSNS":{"Custom Name":"ON"}}'
     )
     state = hass.states.get("binary_sensor.custom_name")
@@ -191,6 +264,7 @@ async def test_pushon_controlling_state_via_mqtt(hass, mqtt_mock, setup_tasmota)
     # Test normal state update
     async_fire_mqtt_message(
         hass, "tasmota_49A3BC/stat/RESULT", '{"Switch1":{"Action":"ON"}}'
+<<<<<<< HEAD
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     )
     state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
@@ -246,32 +320,43 @@ async def test_pushon_controlling_state_via_mqtt(hass, mqtt_mock, setup_tasmota)
     # Test normal state update
     async_fire_mqtt_message(
         hass, "tasmota_49A3BC/stat/RESULT", '{"Switch1":{"Action":"ON"}}'
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     )
-    state = hass.states.get("binary_sensor.test")
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
     assert state.state == STATE_ON
 
     async_fire_mqtt_message(
         hass, "tasmota_49A3BC/stat/RESULT", '{"Switch1":{"Action":"OFF"}}'
     )
+<<<<<<< HEAD
     state = hass.states.get("binary_sensor.test")
+=======
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     assert state.state == STATE_OFF
 
     # Test periodic state update is ignored
     async_fire_mqtt_message(hass, "tasmota_49A3BC/tele/SENSOR", '{"Switch1":"ON"}')
+<<<<<<< HEAD
     state = hass.states.get("binary_sensor.test")
+=======
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     assert state.state == STATE_OFF
 
     # Test polled state update is ignored
     async_fire_mqtt_message(
         hass, "tasmota_49A3BC/stat/STATUS10", '{"StatusSNS":{"Switch1":"ON"}}'
     )
-    state = hass.states.get("binary_sensor.test")
+    state = hass.states.get("binary_sensor.tasmota_binary_sensor_1")
     assert state.state == STATE_OFF
 
 
 async def test_friendly_names(hass, mqtt_mock, setup_tasmota):
     """Test state update via MQTT."""
     config = copy.deepcopy(DEFAULT_CONFIG)
+<<<<<<< HEAD
     config["rl"][0] = 1
     config["swc"][0] = 1
     config["swc"][1] = 1
@@ -296,6 +381,8 @@ async def test_friendly_names(hass, mqtt_mock, setup_tasmota):
 async def test_friendly_names(hass, mqtt_mock, setup_tasmota):
     """Test state update via MQTT."""
     config = copy.deepcopy(DEFAULT_CONFIG)
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     config["swc"][0] = 1
     config["swc"][1] = 1
     config["swn"][1] = "Beer"

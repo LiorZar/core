@@ -7,8 +7,11 @@ from homeassistant.helpers import selector
 
 @pytest.mark.parametrize(
 <<<<<<< HEAD
+<<<<<<< HEAD
     "schema", ({}, {"non_existing": {}}, {"device": {}, "entity": {}})
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     "schema",
     (
         {"device": None},
@@ -28,6 +31,9 @@ def test_valid_base_schema(schema):
         # Two keys
         {"device": {}, "entity": {}},
     ),
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 )
 def test_invalid_base_schema(schema):
@@ -37,13 +43,19 @@ def test_invalid_base_schema(schema):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 def test_validate_selector():
     """Test return is the same as input."""
     schema = {"device": {"manufacturer": "mock-manuf", "model": "mock-model"}}
     assert schema == selector.validate_selector(schema)
 
 
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 @pytest.mark.parametrize(
     "schema",
@@ -55,7 +67,10 @@ def test_validate_selector():
         {"manufacturer": "mock-manuf", "model": "mock-model"},
         {"integration": "zha", "manufacturer": "mock-manuf", "model": "mock-model"},
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         {"entity": {"device_class": "motion"}},
         {
             "integration": "zha",
@@ -63,6 +78,9 @@ def test_validate_selector():
             "model": "mock-model",
             "entity": {"domain": "binary_sensor", "device_class": "motion"},
         },
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ),
 )
@@ -78,6 +96,7 @@ def test_device_selector_schema(schema):
         {"integration": "zha"},
         {"domain": "light"},
 <<<<<<< HEAD
+<<<<<<< HEAD
         {"integration": "zha", "domain": "light"},
     ),
 )
@@ -85,6 +104,8 @@ def test_entity_selector_schema(schema):
     """Test device selector."""
     selector.validate_selector({"entity": schema})
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         {"device_class": "motion"},
         {"integration": "zha", "domain": "light"},
         {"integration": "zha", "domain": "binary_sensor", "device_class": "motion"},
@@ -148,4 +169,7 @@ def test_time_selector_schema(schema):
 def test_target_selector_schema(schema):
     """Test entity selector."""
     selector.validate_selector({"target": schema})
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

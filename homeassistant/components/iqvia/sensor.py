@@ -106,6 +106,10 @@ class ForecastSensor(IQVIAEntity):
         """Update the sensor."""
         data = self.coordinator.data.get("Location")
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -147,7 +151,10 @@ class IndexSensor(IQVIAEntity):
     def update_from_latest_data(self):
         """Update the sensor."""
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         if not self.coordinator.last_update_success:
             return
 

@@ -49,9 +49,14 @@ async def setup_onewire_owserver_integration(hass):
             CONF_TYPE: CONF_TYPE_OWSERVER,
             CONF_HOST: "1.2.3.4",
 <<<<<<< HEAD
+<<<<<<< HEAD
             CONF_PORT: "1234",
         },
         unique_id=f"{CONF_TYPE_OWSERVER}:1.2.3.4:1234",
+=======
+            CONF_PORT: 1234,
+        },
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             CONF_PORT: 1234,
         },
@@ -80,7 +85,11 @@ async def setup_onewire_patched_owserver_integration(hass):
             CONF_TYPE: CONF_TYPE_OWSERVER,
             CONF_HOST: "1.2.3.4",
 <<<<<<< HEAD
+<<<<<<< HEAD
             CONF_PORT: "1234",
+=======
+            CONF_PORT: 1234,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             CONF_PORT: 1234,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -89,7 +98,10 @@ async def setup_onewire_patched_owserver_integration(hass):
             },
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
         unique_id=f"{CONF_TYPE_OWSERVER}:1.2.3.4:1234",
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         connection_class=CONN_CLASS_LOCAL_POLL,

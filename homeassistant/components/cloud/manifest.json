@@ -3,7 +3,11 @@
   "name": "Home Assistant Cloud",
   "documentation": "https://www.home-assistant.io/integrations/cloud",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "requirements": ["hass-nabucasa==0.37.2"],
+=======
+  "requirements": ["hass-nabucasa==0.38.0"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
   "requirements": ["hass-nabucasa==0.38.0"],
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

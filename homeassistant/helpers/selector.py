@@ -4,6 +4,10 @@ from typing import Any, Callable, Dict, cast
 import voluptuous as vol
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+from homeassistant.const import CONF_MODE, CONF_UNIT_OF_MEASUREMENT
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from homeassistant.const import CONF_MODE, CONF_UNIT_OF_MEASUREMENT
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -23,6 +27,7 @@ def validate_selector(config: Any) -> Dict:
     selector_type = list(config)[0]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     seslector_class = SELECTORS.get(selector_type)
 
     if seslector_class is None:
@@ -30,6 +35,8 @@ def validate_selector(config: Any) -> Dict:
 
     return cast(Dict, seslector_class.CONFIG_SCHEMA(config[selector_type]))
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     selector_class = SELECTORS.get(selector_type)
 
     if selector_class is None:
@@ -42,6 +49,9 @@ def validate_selector(config: Any) -> Dict:
     return {
         selector_type: cast(Dict, selector_class.CONFIG_SCHEMA(config[selector_type]))
     }
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
@@ -58,15 +68,21 @@ class EntitySelector(Selector):
     CONFIG_SCHEMA = vol.Schema(
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             vol.Optional("integration"): str,
             vol.Optional("domain"): str,
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             # Integration that provided the entity
             vol.Optional("integration"): str,
             # Domain the entity belongs to
             vol.Optional("domain"): str,
             # Device class of the entity
             vol.Optional("device_class"): str,
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         }
     )
@@ -79,12 +95,15 @@ class DeviceSelector(Selector):
     CONFIG_SCHEMA = vol.Schema(
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             vol.Optional("integration"): str,
             vol.Optional("manufacturer"): str,
             vol.Optional("model"): str,
         }
     )
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             # Integration linked to it with a config entry
             vol.Optional("integration"): str,
             # Manufacturer of device
@@ -145,4 +164,7 @@ class TargetSelector(Selector):
     """
 
     CONFIG_SCHEMA = vol.Schema({"entity": {"domain": str}})
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

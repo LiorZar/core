@@ -13,8 +13,13 @@ defusedxml==0.6.0
 distro==1.5.0
 emoji==0.5.4
 <<<<<<< HEAD
+<<<<<<< HEAD
 hass-nabucasa==0.37.2
 home-assistant-frontend==20201111.1
+=======
+hass-nabucasa==0.38.0
+home-assistant-frontend==20201126.0
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 hass-nabucasa==0.38.0
 home-assistant-frontend==20201126.0

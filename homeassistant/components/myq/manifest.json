@@ -3,7 +3,11 @@
   "name": "MyQ",
   "documentation": "https://www.home-assistant.io/integrations/myq",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "requirements": ["pymyq==2.0.8"],
+=======
+  "requirements": ["pymyq==2.0.10"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
   "requirements": ["pymyq==2.0.10"],
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

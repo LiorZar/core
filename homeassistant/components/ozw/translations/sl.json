@@ -3,7 +3,10 @@
         "abort": {
             "mqtt_required": "Integracija MQTT ni nastavljena"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },
         "step": {
             "on_supervisor": {

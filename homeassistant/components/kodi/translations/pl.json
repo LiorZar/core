@@ -23,7 +23,11 @@
             },
             "discovery_confirm": {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "description": "Czy chcesz doda\u0107 Kodi (\"{name}\") do Home Assistant?",
+=======
+                "description": "Czy chcesz doda\u0107 Kodi (\"{name}\") do Home Assistanta?",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 "description": "Czy chcesz doda\u0107 Kodi (\"{name}\") do Home Assistanta?",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

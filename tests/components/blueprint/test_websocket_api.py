@@ -4,7 +4,10 @@ from pathlib import Path
 import pytest
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from homeassistant.components import automation
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.setup import async_setup_component
@@ -19,7 +22,11 @@ async def setup_bp(hass):
 
     # Trigger registration of automation blueprints
 <<<<<<< HEAD
+<<<<<<< HEAD
     automation.async_get_blueprints(hass)
+=======
+    await async_setup_component(hass, "automation", {})
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     await async_setup_component(hass, "automation", {})
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -94,8 +101,12 @@ async def test_import_blueprint(hass, aioclient_mock, hass_ws_client):
     assert msg["success"]
     assert msg["result"] == {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "suggested_filename": "balloob-motion_light",
         "url": "https://github.com/balloob/home-assistant-config/blob/main/blueprints/automation/motion_light.yaml",
+=======
+        "suggested_filename": "balloob/motion_light",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         "suggested_filename": "balloob/motion_light",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -106,13 +117,19 @@ async def test_import_blueprint(hass, aioclient_mock, hass_ws_client):
                 "input": {"service_to_call": None, "trigger_event": None},
                 "name": "Call service based on event",
 <<<<<<< HEAD
+<<<<<<< HEAD
             },
         },
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 "source_url": "https://github.com/balloob/home-assistant-config/blob/main/blueprints/automation/motion_light.yaml",
             },
         },
         "validation_errors": None,
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     }
 

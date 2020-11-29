@@ -21,7 +21,12 @@ def test_fanentity():
     assert fan.capability_attributes == {}
     # Test set_speed not required
 <<<<<<< HEAD
+<<<<<<< HEAD
     fan.oscillate(True)
+=======
+    with pytest.raises(NotImplementedError):
+        fan.oscillate(True)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     with pytest.raises(NotImplementedError):
         fan.oscillate(True)

@@ -3,6 +3,7 @@
         "step": {
             "user": {
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:homeassistant/components/forked_daapd/translations/sv.json
                 "data": {
                     "port": "API port"
@@ -10,6 +11,11 @@
 =======
                 "title": "Pove\u017eite se"
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f:homeassistant/components/advantage_air/translations/sl.json
+=======
+                "data": {
+                    "port": "API port"
+                }
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 "data": {
                     "port": "API port"

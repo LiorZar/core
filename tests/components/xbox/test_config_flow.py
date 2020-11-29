@@ -22,7 +22,13 @@ async def test_abort_if_existing_entry(hass):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async def test_full_flow(hass, aiohttp_client, aioclient_mock, current_request):
+=======
+async def test_full_flow(
+    hass, aiohttp_client, aioclient_mock, current_request_with_host
+):
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 async def test_full_flow(
     hass, aiohttp_client, aioclient_mock, current_request_with_host
@@ -42,8 +48,11 @@ async def test_full_flow(
         "xbox", context={"source": config_entries.SOURCE_USER}
     )
 <<<<<<< HEAD
+<<<<<<< HEAD
     state = config_entry_oauth2_flow._encode_jwt(hass, {"flow_id": result["flow_id"]})
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     state = config_entry_oauth2_flow._encode_jwt(
         hass,
         {
@@ -51,6 +60,9 @@ async def test_full_flow(
             "redirect_uri": "https://example.com/auth/external/callback",
         },
     )
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     scope = "+".join(["Xboxlive.signin", "Xboxlive.offline_access"])

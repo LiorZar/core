@@ -7,10 +7,15 @@ pubsub subscriber.
 
 import datetime
 <<<<<<< HEAD
+<<<<<<< HEAD
 from typing import List
 
 from aiohttp.client_exceptions import ClientConnectionError
 from google_nest_sdm.auth import AbstractAuth
+=======
+
+import aiohttp
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 
 import aiohttp
@@ -46,6 +51,7 @@ DATETIME_FORMAT = "YY-MM-DDTHH:MM:SS"
 DOMAIN = "nest"
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 class FakeResponse:
     """A fake web response used for returning results of commands."""
@@ -88,6 +94,8 @@ class FakeAuth(AbstractAuth):
         return self._responses.pop(0)
 
 
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def async_setup_camera(hass, traits={}, auth=None):
@@ -154,6 +162,7 @@ async def test_camera_device(hass):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async def test_camera_stream(hass, aiohttp_client):
     """Test a basic camera and fetch its live stream."""
     now = utcnow()
@@ -170,6 +179,8 @@ async def test_camera_stream(hass, aiohttp_client):
     )
     await async_setup_camera(hass, DEVICE_TRAITS, auth=FakeAuth([response]))
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def test_camera_stream(hass, auth):
     """Test a basic camera and fetch its live stream."""
     now = utcnow()
@@ -189,6 +200,9 @@ async def test_camera_stream(hass, auth):
         )
     ]
     await async_setup_camera(hass, DEVICE_TRAITS, auth=auth)
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     assert len(hass.states.async_all()) == 1
@@ -210,7 +224,11 @@ async def test_camera_stream(hass, auth):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async def test_refresh_expired_stream_token(hass, aiohttp_client):
+=======
+async def test_refresh_expired_stream_token(hass, auth):
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 async def test_refresh_expired_stream_token(hass, auth):
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -220,9 +238,15 @@ async def test_refresh_expired_stream_token(hass, auth):
     stream_2_expiration = now + datetime.timedelta(seconds=180)
     stream_3_expiration = now + datetime.timedelta(seconds=360)
 <<<<<<< HEAD
+<<<<<<< HEAD
     responses = [
         # Stream URL #1
         FakeResponse(
+=======
+    auth.responses = [
+        # Stream URL #1
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     auth.responses = [
         # Stream URL #1
@@ -241,7 +265,11 @@ async def test_refresh_expired_stream_token(hass, auth):
         ),
         # Stream URL #2
 <<<<<<< HEAD
+<<<<<<< HEAD
         FakeResponse(
+=======
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         aiohttp.web.json_response(
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -255,7 +283,11 @@ async def test_refresh_expired_stream_token(hass, auth):
         ),
         # Stream URL #3
 <<<<<<< HEAD
+<<<<<<< HEAD
         FakeResponse(
+=======
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         aiohttp.web.json_response(
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -272,7 +304,11 @@ async def test_refresh_expired_stream_token(hass, auth):
         hass,
         DEVICE_TRAITS,
 <<<<<<< HEAD
+<<<<<<< HEAD
         auth=FakeAuth(responses),
+=======
+        auth=auth,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         auth=auth,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -312,6 +348,7 @@ async def test_refresh_expired_stream_token(hass, auth):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async def test_camera_removed(hass, aiohttp_client):
     """Test case where entities are removed and stream tokens expired."""
     now = utcnow()
@@ -319,12 +356,17 @@ async def test_camera_removed(hass, aiohttp_client):
     responses = [
         FakeResponse(
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def test_camera_removed(hass, auth):
     """Test case where entities are removed and stream tokens expired."""
     now = utcnow()
     expiration = now + datetime.timedelta(seconds=100)
     auth.responses = [
         aiohttp.web.json_response(
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             {
                 "results": {
@@ -338,7 +380,11 @@ async def test_camera_removed(hass, auth):
             }
         ),
 <<<<<<< HEAD
+<<<<<<< HEAD
         FakeResponse({"results": {}}),
+=======
+        aiohttp.web.json_response({"results": {}}),
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         aiohttp.web.json_response({"results": {}}),
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -347,7 +393,11 @@ async def test_camera_removed(hass, auth):
         hass,
         DEVICE_TRAITS,
 <<<<<<< HEAD
+<<<<<<< HEAD
         auth=FakeAuth(responses),
+=======
+        auth=auth,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         auth=auth,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -367,7 +417,11 @@ async def test_camera_removed(hass, auth):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 async def test_refresh_expired_stream_failure(hass, aiohttp_client):
+=======
+async def test_refresh_expired_stream_failure(hass, auth):
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 async def test_refresh_expired_stream_failure(hass, auth):
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -376,8 +430,13 @@ async def test_refresh_expired_stream_failure(hass, auth):
     stream_1_expiration = now + datetime.timedelta(seconds=90)
     stream_2_expiration = now + datetime.timedelta(seconds=180)
 <<<<<<< HEAD
+<<<<<<< HEAD
     responses = [
         FakeResponse(
+=======
+    auth.responses = [
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     auth.responses = [
         aiohttp.web.json_response(
@@ -395,9 +454,15 @@ async def test_refresh_expired_stream_failure(hass, auth):
         ),
         # Extending the stream fails with arbitrary error
 <<<<<<< HEAD
+<<<<<<< HEAD
         FakeResponse(error=ClientConnectionError()),
         # Next attempt to get a stream fetches a new url
         FakeResponse(
+=======
+        aiohttp.web.Response(status=500),
+        # Next attempt to get a stream fetches a new url
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         aiohttp.web.Response(status=500),
         # Next attempt to get a stream fetches a new url
@@ -419,7 +484,11 @@ async def test_refresh_expired_stream_failure(hass, auth):
         hass,
         DEVICE_TRAITS,
 <<<<<<< HEAD
+<<<<<<< HEAD
         auth=FakeAuth(responses),
+=======
+        auth=auth,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         auth=auth,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

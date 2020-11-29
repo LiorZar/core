@@ -319,7 +319,11 @@ async def test_import_owserver_with_port(hass):
                 CONF_TYPE: CONF_TYPE_OWSERVER,
                 CONF_HOST: "1.2.3.4",
 <<<<<<< HEAD
+<<<<<<< HEAD
                 CONF_PORT: "1234",
+=======
+                CONF_PORT: 1234,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 CONF_PORT: 1234,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -331,7 +335,11 @@ async def test_import_owserver_with_port(hass):
         CONF_TYPE: CONF_TYPE_OWSERVER,
         CONF_HOST: "1.2.3.4",
 <<<<<<< HEAD
+<<<<<<< HEAD
         CONF_PORT: "1234",
+=======
+        CONF_PORT: 1234,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         CONF_PORT: 1234,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -340,7 +348,10 @@ async def test_import_owserver_with_port(hass):
     assert len(mock_setup.mock_calls) == 1
     assert len(mock_setup_entry.mock_calls) == 1
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def test_import_owserver_duplicate(hass):
@@ -370,4 +381,7 @@ async def test_import_owserver_duplicate(hass):
     await hass.async_block_till_done()
     assert len(mock_setup.mock_calls) == 1
     assert len(mock_setup_entry.mock_calls) == 1
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

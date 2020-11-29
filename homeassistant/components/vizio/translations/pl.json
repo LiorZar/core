@@ -3,6 +3,10 @@
         "abort": {
             "already_configured_device": "Urz\u0105dzenie jest ju\u017c skonfigurowane",
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            "cannot_connect": "Nie mo\u017cna nawi\u0105za\u0107 po\u0142\u0105czenia",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             "cannot_connect": "Nie mo\u017cna nawi\u0105za\u0107 po\u0142\u0105czenia",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

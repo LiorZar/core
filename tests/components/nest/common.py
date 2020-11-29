@@ -4,7 +4,11 @@ import time
 
 from google_nest_sdm.device_manager import DeviceManager
 <<<<<<< HEAD
+<<<<<<< HEAD
 from google_nest_sdm.event import EventCallback, EventMessage
+=======
+from google_nest_sdm.event import AsyncEventCallback, EventMessage
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from google_nest_sdm.event import AsyncEventCallback, EventMessage
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -66,7 +70,11 @@ class FakeSubscriber(GoogleNestSubscriber):
         self._callback = None
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def set_update_callback(self, callback: EventCallback):
+=======
+    def set_update_callback(self, callback: AsyncEventCallback):
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     def set_update_callback(self, callback: AsyncEventCallback):
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -86,17 +94,23 @@ class FakeSubscriber(GoogleNestSubscriber):
         return None
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def receive_event(self, event_message: EventMessage):
         """Simulate a received pubsub message, invoked by tests."""
         # Update device state, then invoke HomeAssistant to refresh
         self._device_manager.handle_event(event_message)
         self._callback.handle_event(event_message)
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     async def async_receive_event(self, event_message: EventMessage):
         """Simulate a received pubsub message, invoked by tests."""
         # Update device state, then invoke HomeAssistant to refresh
         await self._device_manager.async_handle_event(event_message)
         await self._callback.async_handle_event(event_message)
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 

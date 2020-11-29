@@ -2,6 +2,10 @@
     "config": {
         "abort": {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            "reauth_successful": "Taastuvastamine \u00f5nnestus",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             "reauth_successful": "Taastuvastamine \u00f5nnestus",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -10,10 +14,13 @@
         "error": {
             "cannot_connect": "\u00dchendamine nurjus",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "invalid_auth": "Tuvastamise viga"
         },
         "step": {
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "invalid_auth": "Tuvastamise viga",
             "invalid_mfa_code": "Kehtetu MFA-kood"
         },
@@ -31,6 +38,9 @@
                 },
                 "title": "Sisesta oma Abode sisselogimisteave"
             },
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "user": {
                 "data": {

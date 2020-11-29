@@ -71,7 +71,13 @@ class Debouncer:
                 return
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             await self.hass.async_add_hass_job(self._job)  # type: ignore
+=======
+            task = self.hass.async_run_hass_job(self._job)
+            if task:
+                await task
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             task = self.hass.async_run_hass_job(self._job)
             if task:
@@ -102,7 +108,13 @@ class Debouncer:
 
             try:
 <<<<<<< HEAD
+<<<<<<< HEAD
                 await self.hass.async_add_hass_job(self._job)  # type: ignore
+=======
+                task = self.hass.async_run_hass_job(self._job)
+                if task:
+                    await task
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 task = self.hass.async_run_hass_job(self._job)
                 if task:

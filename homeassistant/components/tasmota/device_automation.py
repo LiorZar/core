@@ -36,7 +36,11 @@ async def async_setup_entry(hass, config_entry):
     ] = async_dispatcher_connect(
         hass,
 <<<<<<< HEAD
+<<<<<<< HEAD
         TASMOTA_DISCOVERY_ENTITY_NEW.format("device_automation", "tasmota"),
+=======
+        TASMOTA_DISCOVERY_ENTITY_NEW.format("device_automation"),
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         TASMOTA_DISCOVERY_ENTITY_NEW.format("device_automation"),
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

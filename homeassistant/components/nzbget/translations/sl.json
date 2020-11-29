@@ -2,9 +2,19 @@
     "config": {
         "step": {
             "user": {
+<<<<<<< HEAD
+<<<<<<< HEAD:homeassistant/components/nzbget/translations/sl.json
                 "data": {
                     "name": "Ime"
                 }
+=======
+                "title": "Conectar"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f:homeassistant/components/advantage_air/translations/es-419.json
+=======
+                "data": {
+                    "name": "Ime"
+                }
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             }
         }
     }

@@ -78,7 +78,11 @@ class NotionBinarySensor(NotionEntity, BinarySensorEntity):
     def _async_update_from_latest_data(self) -> None:
         """Fetch new state data for the sensor."""
 <<<<<<< HEAD
+<<<<<<< HEAD
         task = self.coordinator.data["tasks"][self._task_id]
+=======
+        task = self.coordinator.data["tasks"][self.task_id]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         task = self.coordinator.data["tasks"][self.task_id]
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

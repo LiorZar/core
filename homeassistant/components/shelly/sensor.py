@@ -15,8 +15,12 @@ from homeassistant.const import (
 )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from . import ShellyDeviceWrapper, get_device_name
 from .const import DATA_CONFIG_ENTRY, DOMAIN, REST, SHAIR_MAX_WORK_HOURS
+=======
+from .const import SHAIR_MAX_WORK_HOURS
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .const import SHAIR_MAX_WORK_HOURS
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -29,7 +33,11 @@ from .entity import (
     async_setup_entry_rest,
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .utils import async_remove_entity_by_domain, temperature_unit
+=======
+from .utils import get_device_uptime, temperature_unit
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .utils import get_device_uptime, temperature_unit
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -175,13 +183,19 @@ SENSORS = {
         },
     ),
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ("adc", "adc"): BlockAttributeDescription(
         name="ADC",
         unit=VOLT,
         value=lambda value: round(value, 1),
         device_class=sensor.DEVICE_CLASS_VOLTAGE,
     ),
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }
 
@@ -189,6 +203,7 @@ REST_SENSORS = {
     "rssi": RestAttributeDescription(
         name="RSSI",
         unit=SIGNAL_STRENGTH_DECIBELS,
+<<<<<<< HEAD
 <<<<<<< HEAD
         device_class=sensor.DEVICE_CLASS_SIGNAL_STRENGTH,
         default_enabled=False,
@@ -199,6 +214,8 @@ REST_SENSORS = {
         device_class=sensor.DEVICE_CLASS_TIMESTAMP,
         path="uptime",
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         value=lambda status, _: status["wifi_sta"]["rssi"],
         device_class=sensor.DEVICE_CLASS_SIGNAL_STRENGTH,
         default_enabled=False,
@@ -208,6 +225,9 @@ REST_SENSORS = {
         value=get_device_uptime,
         device_class=sensor.DEVICE_CLASS_TIMESTAMP,
         default_enabled=False,
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ),
 }

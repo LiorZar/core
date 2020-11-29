@@ -4,7 +4,11 @@
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/sonos",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "requirements": ["pysonos==0.0.36"],
+=======
+  "requirements": ["pysonos==0.0.37"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
   "requirements": ["pysonos==0.0.37"],
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

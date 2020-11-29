@@ -1,6 +1,10 @@
 """Config flow to configure roomba component."""
 <<<<<<< HEAD
+<<<<<<< HEAD
 from roomba import Roomba
+=======
+from roombapy import Roomba
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from roombapy import Roomba
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

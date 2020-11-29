@@ -33,7 +33,11 @@ from .common import (
 )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from tests.async_mock import AsyncMock, MagicMock, patch
+=======
+from tests.async_mock import AsyncMock, patch
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from tests.async_mock import AsyncMock, patch
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

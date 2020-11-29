@@ -6,6 +6,10 @@ import voluptuous as vol
 
 from homeassistant.components import automation, sensor
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+from homeassistant.components.homeassistant.triggers import time
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from homeassistant.components.homeassistant.triggers import time
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -498,7 +502,10 @@ async def test_if_fires_using_at_sensor(hass, calls):
     # We should not have listened to anything
     assert len(calls) == 2
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 @pytest.mark.parametrize(
@@ -589,4 +596,7 @@ async def test_datetime_in_past_on_load(hass, calls):
         calls[0].data["some"]
         == f"time-{future.day}-{future.hour}-input_datetime.my_trigger"
     )
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

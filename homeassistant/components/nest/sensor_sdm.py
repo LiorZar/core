@@ -1,6 +1,10 @@
 """Support for Google Nest SDM sensors."""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+import logging
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 import logging
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -9,6 +13,10 @@ from typing import Optional
 from google_nest_sdm.device import Device
 from google_nest_sdm.device_traits import HumidityTrait, TemperatureTrait
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+from google_nest_sdm.exceptions import GoogleNestException
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from google_nest_sdm.exceptions import GoogleNestException
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -21,6 +29,10 @@ from homeassistant.const import (
     TEMP_CELSIUS,
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+from homeassistant.exceptions import PlatformNotReady
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from homeassistant.exceptions import PlatformNotReady
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -32,6 +44,12 @@ from .const import DOMAIN, SIGNAL_NEST_UPDATE
 from .device_info import DeviceInfo
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+_LOGGER = logging.getLogger(__name__)
+
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,15 +70,21 @@ async def async_setup_sdm_entry(
 
     subscriber = hass.data[DOMAIN][entry.entry_id]
 <<<<<<< HEAD
+<<<<<<< HEAD
     device_manager = await subscriber.async_get_device_manager()
 
     # Fetch initial data so we have data when entities subscribe.
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     try:
         device_manager = await subscriber.async_get_device_manager()
     except GoogleNestException as err:
         _LOGGER.warning("Failed to get devices: %s", err)
         raise PlatformNotReady from err
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     entities = []

@@ -17,8 +17,13 @@ import homeassistant.util.dt as dt_util
 from tests.async_mock import patch
 from tests.common import assert_setup_component, async_fire_time_changed
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 
 

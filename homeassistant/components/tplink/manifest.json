@@ -5,7 +5,11 @@
   "documentation": "https://www.home-assistant.io/integrations/tplink",
   "requirements": [
 <<<<<<< HEAD
+<<<<<<< HEAD
     "pyHS100==0.3.5.1"
+=======
+    "pyHS100==0.3.5.2"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     "pyHS100==0.3.5.2"
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -15,6 +19,9 @@
     "@thegardenmonkey"
   ]
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }
 =======
 }

@@ -2,7 +2,10 @@
     "system_health": {
         "info": {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "board": "\u677f\u5b50",
             "disk_total": "\u78c1\u76d8\u5927\u5c0f",
             "disk_used": "\u78c1\u76d8\u5df2\u7528",
@@ -14,6 +17,9 @@
             "supervisor_version": "Supervisor \u7248\u672c",
             "supported": "\u53d7\u652f\u6301",
             "update_channel": "\u66f4\u65b0\u901a\u9053",
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "version_api": "API\u7248\u672c"
         }

@@ -28,7 +28,11 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 import homeassistant.util.color as color_util
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .const import DATA_REMOVE_DISCOVER_COMPONENT, DOMAIN as TASMOTA_DOMAIN
+=======
+from .const import DATA_REMOVE_DISCOVER_COMPONENT
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .const import DATA_REMOVE_DISCOVER_COMPONENT
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -54,7 +58,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     ] = async_dispatcher_connect(
         hass,
 <<<<<<< HEAD
+<<<<<<< HEAD
         TASMOTA_DISCOVERY_ENTITY_NEW.format(light.DOMAIN, TASMOTA_DOMAIN),
+=======
+        TASMOTA_DISCOVERY_ENTITY_NEW.format(light.DOMAIN),
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         TASMOTA_DISCOVERY_ENTITY_NEW.format(light.DOMAIN),
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -83,7 +91,10 @@ class TasmotaLight(
 
         super().__init__(
 <<<<<<< HEAD
+<<<<<<< HEAD
             discovery_update=self.discovery_update,
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             **kwds,
@@ -105,7 +116,10 @@ class TasmotaLight(
         if light_type != LIGHT_TYPE_NONE:
             supported_features |= SUPPORT_BRIGHTNESS
 <<<<<<< HEAD
+<<<<<<< HEAD
             supported_features |= SUPPORT_TRANSITION
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
@@ -120,6 +134,12 @@ class TasmotaLight(
             supported_features |= SUPPORT_WHITE_VALUE
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        if self._tasmota_entity.supports_transition:
+            supported_features |= SUPPORT_TRANSITION
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         if self._tasmota_entity.supports_transition:
             supported_features |= SUPPORT_TRANSITION

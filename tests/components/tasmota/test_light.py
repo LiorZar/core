@@ -63,7 +63,10 @@ async def test_attributes_on_off(hass, mqtt_mock, setup_tasmota):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def test_attributes_dimmer_tuya(hass, mqtt_mock, setup_tasmota):
     """Test state update via MQTT."""
     config = copy.deepcopy(DEFAULT_CONFIG)
@@ -88,6 +91,9 @@ async def test_attributes_dimmer_tuya(hass, mqtt_mock, setup_tasmota):
     assert state.attributes.get("supported_features") == SUPPORT_BRIGHTNESS
 
 
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def test_attributes_dimmer(hass, mqtt_mock, setup_tasmota):
     """Test state update via MQTT."""
@@ -537,7 +543,10 @@ async def test_sending_mqtt_commands_on_off(hass, mqtt_mock, setup_tasmota):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def test_sending_mqtt_commands_rgbww_tuya(hass, mqtt_mock, setup_tasmota):
     """Test the sending MQTT commands."""
     config = copy.deepcopy(DEFAULT_CONFIG)
@@ -585,6 +594,9 @@ async def test_sending_mqtt_commands_rgbww_tuya(hass, mqtt_mock, setup_tasmota):
     )
 
 
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def test_sending_mqtt_commands_rgbww(hass, mqtt_mock, setup_tasmota):
     """Test the sending MQTT commands."""
@@ -752,17 +764,23 @@ async def test_transition(hass, mqtt_mock, setup_tasmota):
     mqtt_mock.async_publish.reset_mock()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Dim the light from 0->50: Speed should be 4*2/2=4
     await common.async_turn_on(hass, "light.test", brightness=128, transition=4)
     mqtt_mock.async_publish.assert_called_once_with(
         "tasmota_49A3BC/cmnd/Backlog",
         "NoDelay;Fade 1;NoDelay;Speed 4;NoDelay;Dimmer 50",
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     # Dim the light from 0->50: Speed should be 4*2*2=16
     await common.async_turn_on(hass, "light.test", brightness=128, transition=4)
     mqtt_mock.async_publish.assert_called_once_with(
         "tasmota_49A3BC/cmnd/Backlog",
         "NoDelay;Fade 1;NoDelay;Speed 16;NoDelay;Dimmer 50",
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         0,
         False,
@@ -778,12 +796,15 @@ async def test_transition(hass, mqtt_mock, setup_tasmota):
     assert state.attributes.get("brightness") == 127.5
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Dim the light from 50->0: Speed should be 6*2/2=6
     await common.async_turn_off(hass, "light.test", transition=6)
     mqtt_mock.async_publish.assert_called_once_with(
         "tasmota_49A3BC/cmnd/Backlog",
         "NoDelay;Fade 1;NoDelay;Speed 6;NoDelay;Power1 OFF",
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     # Dim the light from 50->0: Speed should be 6*2*2=24
     await common.async_turn_off(hass, "light.test", transition=6)
     mqtt_mock.async_publish.assert_called_once_with(
@@ -869,6 +890,9 @@ async def test_transition(hass, mqtt_mock, setup_tasmota):
     mqtt_mock.async_publish.assert_called_once_with(
         "tasmota_49A3BC/cmnd/Backlog",
         "NoDelay;Fade 1;NoDelay;Speed 40;NoDelay;Power1 ON;NoDelay;CT 326",
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         0,
         False,

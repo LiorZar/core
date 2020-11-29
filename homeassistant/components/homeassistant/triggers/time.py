@@ -143,6 +143,11 @@ async def async_attach_trigger(hass, config, action, automation_info):
         if remove:
             entities[entity_id] = remove
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+    to_track = []
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 
     to_track = []
@@ -152,6 +157,10 @@ async def async_attach_trigger(hass, config, action, automation_info):
         if isinstance(at_time, str):
             # entity
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            to_track.append(at_time)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             to_track.append(at_time)
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

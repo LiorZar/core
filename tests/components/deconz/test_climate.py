@@ -82,8 +82,11 @@ async def test_climate_device_without_cooling_support(hass):
 
     assert len(hass.states.async_all()) == 2
 <<<<<<< HEAD
+<<<<<<< HEAD
     assert hass.states.get("climate.thermostat").state == HVAC_MODE_AUTO
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     climate_thermostat = hass.states.get("climate.thermostat")
     assert climate_thermostat.state == HVAC_MODE_AUTO
     assert climate_thermostat.attributes["hvac_modes"] == [
@@ -93,6 +96,9 @@ async def test_climate_device_without_cooling_support(hass):
     ]
     assert climate_thermostat.attributes["current_temperature"] == 22.6
     assert climate_thermostat.attributes["temperature"] == 22.0
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     assert hass.states.get("sensor.thermostat") is None
     assert hass.states.get("sensor.thermostat_battery_level").state == "100"

@@ -13,7 +13,11 @@ jobs:
       # Used for: Everything (unless 30 day policy below beats it)
       - name: 90 days stale policy
 <<<<<<< HEAD
+<<<<<<< HEAD
         uses: actions/stale@v3.0.13
+=======
+        uses: actions/stale@v3.0.14
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         uses: actions/stale@v3.0.14
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -53,7 +57,11 @@ jobs:
       # - PRs that are not marked as new-integration
       - name: 30 days stale policy
 <<<<<<< HEAD
+<<<<<<< HEAD
         uses: actions/stale@v3.0.13
+=======
+        uses: actions/stale@v3.0.14
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         uses: actions/stale@v3.0.14
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

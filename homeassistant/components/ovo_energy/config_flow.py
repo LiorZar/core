@@ -8,8 +8,14 @@ from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .const import CONF_ACCOUNT_ID, DOMAIN  # pylint: disable=unused-import
 
+=======
+from .const import DOMAIN  # pylint: disable=unused-import
+
+REAUTH_SCHEMA = vol.Schema({vol.Required(CONF_PASSWORD): str})
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 from .const import DOMAIN  # pylint: disable=unused-import
 

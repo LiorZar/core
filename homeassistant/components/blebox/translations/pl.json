@@ -17,7 +17,11 @@
                     "port": "Port"
                 },
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "description": "Skonfiguruj BleBox, aby zintegrowa\u0107 si\u0119 z Home Assistant.",
+=======
+                "description": "Skonfiguruj BleBox, aby zintegrowa\u0107 si\u0119 z Home Assistantem.",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 "description": "Skonfiguruj BleBox, aby zintegrowa\u0107 si\u0119 z Home Assistantem.",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

@@ -2,9 +2,15 @@
     "config": {
         "step": {
             "user": {
+<<<<<<< HEAD
 <<<<<<< HEAD:homeassistant/components/forked_daapd/translations/sv.json
                 "data": {
                     "port": "API port"
+=======
+<<<<<<< HEAD:homeassistant/components/aurora/translations/sl.json
+                "data": {
+                    "name": "Ime"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 }
 =======
                 "title": "Pove\u017eite se"

@@ -98,7 +98,11 @@ async def async_get_image(
     """Get an image from a frame of an RTSP stream."""
     manager = hass.data[DATA_FFMPEG]
 <<<<<<< HEAD
+<<<<<<< HEAD
     ffmpeg = ImageFrame(manager.binary, loop=hass.loop)
+=======
+    ffmpeg = ImageFrame(manager.binary)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     ffmpeg = ImageFrame(manager.binary)
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

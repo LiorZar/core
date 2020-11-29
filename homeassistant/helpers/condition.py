@@ -459,6 +459,7 @@ def async_template(
         return False
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     if isinstance(value, bool):
         return value
 
@@ -466,6 +467,9 @@ def async_template(
         return value.lower() == "true"
 
     return False
+=======
+    return value.lower() == "true"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     return value.lower() == "true"
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

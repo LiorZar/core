@@ -2,17 +2,23 @@
   "image": "homeassistant/{arch}-homeassistant",
   "build_from": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "aarch64": "homeassistant/aarch64-homeassistant-base:2020.10.1",
     "armhf": "homeassistant/armhf-homeassistant-base:2020.10.1",
     "armv7": "homeassistant/armv7-homeassistant-base:2020.10.1",
     "amd64": "homeassistant/amd64-homeassistant-base:2020.10.1",
     "i386": "homeassistant/i386-homeassistant-base:2020.10.1"
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     "aarch64": "homeassistant/aarch64-homeassistant-base:2020.11.2",
     "armhf": "homeassistant/armhf-homeassistant-base:2020.11.2",
     "armv7": "homeassistant/armv7-homeassistant-base:2020.11.2",
     "amd64": "homeassistant/amd64-homeassistant-base:2020.11.2",
     "i386": "homeassistant/i386-homeassistant-base:2020.11.2"
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
   },
   "labels": {

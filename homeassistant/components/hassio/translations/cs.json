@@ -4,7 +4,11 @@
             "board": "Deska",
             "disk_total": "Kapacita disku",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "disk_used": "Obsazen\u00fd disk",
+=======
+            "disk_used": "Obsazeno na disku",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             "disk_used": "Obsazeno na disku",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

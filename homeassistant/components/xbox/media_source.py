@@ -85,7 +85,11 @@ class XboxSource(MediaSource):
         """Resolve media to a url."""
         _, category, url = async_parse_identifier(item)
 <<<<<<< HEAD
+<<<<<<< HEAD
         _, kind = category.split("#", 1)
+=======
+        kind = category.split("#", 1)[1]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         kind = category.split("#", 1)[1]
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -272,7 +276,11 @@ def _build_categories(title):
 def _build_media_item(title: str, category: str, item: XboxMediaItem):
     """Build individual media item."""
 <<<<<<< HEAD
+<<<<<<< HEAD
     _, kind = category.split("#", 1)
+=======
+    kind = category.split("#", 1)[1]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     kind = category.split("#", 1)[1]
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

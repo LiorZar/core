@@ -4,8 +4,11 @@ from typing import Any
 import voluptuous as vol
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from homeassistant.const import CONF_DOMAIN, CONF_NAME, CONF_PATH, CONF_SELECTOR
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.const import (
     CONF_DEFAULT,
     CONF_DOMAIN,
@@ -13,6 +16,9 @@ from homeassistant.const import (
     CONF_PATH,
     CONF_SELECTOR,
 )
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.core import callback
 from homeassistant.helpers import config_validation as cv, selector
@@ -21,7 +27,13 @@ from .const import (
     CONF_BLUEPRINT,
     CONF_DESCRIPTION,
 <<<<<<< HEAD
+<<<<<<< HEAD
     CONF_INPUT,
+=======
+    CONF_HOMEASSISTANT,
+    CONF_INPUT,
+    CONF_MIN_VERSION,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     CONF_HOMEASSISTANT,
     CONF_INPUT,
@@ -33,7 +45,10 @@ from .const import (
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 def version_validator(value):
     """Validate a Home Assistant version."""
     if not isinstance(value, str):
@@ -54,6 +69,9 @@ def version_validator(value):
     return value
 
 
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 @callback
 def is_blueprint_config(config: Any) -> bool:
@@ -72,6 +90,10 @@ BLUEPRINT_INPUT_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME): str,
         vol.Optional(CONF_DESCRIPTION): str,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        vol.Optional(CONF_DEFAULT): cv.match_all,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
         vol.Optional(CONF_DEFAULT): cv.match_all,
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -85,15 +107,21 @@ BLUEPRINT_SCHEMA = vol.Schema(
             {
                 vol.Required(CONF_NAME): str,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 vol.Required(CONF_DOMAIN): str,
                 vol.Optional(CONF_SOURCE_URL): cv.url,
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 vol.Optional(CONF_DESCRIPTION): str,
                 vol.Required(CONF_DOMAIN): str,
                 vol.Optional(CONF_SOURCE_URL): cv.url,
                 vol.Optional(CONF_HOMEASSISTANT): {
                     vol.Optional(CONF_MIN_VERSION): version_validator
                 },
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 vol.Optional(CONF_INPUT, default=dict): {
                     str: vol.Any(
@@ -121,7 +149,11 @@ BLUEPRINT_INSTANCE_FIELDS = vol.Schema(
             {
                 vol.Required(CONF_PATH): vol.All(cv.path, validate_yaml_suffix),
 <<<<<<< HEAD
+<<<<<<< HEAD
                 vol.Required(CONF_INPUT): {str: cv.match_all},
+=======
+                vol.Required(CONF_INPUT, default=dict): {str: cv.match_all},
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 vol.Required(CONF_INPUT, default=dict): {str: cv.match_all},
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

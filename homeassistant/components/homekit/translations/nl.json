@@ -38,7 +38,12 @@
             "init": {
                 "data": {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     "include_domains": "Op te nemen domeinen"
+=======
+                    "include_domains": "Op te nemen domeinen",
+                    "mode": "modus"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                     "include_domains": "Op te nemen domeinen",
                     "mode": "modus"

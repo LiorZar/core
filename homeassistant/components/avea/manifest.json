@@ -4,7 +4,11 @@
   "documentation": "https://www.home-assistant.io/integrations/avea",
   "codeowners": ["@pattyland"],
 <<<<<<< HEAD
+<<<<<<< HEAD
   "requirements": ["avea==1.5"]
+=======
+  "requirements": ["avea==1.5.1"]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
   "requirements": ["avea==1.5.1"]
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

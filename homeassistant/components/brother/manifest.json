@@ -4,7 +4,11 @@
   "documentation": "https://www.home-assistant.io/integrations/brother",
   "codeowners": ["@bieniu"],
 <<<<<<< HEAD
+<<<<<<< HEAD
   "requirements": ["brother==0.1.18"],
+=======
+  "requirements": ["brother==0.1.20"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
   "requirements": ["brother==0.1.20"],
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

@@ -3,7 +3,13 @@ DOMAIN = "plugwise"
 
 SENSOR_PLATFORMS = ["sensor", "switch"]
 <<<<<<< HEAD
+<<<<<<< HEAD
 ALL_PLATFORMS = ["binary_sensor", "climate", "sensor", "switch"]
+=======
+PLATFORMS_GATEWAY = ["binary_sensor", "climate", "sensor", "switch"]
+PW_TYPE = "plugwise_type"
+GATEWAY = "gateway"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 PLATFORMS_GATEWAY = ["binary_sensor", "climate", "sensor", "switch"]
 PW_TYPE = "plugwise_type"

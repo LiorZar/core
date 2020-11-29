@@ -448,10 +448,16 @@ class HomeAssistant:
         """
         if asyncio.iscoroutine(target):
 <<<<<<< HEAD
+<<<<<<< HEAD
             self.async_create_task(cast(Coroutine, target))
             return
 
         self.async_run_hass_job(HassJob(target), *args)
+=======
+            return self.async_create_task(cast(Coroutine, target))
+
+        return self.async_run_hass_job(HassJob(target), *args)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             return self.async_create_task(cast(Coroutine, target))
 

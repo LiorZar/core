@@ -102,7 +102,11 @@ class PointFlowHandler(config_entries.ConfigFlow):
         except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("Unexpected error generating auth url")
 <<<<<<< HEAD
+<<<<<<< HEAD
             return self.async_abort(reason="authorize_url_fail")
+=======
+            return self.async_abort(reason="unknown_authorize_url_generation")
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             return self.async_abort(reason="unknown_authorize_url_generation")
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

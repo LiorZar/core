@@ -32,7 +32,10 @@ _LOGGER = logging.getLogger(__name__)
             }
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         # With selector
         {
             "blueprint": {
@@ -53,6 +56,9 @@ _LOGGER = logging.getLogger(__name__)
                 },
             }
         },
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ),
 )
@@ -87,7 +93,10 @@ def test_blueprint_schema(blueprint):
             }
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         # Invalid version
         {
             "blueprint": {
@@ -98,6 +107,9 @@ def test_blueprint_schema(blueprint):
                 },
             }
         },
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ),
 )
@@ -106,7 +118,10 @@ def test_blueprint_schema_invalid(blueprint):
     with pytest.raises(vol.Invalid):
         schemas.BLUEPRINT_SCHEMA(blueprint)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 @pytest.mark.parametrize(
@@ -120,4 +135,7 @@ def test_blueprint_schema_invalid(blueprint):
 def test_blueprint_instance_fields(bp_instance):
     """Test blueprint instance fields."""
     schemas.BLUEPRINT_INSTANCE_FIELDS({"use_blueprint": bp_instance})
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

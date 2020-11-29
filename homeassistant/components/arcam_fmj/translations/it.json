@@ -5,10 +5,13 @@
             "already_in_progress": "Il flusso di configurazione \u00e8 gi\u00e0 in corso",
             "cannot_connect": "Impossibile connettersi"
 <<<<<<< HEAD
+<<<<<<< HEAD
         },
         "error": {
             "one": "uno",
             "other": "altri"
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },

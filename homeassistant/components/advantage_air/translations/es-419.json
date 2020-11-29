@@ -2,9 +2,15 @@
     "config": {
         "step": {
             "user": {
+<<<<<<< HEAD
 <<<<<<< HEAD:homeassistant/components/blebox/translations/sv.json
                 "data": {
                     "port": "Port"
+=======
+<<<<<<< HEAD:homeassistant/components/nzbget/translations/sl.json
+                "data": {
+                    "name": "Ime"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 }
 =======
                 "title": "Conectar"

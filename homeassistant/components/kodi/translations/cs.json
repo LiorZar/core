@@ -5,6 +5,10 @@
             "cannot_connect": "Nepoda\u0159ilo se p\u0159ipojit",
             "invalid_auth": "Neplatn\u00e9 ov\u011b\u0159en\u00ed",
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            "no_uuid": "Instance Kodi nem\u00e1 jedine\u010dn\u00e9 ID. To je pravd\u011bpodobn\u011b zp\u016fsobeno starou verz\u00ed Kodi (17.x nebo ni\u017e\u0161\u00ed). Integraci m\u016f\u017eete nastavit ru\u010dn\u011b nebo aktualizovat na nov\u011bj\u0161\u00ed verzi Kodi.",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             "no_uuid": "Instance Kodi nem\u00e1 jedine\u010dn\u00e9 ID. To je pravd\u011bpodobn\u011b zp\u016fsobeno starou verz\u00ed Kodi (17.x nebo ni\u017e\u0161\u00ed). Integraci m\u016f\u017eete nastavit ru\u010dn\u011b nebo aktualizovat na nov\u011bj\u0161\u00ed verzi Kodi.",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

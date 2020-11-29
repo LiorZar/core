@@ -57,7 +57,10 @@ def test_extract_blueprint_from_community_topic(community_post):
     )
     assert imported_blueprint is not None
 <<<<<<< HEAD
+<<<<<<< HEAD
     assert imported_blueprint.url == "http://example.com"
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     assert imported_blueprint.blueprint.domain == "automation"
@@ -83,15 +86,21 @@ def test_extract_blueprint_from_community_topic_invalid_yaml():
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 def test__extract_blueprint_from_community_topic_wrong_lang():
     """Test extracting blueprint with invalid YAML."""
     assert (
         importer._extract_blueprint_from_community_topic(
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 def test_extract_blueprint_from_community_topic_wrong_lang():
     """Test extracting blueprint with invalid YAML."""
     with pytest.raises(importer.HomeAssistantError):
         assert importer._extract_blueprint_from_community_topic(
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "http://example.com",
             {
@@ -103,8 +112,11 @@ def test_extract_blueprint_from_community_topic_wrong_lang():
             },
         )
 <<<<<<< HEAD
+<<<<<<< HEAD
         is None
     )
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
@@ -124,12 +136,18 @@ async def test_fetch_blueprint_from_community_url(hass, aioclient_mock, communit
         "trigger_event",
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     assert imported_blueprint.suggested_filename == "balloob/test-topic"
     assert (
         imported_blueprint.blueprint.metadata["source_url"]
         == "https://community.home-assistant.io/t/test-topic/123/2"
     )
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
@@ -157,7 +175,10 @@ async def test_fetch_blueprint_from_github_url(hass, aioclient_mock, url):
         "trigger_event",
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     assert imported_blueprint.suggested_filename == "balloob/motion_light"
     assert imported_blueprint.blueprint.metadata["source_url"] == url
 
@@ -179,4 +200,7 @@ async def test_fetch_blueprint_from_github_gist_url(hass, aioclient_mock):
     }
     assert imported_blueprint.suggested_filename == "balloob/motion_light"
     assert imported_blueprint.blueprint.metadata["source_url"] == url
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

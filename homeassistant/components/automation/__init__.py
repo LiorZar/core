@@ -163,6 +163,12 @@ async def async_setup(hass, config):
     """Set up the automation."""
     hass.data[DOMAIN] = component = EntityComponent(LOGGER, DOMAIN, hass)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+    # To register the automation blueprints
+    async_get_blueprints(hass)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 
     # To register the automation blueprints
@@ -492,7 +498,11 @@ async def _async_process_config(
     config: Dict[str, Any],
     component: EntityComponent,
 <<<<<<< HEAD
+<<<<<<< HEAD
 ) -> None:
+=======
+) -> bool:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
 ) -> bool:
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -511,6 +521,10 @@ async def _async_process_config(
         for list_no, config_block in enumerate(conf):
             if isinstance(config_block, blueprint.BlueprintInputs):  # type: ignore
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+                blueprints_used = True
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
                 blueprints_used = True
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

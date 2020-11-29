@@ -3,6 +3,10 @@
         "abort": {
             "already_configured_device": "Seade on juba h\u00e4\u00e4lestatud",
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+            "cannot_connect": "\u00dchendamine nurjus",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
             "cannot_connect": "\u00dchendamine nurjus",
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

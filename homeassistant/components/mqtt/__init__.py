@@ -1485,6 +1485,7 @@ def async_subscribe_connection_status(hass, connection_status_callback):
 
     connection_status_callback_job = HassJob(connection_status_callback)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     @callback
     def connected():
@@ -1496,6 +1497,9 @@ def async_subscribe_connection_status(hass, connection_status_callback):
         hass.async_add_hass_job(connection_status_callback_job, False)
 =======
 
+=======
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     async def connected():
         task = hass.async_run_hass_job(connection_status_callback_job, True)
         if task:
@@ -1505,6 +1509,9 @@ def async_subscribe_connection_status(hass, connection_status_callback):
         task = hass.async_run_hass_job(connection_status_callback_job, False)
         if task:
             await task
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     subscriptions = {

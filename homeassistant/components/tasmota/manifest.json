@@ -4,7 +4,11 @@
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/tasmota",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "requirements": ["hatasmota==0.0.30"],
+=======
+  "requirements": ["hatasmota==0.1.2"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
   "requirements": ["hatasmota==0.1.2"],
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

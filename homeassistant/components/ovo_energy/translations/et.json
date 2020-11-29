@@ -6,8 +6,11 @@
             "invalid_auth": "Tuvastamise viga"
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
         "step": {
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         "flow_title": "OVO Energy: {username}",
         "step": {
             "reauth": {
@@ -17,6 +20,9 @@
                 "description": "OVO Energy autentimine nurjus. Sisesta oma praegused volitused.",
                 "title": "Taastuvastamine"
             },
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "user": {
                 "data": {

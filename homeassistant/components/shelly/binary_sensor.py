@@ -89,6 +89,7 @@ REST_SENSORS = {
             "installed_version": status["update"]["old_version"],
         },
     ),
+<<<<<<< HEAD
 }
 
 REST_SENSORS = {
@@ -105,6 +106,8 @@ REST_SENSORS = {
         path="update/has_update",
         attributes={"description": "available version:", "path": "update/new_version"},
     ),
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }
 
 

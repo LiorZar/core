@@ -35,8 +35,11 @@ AUTH_CALLBACK_PATH = "/auth/external/callback"
 HEADER_FRONTEND_BASE = "HA-Frontend-Base"
 
 CLOCK_OUT_OF_SYNC_MAX_SEC = 20
+<<<<<<< HEAD
 
 CLOCK_OUT_OF_SYNC_MAX_SEC = 20
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 class AbstractOAuth2Implementation(ABC):

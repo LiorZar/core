@@ -89,6 +89,7 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
     data = hass.data[DOMAIN]
     data[API] = api.ConfigEntrySomfyApi(hass, entry, implementation)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     async def _update_all_devices():
         """Update all the devices."""
@@ -107,6 +108,8 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
     await coordinator.async_refresh()
 
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     async def _update_all_devices():
         """Update all the devices."""
@@ -124,6 +127,9 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
 
     await coordinator.async_refresh()
 
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     if all(not bool(device.states) for device in coordinator.data.values()):
         _LOGGER.debug(
@@ -185,7 +191,11 @@ class SomfyEntity(CoordinatorEntity, Entity):
 
     @property
 <<<<<<< HEAD
+<<<<<<< HEAD
     def unique_id(self):
+=======
+    def unique_id(self) -> str:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     def unique_id(self) -> str:
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -213,7 +223,11 @@ class SomfyEntity(CoordinatorEntity, Entity):
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def has_capability(self, capability):
+=======
+    def has_capability(self, capability: str) -> bool:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 =======
     def has_capability(self, capability: str) -> bool:
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
@@ -222,9 +236,12 @@ class SomfyEntity(CoordinatorEntity, Entity):
         return bool([c for c in capabilities if c.name == capability])
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     @property
     def assumed_state(self):
 =======
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     def has_state(self, state: str) -> bool:
         """Test if device has a state."""
         states = self.device.states
@@ -232,6 +249,9 @@ class SomfyEntity(CoordinatorEntity, Entity):
 
     @property
     def assumed_state(self) -> bool:
+<<<<<<< HEAD
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+=======
 >>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         """Return if the device has an assumed state."""
         return not bool(self.device.states)
