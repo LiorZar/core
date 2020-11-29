@@ -3,7 +3,10 @@ from pathlib import Path
 
 import pytest
 
+<<<<<<< HEAD
 from homeassistant.components import automation
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.setup import async_setup_component
 
 from tests.async_mock import Mock, patch
@@ -15,7 +18,11 @@ async def setup_bp(hass):
     assert await async_setup_component(hass, "blueprint", {})
 
     # Trigger registration of automation blueprints
+<<<<<<< HEAD
     automation.async_get_blueprints(hass)
+=======
+    await async_setup_component(hass, "automation", {})
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def test_list_blueprints(hass, hass_ws_client):
@@ -86,16 +93,27 @@ async def test_import_blueprint(hass, aioclient_mock, hass_ws_client):
     assert msg["id"] == 5
     assert msg["success"]
     assert msg["result"] == {
+<<<<<<< HEAD
         "suggested_filename": "balloob-motion_light",
         "url": "https://github.com/balloob/home-assistant-config/blob/main/blueprints/automation/motion_light.yaml",
+=======
+        "suggested_filename": "balloob/motion_light",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         "raw_data": raw_data,
         "blueprint": {
             "metadata": {
                 "domain": "automation",
                 "input": {"service_to_call": None, "trigger_event": None},
                 "name": "Call service based on event",
+<<<<<<< HEAD
             },
         },
+=======
+                "source_url": "https://github.com/balloob/home-assistant-config/blob/main/blueprints/automation/motion_light.yaml",
+            },
+        },
+        "validation_errors": None,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     }
 
 

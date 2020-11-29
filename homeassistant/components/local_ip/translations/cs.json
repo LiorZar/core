@@ -8,6 +8,10 @@
                 "data": {
                     "name": "N\u00e1zev senzoru"
                 },
+<<<<<<< HEAD
+=======
+                "description": "Chcete za\u010d\u00edt nastavovat?",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 "title": "M\u00edstn\u00ed IP adresa"
             }
         }

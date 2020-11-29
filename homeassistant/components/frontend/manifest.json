@@ -2,7 +2,11 @@
   "domain": "frontend",
   "name": "Home Assistant Frontend",
   "documentation": "https://www.home-assistant.io/integrations/frontend",
+<<<<<<< HEAD
   "requirements": ["home-assistant-frontend==20201111.1"],
+=======
+  "requirements": ["home-assistant-frontend==20201126.0"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
   "dependencies": [
     "api",
     "auth",

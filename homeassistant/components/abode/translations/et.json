@@ -1,13 +1,37 @@
 {
     "config": {
         "abort": {
+<<<<<<< HEAD
+=======
+            "reauth_successful": "Taastuvastamine \u00f5nnestus",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "single_instance_allowed": "Juba seadistatud. V\u00f5imalik on ainult \u00fcks seadistamine."
         },
         "error": {
             "cannot_connect": "\u00dchendamine nurjus",
+<<<<<<< HEAD
             "invalid_auth": "Tuvastamise viga"
         },
         "step": {
+=======
+            "invalid_auth": "Tuvastamise viga",
+            "invalid_mfa_code": "Kehtetu MFA-kood"
+        },
+        "step": {
+            "mfa": {
+                "data": {
+                    "mfa_code": "MFA kood (6-kohaline)"
+                },
+                "title": "Sisesta oma Abode MFA kood"
+            },
+            "reauth_confirm": {
+                "data": {
+                    "password": "Salas\u00f5na",
+                    "username": "E-post"
+                },
+                "title": "Sisesta oma Abode sisselogimisteave"
+            },
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "user": {
                 "data": {
                     "password": "Salas\u00f5na",

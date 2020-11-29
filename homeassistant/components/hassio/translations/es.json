@@ -6,12 +6,20 @@
             "disk_used": "Disco usado",
             "docker_version": "Versi\u00f3n de Docker",
             "healthy": "Saludable",
+<<<<<<< HEAD
             "host_os": "Sistema operativo host",
+=======
+            "host_os": "Sistema operativo del Host",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "installed_addons": "Complementos instalados",
             "supervisor_api": "API del Supervisor",
             "supervisor_version": "Versi\u00f3n del Supervisor",
             "supported": "Soportado",
+<<<<<<< HEAD
             "update_channel": "Actualizar canal",
+=======
+            "update_channel": "Canal de actualizaci\u00f3n",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "version_api": "Versi\u00f3n del API"
         }
     },

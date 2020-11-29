@@ -5,6 +5,10 @@
             "dev": "Desenvolvimento",
             "docker": "Docker",
             "docker_version": "Docker",
+<<<<<<< HEAD
+=======
+            "hassio": "Supervisor",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "host_os": "Sistema Operativo do Home Assistant",
             "installation_type": "Tipo de Instala\u00e7\u00e3o",
             "os_name": "Nome do Sistema Operativo",

@@ -2,6 +2,10 @@
     "config": {
         "abort": {
             "already_configured_device": "Urz\u0105dzenie jest ju\u017c skonfigurowane",
+<<<<<<< HEAD
+=======
+            "cannot_connect": "Nie mo\u017cna nawi\u0105za\u0107 po\u0142\u0105czenia",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "updated_entry": "Ten wpis zosta\u0142 ju\u017c skonfigurowany, ale nazwa, aplikacje i/lub opcje zdefiniowane w konfiguracji nie pasuj\u0105 do wcze\u015bniej zaimportowanych warto\u015bci, wi\u0119c wpis konfiguracji zosta\u0142 odpowiednio zaktualizowany."
         },
         "error": {

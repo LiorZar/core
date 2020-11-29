@@ -453,11 +453,12 @@ def async_template(
 ) -> bool:
     """Test if template condition matches."""
     try:
-        value = value_template.async_render(variables)
+        value: str = value_template.async_render(variables, parse_result=False)
     except TemplateError as ex:
         _LOGGER.error("Error during template condition: %s", ex)
         return False
 
+<<<<<<< HEAD
     if isinstance(value, bool):
         return value
 
@@ -465,6 +466,9 @@ def async_template(
         return value.lower() == "true"
 
     return False
+=======
+    return value.lower() == "true"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 def async_template_from_config(

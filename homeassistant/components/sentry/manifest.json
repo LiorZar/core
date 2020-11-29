@@ -3,6 +3,10 @@
   "name": "Sentry",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/sentry",
+<<<<<<< HEAD
   "requirements": ["sentry-sdk==0.19.3"],
+=======
+  "requirements": ["sentry-sdk==0.19.4"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
   "codeowners": ["@dcramer", "@frenck"]
 }

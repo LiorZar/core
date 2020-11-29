@@ -14,8 +14,12 @@ from homeassistant.const import (
     VOLT,
 )
 
+<<<<<<< HEAD
 from . import ShellyDeviceWrapper, get_device_name
 from .const import DATA_CONFIG_ENTRY, DOMAIN, REST, SHAIR_MAX_WORK_HOURS
+=======
+from .const import SHAIR_MAX_WORK_HOURS
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from .entity import (
     BlockAttributeDescription,
     RestAttributeDescription,
@@ -24,13 +28,20 @@ from .entity import (
     async_setup_entry_attribute_entities,
     async_setup_entry_rest,
 )
+<<<<<<< HEAD
 from .utils import async_remove_entity_by_domain, temperature_unit
+=======
+from .utils import get_device_uptime, temperature_unit
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 _LOGGER = logging.getLogger(__name__)
 
 BATTERY_SENSOR = {
     ("device", "battery"): BlockAttributeDescription(
-        name="Battery", unit=PERCENTAGE, device_class=sensor.DEVICE_CLASS_BATTERY
+        name="Battery",
+        unit=PERCENTAGE,
+        device_class=sensor.DEVICE_CLASS_BATTERY,
+        removal_condition=lambda settings, _: settings.get("external_power") == 1,
     ),
 }
 
@@ -163,12 +174,22 @@ SENSORS = {
             "Operational hours": round(block.totalWorkTime / 3600, 1)
         },
     ),
+<<<<<<< HEAD
+=======
+    ("adc", "adc"): BlockAttributeDescription(
+        name="ADC",
+        unit=VOLT,
+        value=lambda value: round(value, 1),
+        device_class=sensor.DEVICE_CLASS_VOLTAGE,
+    ),
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }
 
 REST_SENSORS = {
     "rssi": RestAttributeDescription(
         name="RSSI",
         unit=SIGNAL_STRENGTH_DECIBELS,
+<<<<<<< HEAD
         device_class=sensor.DEVICE_CLASS_SIGNAL_STRENGTH,
         default_enabled=False,
         path="wifi_sta/rssi",
@@ -177,6 +198,17 @@ REST_SENSORS = {
         name="Uptime",
         device_class=sensor.DEVICE_CLASS_TIMESTAMP,
         path="uptime",
+=======
+        value=lambda status, _: status["wifi_sta"]["rssi"],
+        device_class=sensor.DEVICE_CLASS_SIGNAL_STRENGTH,
+        default_enabled=False,
+    ),
+    "uptime": RestAttributeDescription(
+        name="Uptime",
+        value=get_device_uptime,
+        device_class=sensor.DEVICE_CLASS_TIMESTAMP,
+        default_enabled=False,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ),
 }
 

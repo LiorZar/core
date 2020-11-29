@@ -2,6 +2,13 @@
   "domain": "enphase_envoy",
   "name": "Enphase Envoy",
   "documentation": "https://www.home-assistant.io/integrations/enphase_envoy",
+<<<<<<< HEAD
   "requirements": ["envoy_reader==0.16.2"],
   "codeowners": []
+=======
+  "requirements": ["envoy_reader==0.17.0"],
+  "codeowners": [
+    "@gtdiehl"
+  ]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }

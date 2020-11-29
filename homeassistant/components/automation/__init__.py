@@ -162,8 +162,15 @@ def devices_in_automation(hass: HomeAssistant, entity_id: str) -> List[str]:
 async def async_setup(hass, config):
     """Set up the automation."""
     hass.data[DOMAIN] = component = EntityComponent(LOGGER, DOMAIN, hass)
+<<<<<<< HEAD
+=======
 
-    await _async_process_config(hass, config, component)
+    # To register the automation blueprints
+    async_get_blueprints(hass)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
+
+    if not await _async_process_config(hass, config, component):
+        await async_get_blueprints(hass).async_populate()
 
     async def trigger_service_handler(entity, service_call):
         """Handle automation triggers."""
@@ -484,12 +491,17 @@ async def _async_process_config(
     hass: HomeAssistant,
     config: Dict[str, Any],
     component: EntityComponent,
+<<<<<<< HEAD
 ) -> None:
+=======
+) -> bool:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     """Process config and add automations.
 
-    This method is a coroutine.
+    Returns if blueprints were used.
     """
     entities = []
+    blueprints_used = False
 
     for config_key in extract_domain_configs(config, DOMAIN):
         conf: List[Union[Dict[str, Any], blueprint.BlueprintInputs]] = config[  # type: ignore
@@ -498,6 +510,10 @@ async def _async_process_config(
 
         for list_no, config_block in enumerate(conf):
             if isinstance(config_block, blueprint.BlueprintInputs):  # type: ignore
+<<<<<<< HEAD
+=======
+                blueprints_used = True
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 blueprint_inputs = config_block
 
                 try:
@@ -558,6 +574,8 @@ async def _async_process_config(
 
     if entities:
         await component.async_add_entities(entities)
+
+    return blueprints_used
 
 
 async def _async_process_if(hass, config, p_config):

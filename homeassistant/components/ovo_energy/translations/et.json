@@ -5,7 +5,19 @@
             "cannot_connect": "\u00dchendus nurjus",
             "invalid_auth": "Tuvastamise viga"
         },
+<<<<<<< HEAD
         "step": {
+=======
+        "flow_title": "OVO Energy: {username}",
+        "step": {
+            "reauth": {
+                "data": {
+                    "password": "Salas\u00f5na"
+                },
+                "description": "OVO Energy autentimine nurjus. Sisesta oma praegused volitused.",
+                "title": "Taastuvastamine"
+            },
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "user": {
                 "data": {
                     "password": "Salas\u00f5na",

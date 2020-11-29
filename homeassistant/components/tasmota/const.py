@@ -10,6 +10,11 @@ DOMAIN = "tasmota"
 
 PLATFORMS = [
     "binary_sensor",
+<<<<<<< HEAD
+=======
+    "cover",
+    "fan",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     "light",
     "sensor",
     "switch",

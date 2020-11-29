@@ -6,10 +6,15 @@ pubsub subscriber.
 """
 
 import datetime
+<<<<<<< HEAD
 from typing import List
 
 from aiohttp.client_exceptions import ClientConnectionError
 from google_nest_sdm.auth import AbstractAuth
+=======
+
+import aiohttp
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from google_nest_sdm.device import Device
 
 from homeassistant.components import camera
@@ -41,6 +46,7 @@ DATETIME_FORMAT = "YY-MM-DDTHH:MM:SS"
 DOMAIN = "nest"
 
 
+<<<<<<< HEAD
 class FakeResponse:
     """A fake web response used for returning results of commands."""
 
@@ -82,6 +88,8 @@ class FakeAuth(AbstractAuth):
         return self._responses.pop(0)
 
 
+=======
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def async_setup_camera(hass, traits={}, auth=None):
     """Set up the platform and prerequisites."""
     devices = {}
@@ -145,6 +153,7 @@ async def test_camera_device(hass):
     assert device.identifiers == {("nest", DEVICE_ID)}
 
 
+<<<<<<< HEAD
 async def test_camera_stream(hass, aiohttp_client):
     """Test a basic camera and fetch its live stream."""
     now = utcnow()
@@ -160,6 +169,27 @@ async def test_camera_stream(hass, aiohttp_client):
         }
     )
     await async_setup_camera(hass, DEVICE_TRAITS, auth=FakeAuth([response]))
+=======
+async def test_camera_stream(hass, auth):
+    """Test a basic camera and fetch its live stream."""
+    now = utcnow()
+    expiration = now + datetime.timedelta(seconds=100)
+    auth.responses = [
+        aiohttp.web.json_response(
+            {
+                "results": {
+                    "streamUrls": {
+                        "rtspUrl": "rtsp://some/url?auth=g.0.streamingToken"
+                    },
+                    "streamExtensionToken": "g.1.extensionToken",
+                    "streamToken": "g.0.streamingToken",
+                    "expiresAt": expiration.isoformat(timespec="seconds"),
+                },
+            }
+        )
+    ]
+    await async_setup_camera(hass, DEVICE_TRAITS, auth=auth)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     assert len(hass.states.async_all()) == 1
     cam = hass.states.get("camera.my_camera")
@@ -179,15 +209,25 @@ async def test_camera_stream(hass, aiohttp_client):
     assert image.content == b"image bytes"
 
 
+<<<<<<< HEAD
 async def test_refresh_expired_stream_token(hass, aiohttp_client):
+=======
+async def test_refresh_expired_stream_token(hass, auth):
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     """Test a camera stream expiration and refresh."""
     now = utcnow()
     stream_1_expiration = now + datetime.timedelta(seconds=90)
     stream_2_expiration = now + datetime.timedelta(seconds=180)
     stream_3_expiration = now + datetime.timedelta(seconds=360)
+<<<<<<< HEAD
     responses = [
         # Stream URL #1
         FakeResponse(
+=======
+    auth.responses = [
+        # Stream URL #1
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             {
                 "results": {
                     "streamUrls": {
@@ -200,7 +240,11 @@ async def test_refresh_expired_stream_token(hass, aiohttp_client):
             }
         ),
         # Stream URL #2
+<<<<<<< HEAD
         FakeResponse(
+=======
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             {
                 "results": {
                     "streamExtensionToken": "g.2.extensionToken",
@@ -210,7 +254,11 @@ async def test_refresh_expired_stream_token(hass, aiohttp_client):
             }
         ),
         # Stream URL #3
+<<<<<<< HEAD
         FakeResponse(
+=======
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             {
                 "results": {
                     "streamExtensionToken": "g.3.extensionToken",
@@ -223,7 +271,11 @@ async def test_refresh_expired_stream_token(hass, aiohttp_client):
     await async_setup_camera(
         hass,
         DEVICE_TRAITS,
+<<<<<<< HEAD
         auth=FakeAuth(responses),
+=======
+        auth=auth,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     )
 
     assert len(hass.states.async_all()) == 1
@@ -259,12 +311,21 @@ async def test_refresh_expired_stream_token(hass, aiohttp_client):
     assert stream_source == "rtsp://some/url?auth=g.3.streamingToken"
 
 
+<<<<<<< HEAD
 async def test_camera_removed(hass, aiohttp_client):
     """Test case where entities are removed and stream tokens expired."""
     now = utcnow()
     expiration = now + datetime.timedelta(seconds=100)
     responses = [
         FakeResponse(
+=======
+async def test_camera_removed(hass, auth):
+    """Test case where entities are removed and stream tokens expired."""
+    now = utcnow()
+    expiration = now + datetime.timedelta(seconds=100)
+    auth.responses = [
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             {
                 "results": {
                     "streamUrls": {
@@ -276,12 +337,20 @@ async def test_camera_removed(hass, aiohttp_client):
                 },
             }
         ),
+<<<<<<< HEAD
         FakeResponse({"results": {}}),
+=======
+        aiohttp.web.json_response({"results": {}}),
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ]
     await async_setup_camera(
         hass,
         DEVICE_TRAITS,
+<<<<<<< HEAD
         auth=FakeAuth(responses),
+=======
+        auth=auth,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     )
 
     assert len(hass.states.async_all()) == 1
@@ -297,13 +366,22 @@ async def test_camera_removed(hass, aiohttp_client):
     assert len(hass.states.async_all()) == 0
 
 
+<<<<<<< HEAD
 async def test_refresh_expired_stream_failure(hass, aiohttp_client):
+=======
+async def test_refresh_expired_stream_failure(hass, auth):
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     """Tests a failure when refreshing the stream."""
     now = utcnow()
     stream_1_expiration = now + datetime.timedelta(seconds=90)
     stream_2_expiration = now + datetime.timedelta(seconds=180)
+<<<<<<< HEAD
     responses = [
         FakeResponse(
+=======
+    auth.responses = [
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             {
                 "results": {
                     "streamUrls": {
@@ -316,9 +394,15 @@ async def test_refresh_expired_stream_failure(hass, aiohttp_client):
             }
         ),
         # Extending the stream fails with arbitrary error
+<<<<<<< HEAD
         FakeResponse(error=ClientConnectionError()),
         # Next attempt to get a stream fetches a new url
         FakeResponse(
+=======
+        aiohttp.web.Response(status=500),
+        # Next attempt to get a stream fetches a new url
+        aiohttp.web.json_response(
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             {
                 "results": {
                     "streamUrls": {
@@ -334,7 +418,11 @@ async def test_refresh_expired_stream_failure(hass, aiohttp_client):
     await async_setup_camera(
         hass,
         DEVICE_TRAITS,
+<<<<<<< HEAD
         auth=FakeAuth(responses),
+=======
+        auth=auth,
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     )
 
     assert len(hass.states.async_all()) == 1

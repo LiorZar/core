@@ -14,6 +14,10 @@ from tests.common import (
     mock_device_registry,
     mock_registry,
 )
+<<<<<<< HEAD
+=======
+from tests.components.blueprint.conftest import stub_blueprint_populate  # noqa
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 @pytest.fixture

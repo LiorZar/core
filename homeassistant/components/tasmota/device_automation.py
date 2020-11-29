@@ -35,7 +35,11 @@ async def async_setup_entry(hass, config_entry):
         DATA_REMOVE_DISCOVER_COMPONENT.format("device_automation")
     ] = async_dispatcher_connect(
         hass,
+<<<<<<< HEAD
         TASMOTA_DISCOVERY_ENTITY_NEW.format("device_automation", "tasmota"),
+=======
+        TASMOTA_DISCOVERY_ENTITY_NEW.format("device_automation"),
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         async_discover,
     )
     hass.data[DATA_UNSUB].append(

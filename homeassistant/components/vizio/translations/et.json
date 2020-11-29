@@ -2,6 +2,10 @@
     "config": {
         "abort": {
             "already_configured_device": "Seade on juba h\u00e4\u00e4lestatud",
+<<<<<<< HEAD
+=======
+            "cannot_connect": "\u00dchendamine nurjus",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "updated_entry": "See kirje on juba seadistatud, kuid konfiguratsioonis m\u00e4\u00e4ratletud nimi, rakendused ja / v\u00f5i suvandid ei \u00fchti varem imporditud konfiguratsiooniga, seega on konfiguratsioonikirjet vastavalt v\u00e4rskendatud."
         },
         "error": {

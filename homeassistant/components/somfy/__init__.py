@@ -88,6 +88,7 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
 
     data = hass.data[DOMAIN]
     data[API] = api.ConfigEntrySomfyApi(hass, entry, implementation)
+<<<<<<< HEAD
 
     async def _update_all_devices():
         """Update all the devices."""
@@ -105,6 +106,25 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
 
     await coordinator.async_refresh()
 
+=======
+
+    async def _update_all_devices():
+        """Update all the devices."""
+        devices = await hass.async_add_executor_job(data[API].get_devices)
+        return {dev.id: dev for dev in devices}
+
+    coordinator = DataUpdateCoordinator(
+        hass,
+        _LOGGER,
+        name="somfy device update",
+        update_method=_update_all_devices,
+        update_interval=SCAN_INTERVAL,
+    )
+    data[COORDINATOR] = coordinator
+
+    await coordinator.async_refresh()
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     if all(not bool(device.states) for device in coordinator.data.values()):
         _LOGGER.debug(
             "All devices have assumed state. Update interval has been reduced to: %s",
@@ -164,12 +184,16 @@ class SomfyEntity(CoordinatorEntity, Entity):
         return self.coordinator.data[self._id]
 
     @property
+<<<<<<< HEAD
     def unique_id(self):
+=======
+    def unique_id(self) -> str:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         """Return the unique id base on the id returned by Somfy."""
         return self._id
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Return the name of the device."""
         return self.device.name
 
@@ -188,13 +212,27 @@ class SomfyEntity(CoordinatorEntity, Entity):
             "manufacturer": "Somfy",
         }
 
+<<<<<<< HEAD
     def has_capability(self, capability):
+=======
+    def has_capability(self, capability: str) -> bool:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         """Test if device has a capability."""
         capabilities = self.device.capabilities
         return bool([c for c in capabilities if c.name == capability])
 
+<<<<<<< HEAD
     @property
     def assumed_state(self):
+=======
+    def has_state(self, state: str) -> bool:
+        """Test if device has a state."""
+        states = self.device.states
+        return bool([c for c in states if c.name == state])
+
+    @property
+    def assumed_state(self) -> bool:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         """Return if the device has an assumed state."""
         return not bool(self.device.states)
 

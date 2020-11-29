@@ -19,7 +19,11 @@ from homeassistant.util.color import (
 from . import ShellyDeviceWrapper
 from .const import COAP, DATA_CONFIG_ENTRY, DOMAIN
 from .entity import ShellyBlockEntity
+<<<<<<< HEAD
 from .utils import async_remove_entity_by_domain
+=======
+from .utils import async_remove_shelly_entity
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -39,9 +43,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 unique_id = (
                     f'{wrapper.device.shelly["mac"]}-{block.type}_{block.channel}'
                 )
+<<<<<<< HEAD
                 await async_remove_entity_by_domain(
                     hass, "switch", unique_id, config_entry.entry_id
                 )
+=======
+                await async_remove_shelly_entity(hass, "switch", unique_id)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     if not blocks:
         return

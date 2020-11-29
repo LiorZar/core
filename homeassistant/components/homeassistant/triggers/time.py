@@ -142,10 +142,19 @@ async def async_attach_trigger(hass, config, action, automation_info):
         # Was a listener set up?
         if remove:
             entities[entity_id] = remove
+<<<<<<< HEAD
+=======
+
+    to_track = []
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     for at_time in config[CONF_AT]:
         if isinstance(at_time, str):
             # entity
+<<<<<<< HEAD
+=======
+            to_track.append(at_time)
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             update_entity_trigger(at_time, new_state=hass.states.get(at_time))
         else:
             # datetime.time
@@ -161,9 +170,7 @@ async def async_attach_trigger(hass, config, action, automation_info):
 
     # Track state changes of any entities.
     removes.append(
-        async_track_state_change_event(
-            hass, list(entities), update_entity_trigger_event
-        )
+        async_track_state_change_event(hass, to_track, update_entity_trigger_event)
     )
 
     @callback

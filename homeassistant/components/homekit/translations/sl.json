@@ -6,7 +6,7 @@
         "step": {
             "pairing": {
                 "description": "Takoj, ko je most {name} pripravljen, bo zdru\u017eevanje na voljo v \"Obvestilih\" kot \"Nastavitev HomeKit mostu\".",
-                "title": "Upari HomeKit Most"
+                "title": "Seznani HomeKit"
             },
             "user": {
                 "data": {
@@ -36,7 +36,12 @@
             },
             "include_exclude": {
                 "data": {
+<<<<<<< HEAD
                     "entities": "Entitete"
+=======
+                    "entities": "Entitete",
+                    "mode": "Na\u010din"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 },
                 "title": "Izberite entitete, ki jih \u017eelite izpostaviti"
             },

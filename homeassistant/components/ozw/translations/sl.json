@@ -2,6 +2,14 @@
     "config": {
         "abort": {
             "mqtt_required": "Integracija MQTT ni nastavljena"
+<<<<<<< HEAD
+=======
+        },
+        "step": {
+            "on_supervisor": {
+                "title": "Izberite na\u010din povezave"
+            }
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         }
     }
 }

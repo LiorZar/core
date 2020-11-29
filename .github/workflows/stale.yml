@@ -12,7 +12,11 @@ jobs:
       # The 90 day stale policy
       # Used for: Everything (unless 30 day policy below beats it)
       - name: 90 days stale policy
+<<<<<<< HEAD
         uses: actions/stale@v3.0.13
+=======
+        uses: actions/stale@v3.0.14
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 90
@@ -48,7 +52,11 @@ jobs:
       # - Issues that are pending more information (incomplete issues)
       # - PRs that are not marked as new-integration
       - name: 30 days stale policy
+<<<<<<< HEAD
         uses: actions/stale@v3.0.13
+=======
+        uses: actions/stale@v3.0.14
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           # PRs have a CLA signed label, we can misuse it to apply this policy

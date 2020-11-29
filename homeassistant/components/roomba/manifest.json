@@ -3,6 +3,10 @@
   "name": "iRobot Roomba",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/roomba",
+<<<<<<< HEAD
   "requirements": ["roombapy==1.6.1"],
+=======
+  "requirements": ["roombapy==1.6.2"],
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
   "codeowners": ["@pschmitt", "@cyr-ius", "@shenxn"]
 }

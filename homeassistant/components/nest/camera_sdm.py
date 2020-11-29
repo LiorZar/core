@@ -4,14 +4,24 @@ import datetime
 import logging
 from typing import Optional
 
+<<<<<<< HEAD
 from aiohttp.client_exceptions import ClientError
 from google_nest_sdm.camera_traits import CameraImageTrait, CameraLiveStreamTrait
 from google_nest_sdm.device import Device
+=======
+from google_nest_sdm.camera_traits import CameraImageTrait, CameraLiveStreamTrait
+from google_nest_sdm.device import Device
+from google_nest_sdm.exceptions import GoogleNestException
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from haffmpeg.tools import IMAGE_JPEG
 
 from homeassistant.components.camera import SUPPORT_STREAM, Camera
 from homeassistant.components.ffmpeg import async_get_image
 from homeassistant.config_entries import ConfigEntry
+<<<<<<< HEAD
+=======
+from homeassistant.exceptions import PlatformNotReady
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.typing import HomeAssistantType
@@ -32,7 +42,14 @@ async def async_setup_sdm_entry(
     """Set up the cameras."""
 
     subscriber = hass.data[DOMAIN][entry.entry_id]
+<<<<<<< HEAD
     device_manager = await subscriber.async_get_device_manager()
+=======
+    try:
+        device_manager = await subscriber.async_get_device_manager()
+    except GoogleNestException as err:
+        raise PlatformNotReady from err
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     # Fetch initial data so we have data when entities subscribe.
 
@@ -130,7 +147,11 @@ class NestCamera(Camera):
         self._stream_refresh_unsub = None
         try:
             self._stream = await self._stream.extend_rtsp_stream()
+<<<<<<< HEAD
         except ClientError as err:
+=======
+        except GoogleNestException as err:
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             _LOGGER.debug("Failed to extend stream: %s", err)
             # Next attempt to catch a url will get a new one
             self._stream = None

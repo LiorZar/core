@@ -3,7 +3,11 @@
         "abort": {
             "already_configured": "Apparaat is al geconfigureerd"
         },
+<<<<<<< HEAD
         "flow_title": "Denon AVR Network Receiver: {naam}",
+=======
+        "flow_title": "Denon AVR Network Receiver: {name}",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         "step": {
             "confirm": {
                 "title": "Denon AVR Network Receivers"

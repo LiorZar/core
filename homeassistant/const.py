@@ -1,6 +1,10 @@
 """Constants used by Home Assistant components."""
 MAJOR_VERSION = 0
+<<<<<<< HEAD
 MINOR_VERSION = 118
+=======
+MINOR_VERSION = 119
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 PATCH_VERSION = "0.dev0"
 __short_version__ = f"{MAJOR_VERSION}.{MINOR_VERSION}"
 __version__ = f"{__short_version__}.{PATCH_VERSION}"
@@ -170,6 +174,7 @@ CONF_STATE = "state"
 CONF_STATE_TEMPLATE = "state_template"
 CONF_STRUCTURE = "structure"
 CONF_SWITCHES = "switches"
+CONF_TARGET = "target"
 CONF_TEMPERATURE_UNIT = "temperature_unit"
 CONF_TIMEOUT = "timeout"
 CONF_TIME_ZONE = "time_zone"

@@ -9,6 +9,10 @@ from io import StringIO
 import json
 import logging
 import os
+<<<<<<< HEAD
+=======
+import pathlib
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 import threading
 import time
 import uuid
@@ -193,6 +197,8 @@ async def async_test_home_assistant(loop):
     hass.async_add_job = async_add_job
     hass.async_add_executor_job = async_add_executor_job
     hass.async_create_task = async_create_task
+
+    hass.data[loader.DATA_CUSTOM_COMPONENTS] = {}
 
     hass.config.location_name = "test home"
     hass.config.config_dir = get_test_config_dir()
@@ -704,6 +710,9 @@ def patch_yaml_files(files_dict, endswith=True):
     def mock_open_f(fname, **_):
         """Mock open() in the yaml module, used by load_yaml."""
         # Return the mocked file on full match
+        if isinstance(fname, pathlib.Path):
+            fname = str(fname)
+
         if fname in files_dict:
             _LOGGER.debug("patch_yaml_files match %s", fname)
             res = StringIO(files_dict[fname])

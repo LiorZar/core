@@ -4,6 +4,7 @@ from pydeconz.sensor import Thermostat
 from homeassistant.components.climate import DOMAIN, ClimateEntity
 from homeassistant.components.climate.const import (
     HVAC_MODE_AUTO,
+    HVAC_MODE_COOL,
     HVAC_MODE_HEAT,
     HVAC_MODE_OFF,
     SUPPORT_TARGET_TEMPERATURE,
@@ -16,7 +17,16 @@ from .const import ATTR_OFFSET, ATTR_VALVE, NEW_SENSOR
 from .deconz_device import DeconzDevice
 from .gateway import get_gateway_from_config_entry
 
+<<<<<<< HEAD
 HVAC_MODES = {HVAC_MODE_AUTO: "auto", HVAC_MODE_HEAT: "heat", HVAC_MODE_OFF: "off"}
+=======
+HVAC_MODES = {
+    HVAC_MODE_AUTO: "auto",
+    HVAC_MODE_COOL: "cool",
+    HVAC_MODE_HEAT: "heat",
+    HVAC_MODE_OFF: "off",
+}
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -61,10 +71,22 @@ class DeconzThermostat(DeconzDevice, ClimateEntity):
 
     TYPE = DOMAIN
 
+    def __init__(self, device, gateway):
+        """Set up thermostat device."""
+        super().__init__(device, gateway)
+
+        self._hvac_modes = dict(HVAC_MODES)
+        if "coolsetpoint" not in device.raw["config"]:
+            self._hvac_modes.pop(HVAC_MODE_COOL)
+
+        self._features = SUPPORT_TARGET_TEMPERATURE
+
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return SUPPORT_TARGET_TEMPERATURE
+        return self._features
+
+    # HVAC control
 
     @property
     def hvac_mode(self):
@@ -72,7 +94,11 @@ class DeconzThermostat(DeconzDevice, ClimateEntity):
 
         Need to be one of HVAC_MODE_*.
         """
+<<<<<<< HEAD
         for hass_hvac_mode, device_mode in HVAC_MODES.items():
+=======
+        for hass_hvac_mode, device_mode in self._hvac_modes.items():
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             if self._device.mode == device_mode:
                 return hass_hvac_mode
 
@@ -84,16 +110,33 @@ class DeconzThermostat(DeconzDevice, ClimateEntity):
     @property
     def hvac_modes(self) -> list:
         """Return the list of available hvac operation modes."""
+<<<<<<< HEAD
         return list(HVAC_MODES)
+=======
+        return list(self._hvac_modes)
+
+    async def async_set_hvac_mode(self, hvac_mode: str) -> None:
+        """Set new target hvac mode."""
+        if hvac_mode not in self._hvac_modes:
+            raise ValueError(f"Unsupported HVAC mode {hvac_mode}")
+
+        data = {"mode": self._hvac_modes[hvac_mode]}
+
+        await self._device.async_set_config(data)
+
+    # Temperature control
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     @property
-    def current_temperature(self):
+    def current_temperature(self) -> float:
         """Return the current temperature."""
         return self._device.temperature
 
     @property
-    def target_temperature(self):
+    def target_temperature(self) -> float:
         """Return the target temperature."""
+        if self._device.mode == "cool":
+            return self._device.coolsetpoint
         return self._device.heatsetpoint
 
     async def async_set_temperature(self, **kwargs):
@@ -102,6 +145,7 @@ class DeconzThermostat(DeconzDevice, ClimateEntity):
             raise ValueError(f"Expected attribute {ATTR_TEMPERATURE}")
 
         data = {"heatsetpoint": kwargs[ATTR_TEMPERATURE] * 100}
+<<<<<<< HEAD
 
         await self._device.async_set_config(data)
 
@@ -111,6 +155,10 @@ class DeconzThermostat(DeconzDevice, ClimateEntity):
             raise ValueError(f"Unsupported mode {hvac_mode}")
 
         data = {"mode": HVAC_MODES[hvac_mode]}
+=======
+        if self._device.mode == "cool":
+            data = {"coolsetpoint": kwargs[ATTR_TEMPERATURE] * 100}
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
         await self._device.async_set_config(data)
 

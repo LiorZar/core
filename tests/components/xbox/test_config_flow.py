@@ -21,7 +21,13 @@ async def test_abort_if_existing_entry(hass):
     assert result["reason"] == "single_instance_allowed"
 
 
+<<<<<<< HEAD
 async def test_full_flow(hass, aiohttp_client, aioclient_mock, current_request):
+=======
+async def test_full_flow(
+    hass, aiohttp_client, aioclient_mock, current_request_with_host
+):
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     """Check full flow."""
     assert await setup.async_setup_component(
         hass,
@@ -35,7 +41,17 @@ async def test_full_flow(hass, aiohttp_client, aioclient_mock, current_request):
     result = await hass.config_entries.flow.async_init(
         "xbox", context={"source": config_entries.SOURCE_USER}
     )
+<<<<<<< HEAD
     state = config_entry_oauth2_flow._encode_jwt(hass, {"flow_id": result["flow_id"]})
+=======
+    state = config_entry_oauth2_flow._encode_jwt(
+        hass,
+        {
+            "flow_id": result["flow_id"],
+            "redirect_uri": "https://example.com/auth/external/callback",
+        },
+    )
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     scope = "+".join(["Xboxlive.signin", "Xboxlive.offline_access"])
 

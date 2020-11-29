@@ -56,7 +56,11 @@ def is_duplicate_owserver_entry(hass: HomeAssistantType, user_input):
         if (
             config_entry.data[CONF_TYPE] == CONF_TYPE_OWSERVER
             and config_entry.data[CONF_HOST] == user_input[CONF_HOST]
+<<<<<<< HEAD
             and config_entry.data[CONF_PORT] == str(user_input[CONF_PORT])
+=======
+            and config_entry.data[CONF_PORT] == user_input[CONF_PORT]
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         ):
             return True
     return False

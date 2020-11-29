@@ -81,9 +81,15 @@ async def async_setup_entry(hass, entry):
             update_method=partial(async_get_data_from_api, api_coro),
         )
         init_data_update_tasks.append(coordinator.async_refresh())
+<<<<<<< HEAD
 
     await asyncio.gather(*init_data_update_tasks)
 
+=======
+
+    await asyncio.gather(*init_data_update_tasks)
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     for component in PLATFORMS:
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
@@ -155,6 +161,7 @@ class IQVIAEntity(CoordinatorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
+<<<<<<< HEAD
         self.update_from_latest_data()
         self.async_write_ha_state()
 
@@ -162,6 +169,18 @@ class IQVIAEntity(CoordinatorEntity):
         """Register callbacks."""
         await super().async_added_to_hass()
 
+=======
+        if not self.coordinator.last_update_success:
+            return
+
+        self.update_from_latest_data()
+        self.async_write_ha_state()
+
+    async def async_added_to_hass(self):
+        """Register callbacks."""
+        await super().async_added_to_hass()
+
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         if self._type == TYPE_ALLERGY_FORECAST:
             self.async_on_remove(
                 self.hass.data[DOMAIN][DATA_COORDINATOR][self._entry.entry_id][

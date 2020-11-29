@@ -6,7 +6,11 @@
   "documentation": "https://www.home-assistant.io/integrations/nest",
   "requirements": [
       "python-nest==4.1.0",
+<<<<<<< HEAD
       "google-nest-sdm==0.1.14"
+=======
+      "google-nest-sdm==0.2.0"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
   ],
   "codeowners": [
       "@awarecan",

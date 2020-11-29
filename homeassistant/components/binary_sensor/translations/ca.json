@@ -127,7 +127,11 @@
             "on": "Calent"
         },
         "light": {
+<<<<<<< HEAD
             "off": "Sense llum",
+=======
+            "off": "No s'ha detectat llum",
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "on": "Llum detectada"
         },
         "lock": {

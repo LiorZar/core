@@ -48,7 +48,7 @@ class Debouncer:
 
     async def async_call(self) -> None:
         """Call the function."""
-        assert self.function is not None
+        assert self._job is not None
 
         if self._timer_task:
             if not self._execute_at_end_of_timer:
@@ -70,13 +70,19 @@ class Debouncer:
             if self._timer_task:
                 return
 
+<<<<<<< HEAD
             await self.hass.async_add_hass_job(self._job)  # type: ignore
+=======
+            task = self.hass.async_run_hass_job(self._job)
+            if task:
+                await task
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
             self._schedule_timer()
 
     async def _handle_timer_finish(self) -> None:
         """Handle a finished timer."""
-        assert self.function is not None
+        assert self._job is not None
 
         self._timer_task = None
 
@@ -95,7 +101,13 @@ class Debouncer:
                 return  # type: ignore
 
             try:
+<<<<<<< HEAD
                 await self.hass.async_add_hass_job(self._job)  # type: ignore
+=======
+                task = self.hass.async_run_hass_job(self._job)
+                if task:
+                    await task
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             except Exception:  # pylint: disable=broad-except
                 self.logger.exception("Unexpected exception from %s", self.function)
 

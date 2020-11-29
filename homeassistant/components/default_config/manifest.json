@@ -5,8 +5,14 @@
   "dependencies": [
     "automation",
     "cloud",
+    "counter",
     "frontend",
     "history",
+    "input_boolean",
+    "input_datetime",
+    "input_number",
+    "input_select",
+    "input_text",
     "logbook",
     "map",
     "media_source",
@@ -18,8 +24,11 @@
     "sun",
     "system_health",
     "tag",
+    "timer",
     "updater",
+    "webhook",
     "zeroconf",
+<<<<<<< HEAD
     "zone",
     "input_boolean",
     "input_datetime",
@@ -28,6 +37,9 @@
     "input_select",
     "counter",
     "timer"
+=======
+    "zone"
+>>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
   ],
   "codeowners": []
 }
