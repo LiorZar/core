@@ -9,14 +9,7 @@ from io import StringIO
 import json
 import logging
 import os
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import pathlib
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-import pathlib
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 import threading
 import time
 import uuid

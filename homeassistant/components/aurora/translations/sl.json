@@ -2,19 +2,9 @@
     "config": {
         "step": {
             "user": {
-<<<<<<< HEAD
-<<<<<<< HEAD:homeassistant/components/aurora/translations/sl.json
                 "data": {
                     "name": "Ime"
                 }
-=======
-                "title": "Pove\u017eite se"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f:homeassistant/components/advantage_air/translations/sl.json
-=======
-                "data": {
-                    "name": "Ime"
-                }
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             }
         }
     }

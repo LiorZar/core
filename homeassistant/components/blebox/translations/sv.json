@@ -2,25 +2,9 @@
     "config": {
         "step": {
             "user": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD:homeassistant/components/blebox/translations/sv.json
                 "data": {
                     "port": "Port"
                 }
-=======
-                "title": "Conectar"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f:homeassistant/components/advantage_air/translations/es-419.json
-=======
-                "data": {
-                    "port": "Port"
-                }
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-                "data": {
-                    "port": "Port"
-                }
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             }
         }
     }

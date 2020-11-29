@@ -28,11 +28,6 @@ def blueprint_1():
 
 
 @pytest.fixture
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 def blueprint_2():
     """Blueprint fixture with default placeholder."""
     return models.Blueprint(
@@ -53,10 +48,6 @@ def blueprint_2():
 
 
 @pytest.fixture
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 def domain_bps(hass):
     """Domain blueprints fixture."""
     return models.DomainBlueprints(hass, "automation", logging.getLogger(__name__))
@@ -100,15 +91,7 @@ def test_blueprint_properties(blueprint_1):
 
 
 def test_blueprint_update_metadata():
-<<<<<<< HEAD
-<<<<<<< HEAD
-    """Test properties."""
-=======
     """Test update metadata."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    """Test update metadata."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     bp = models.Blueprint(
         {
             "blueprint": {
@@ -122,20 +105,6 @@ def test_blueprint_update_metadata():
     assert bp.metadata["source_url"] == "http://bla.com"
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-def test_blueprint_inputs(blueprint_1):
-    """Test blueprint inputs."""
-    inputs = models.BlueprintInputs(
-        blueprint_1,
-        {"use_blueprint": {"path": "bla", "input": {"test-placeholder": 1}}},
-    )
-    inputs.validate()
-    assert inputs.inputs == {"test-placeholder": 1}
-    assert inputs.async_substitute() == {"example": 1}
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 def test_blueprint_validate():
     """Test validate blueprint."""
     assert (
@@ -182,10 +151,6 @@ def test_blueprint_inputs(blueprint_2):
         "example": 1,
         "example-default": {"overridden": "via-config"},
     }
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 def test_blueprint_inputs_validation(blueprint_1):
@@ -198,11 +163,6 @@ def test_blueprint_inputs_validation(blueprint_1):
         inputs.validate()
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 def test_blueprint_inputs_default(blueprint_2):
     """Test blueprint inputs."""
     inputs = models.BlueprintInputs(
@@ -241,10 +201,6 @@ def test_blueprint_inputs_override_default(blueprint_2):
     assert inputs.async_substitute() == {"example": 1, "example-default": "custom"}
 
 
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 async def test_domain_blueprints_get_blueprint_errors(hass, domain_bps):
     """Test domain blueprints."""
     assert hass.data["blueprint"]["automation"] is domain_bps
@@ -256,18 +212,8 @@ async def test_domain_blueprints_get_blueprint_errors(hass, domain_bps):
 
     with patch(
         "homeassistant.util.yaml.load_yaml", return_value={"blueprint": "invalid"}
-<<<<<<< HEAD
-<<<<<<< HEAD
-    ):
-        assert await domain_bps.async_get_blueprint("non-existing-path") is None
-=======
     ), pytest.raises(errors.FailedToLoad):
         await domain_bps.async_get_blueprint("non-existing-path")
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    ), pytest.raises(errors.FailedToLoad):
-        await domain_bps.async_get_blueprint("non-existing-path")
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def test_domain_blueprints_caching(domain_bps):
@@ -321,11 +267,6 @@ async def test_domain_blueprints_add_blueprint(domain_bps, blueprint_1):
     with patch.object(domain_bps, "_load_blueprint") as mock_load:
         assert await domain_bps.async_get_blueprint("something.yaml") == blueprint_1
         assert not mock_load.mock_calls
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def test_inputs_from_config_nonexisting_blueprint(domain_bps):
@@ -334,7 +275,3 @@ async def test_inputs_from_config_nonexisting_blueprint(domain_bps):
         await domain_bps.async_inputs_from_config(
             {"use_blueprint": {"path": "non-existing.yaml"}}
         )
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f

@@ -196,21 +196,9 @@ def mock_stretch():
     """Create a Mock Stretch environment for testing exceptions."""
     chosen_env = "stretch_v31"
     with patch("homeassistant.components.plugwise.gateway.Smile") as smile_mock:
-<<<<<<< HEAD
-<<<<<<< HEAD
-        smile_mock.InvalidAuthentication = Smile.InvalidAuthentication
-        smile_mock.ConnectionFailedError = Smile.ConnectionFailedError
-        smile_mock.XMLDataMissingError = Smile.XMLDataMissingError
-=======
         smile_mock.InvalidAuthentication = InvalidAuthentication
         smile_mock.ConnectionFailedError = ConnectionFailedError
         smile_mock.XMLDataMissingError = XMLDataMissingError
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-        smile_mock.InvalidAuthentication = InvalidAuthentication
-        smile_mock.ConnectionFailedError = ConnectionFailedError
-        smile_mock.XMLDataMissingError = XMLDataMissingError
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
         smile_mock.return_value.gateway_id = "259882df3c05415b99c2d962534ce820"
         smile_mock.return_value.heater_id = None

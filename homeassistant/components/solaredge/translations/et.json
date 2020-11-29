@@ -1,15 +1,6 @@
 {
     "config": {
         "abort": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "site_exists": "See site_id on juba konfigureeritud"
-        },
-        "error": {
-            "site_exists": "See site_id on juba konfigureeritud"
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "already_configured": "Seade on juba h\u00e4\u00e4lestatud",
             "site_exists": "See site_id on juba konfigureeritud"
         },
@@ -19,10 +10,6 @@
             "invalid_api_key": "Vale API v\u00f5ti",
             "site_exists": "See site_id on juba konfigureeritud",
             "site_not_active": "Sait pole aktiivne"
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },
         "step": {
             "user": {

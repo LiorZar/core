@@ -668,11 +668,6 @@ class ZHAGateway:
         for unsubscribe in self._unsubs:
             unsubscribe()
         await self.application_controller.pre_shutdown()
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     def handle_message(
         self,
@@ -686,10 +681,6 @@ class ZHAGateway:
         """Handle message from a device Event handler."""
         if sender.ieee in self.devices and not self.devices[sender.ieee].available:
             self.async_update_device(sender, available=True)
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 @callback

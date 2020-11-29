@@ -105,14 +105,7 @@ class ForecastSensor(IQVIAEntity):
     def update_from_latest_data(self):
         """Update the sensor."""
         data = self.coordinator.data.get("Location")
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         if not data or not data.get("periods"):
             return
 
@@ -150,15 +143,9 @@ class IndexSensor(IQVIAEntity):
     @callback
     def update_from_latest_data(self):
         """Update the sensor."""
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         if not self.coordinator.last_update_success:
             return
 
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         try:
             if self._type in (TYPE_ALLERGY_TODAY, TYPE_ALLERGY_TOMORROW):
                 data = self.coordinator.data.get("Location")

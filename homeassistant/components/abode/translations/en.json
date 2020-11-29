@@ -6,17 +6,8 @@
         },
         "error": {
             "cannot_connect": "Failed to connect",
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "invalid_auth": "Invalid authentication"
-=======
             "invalid_auth": "Invalid authentication",
             "invalid_mfa_code": "Invalid MFA code"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-            "invalid_auth": "Invalid authentication",
-            "invalid_mfa_code": "Invalid MFA code"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },
         "step": {
             "mfa": {

@@ -136,24 +136,7 @@ class Sensor(ZhaEntity):
         """Handle state update from channel."""
         self.async_write_ha_state()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    @callback
-    def async_restore_last_state(self, last_state):
-        """Restore previous state."""
-        self._state = last_state.state
-
-    async def async_state_attr_provider(self):
-        """Initialize device state attributes."""
-        return {}
-
-    def formatter(self, value):
-=======
     def formatter(self, value: int) -> Union[int, float]:
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    def formatter(self, value: int) -> Union[int, float]:
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         """Numeric pass-through formatter."""
         if self._decimals > 0:
             return round(

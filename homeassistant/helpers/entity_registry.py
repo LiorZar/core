@@ -56,14 +56,7 @@ DISABLED_CONFIG_ENTRY = "config_entry"
 DISABLED_DEVICE = "device"
 DISABLED_HASS = "hass"
 DISABLED_INTEGRATION = "integration"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 DISABLED_USER = "user"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-DISABLED_USER = "user"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 STORAGE_VERSION = 1
 STORAGE_KEY = "core.entity_registry"

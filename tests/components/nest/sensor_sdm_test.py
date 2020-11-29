@@ -164,15 +164,7 @@ async def test_event_updates_sensor(hass):
         },
         auth=None,
     )
-<<<<<<< HEAD
-<<<<<<< HEAD
-    subscriber.receive_event(event)
-=======
     await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await hass.async_block_till_done()  # Process dispatch/update signal
 
     temperature = hass.states.get("sensor.my_sensor_temperature")

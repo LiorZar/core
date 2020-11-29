@@ -84,15 +84,7 @@ class XboxSource(MediaSource):
     async def async_resolve_media(self, item: MediaSourceItem) -> PlayMedia:
         """Resolve media to a url."""
         _, category, url = async_parse_identifier(item)
-<<<<<<< HEAD
-<<<<<<< HEAD
-        _, kind = category.split("#", 1)
-=======
         kind = category.split("#", 1)[1]
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-        kind = category.split("#", 1)[1]
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         return PlayMedia(url, MIME_TYPE_MAP[kind])
 
     async def async_browse_media(
@@ -275,15 +267,7 @@ def _build_categories(title):
 
 def _build_media_item(title: str, category: str, item: XboxMediaItem):
     """Build individual media item."""
-<<<<<<< HEAD
-<<<<<<< HEAD
-    _, kind = category.split("#", 1)
-=======
     kind = category.split("#", 1)[1]
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    kind = category.split("#", 1)[1]
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     return BrowseMediaSource(
         domain=DOMAIN,
         identifier=f"{title}~~{category}~~{item.uri}",

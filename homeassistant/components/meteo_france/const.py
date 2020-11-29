@@ -151,11 +151,6 @@ CONDITION_CLASSES = {
         "Brouillard",
         "Brouillard givrant",
         "Bancs de Brouillard",
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ],
     ATTR_CONDITION_HAIL: ["Risque de grêle", "Risque de grèle"],
     ATTR_CONDITION_LIGHTNING: ["Risque d'orages", "Orages"],
@@ -163,10 +158,6 @@ CONDITION_CLASSES = {
         "Pluie orageuses",
         "Pluies orageuses",
         "Averses orageuses",
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ],
     ATTR_CONDITION_PARTLYCLOUDY: [
         "Ciel voilé",

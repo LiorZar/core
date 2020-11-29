@@ -5,12 +5,6 @@ from datetime import datetime, timedelta
 import logging
 import threading
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-from google_nest_sdm.event import EventCallback, EventMessage
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from google_nest_sdm.event import (
     AsyncEventCallback,
     CameraMotionEvent,
@@ -20,10 +14,6 @@ from google_nest_sdm.event import (
     EventMessage,
 )
 from google_nest_sdm.exceptions import GoogleNestException
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from google_nest_sdm.google_nest_subscriber import GoogleNestSubscriber
 from nest import Nest
 from nest.nest import APIError, AuthorizationError
@@ -43,14 +33,7 @@ from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP,
 )
 from homeassistant.core import HomeAssistant, callback
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 from homeassistant.exceptions import ConfigEntryNotReady
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-from homeassistant.exceptions import ConfigEntryNotReady
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.helpers import (
     aiohttp_client,
     config_entry_oauth2_flow,
@@ -78,11 +61,6 @@ _LOGGER = logging.getLogger(__name__)
 
 CONF_PROJECT_ID = "project_id"
 CONF_SUBSCRIBER_ID = "subscriber_id"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 NEST_EVENT = "nest_event"
 EVENT_TRAIT_MAP = {
     DoorbellChimeEvent.NAME: "DoorbellChime",
@@ -91,10 +69,6 @@ EVENT_TRAIT_MAP = {
     CameraSoundEvent.NAME: "CameraSound",
 }
 
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 # Configuration for the legacy nest API
 SERVICE_CANCEL_ETA = "cancel_eta"
@@ -201,43 +175,13 @@ async def async_setup(hass: HomeAssistant, config: dict):
     return True
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-class SignalUpdateCallback(EventCallback):
-=======
 class SignalUpdateCallback(AsyncEventCallback):
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-class SignalUpdateCallback(AsyncEventCallback):
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     """An EventCallback invoked when new events arrive from subscriber."""
 
     def __init__(self, hass: HomeAssistant):
         """Initialize EventCallback."""
         self._hass = hass
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    def handle_event(self, event_message: EventMessage):
-        """Process an incoming EventMessage."""
-        _LOGGER.debug("Update %s @ %s", event_message.event_id, event_message.timestamp)
-        traits = event_message.resource_update_traits
-        if traits:
-            _LOGGER.debug("Trait update %s", traits.keys())
-        events = event_message.resource_update_events
-        if events:
-            _LOGGER.debug("Event Update %s", events.keys())
-
-        if not event_message.resource_update_traits:
-            # Note: Currently ignoring events like camera motion
-            return
-        # This event triggered an update to a device that changed some
-        # properties which the DeviceManager should already have received.
-        # Send a signal to refresh state of all listening devices.
-        async_dispatcher_send(self._hass, SIGNAL_NEST_UPDATE)
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     async def async_handle_event(self, event_message: EventMessage):
         """Process an incoming EventMessage."""
         if not event_message.resource_update_name:
@@ -269,10 +213,6 @@ class SignalUpdateCallback(AsyncEventCallback):
                 "type": EVENT_TRAIT_MAP[event],
             }
             self._hass.bus.async_fire(NEST_EVENT, message)
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
@@ -299,12 +239,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         auth, config[CONF_PROJECT_ID], config[CONF_SUBSCRIBER_ID]
     )
     subscriber.set_update_callback(SignalUpdateCallback(hass))
-<<<<<<< HEAD
-<<<<<<< HEAD
-    asyncio.create_task(subscriber.start_async())
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     try:
         await subscriber.start_async()
@@ -320,10 +254,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         subscriber.stop_async()
         raise ConfigEntryNotReady from err
 
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     hass.data[DOMAIN][entry.entry_id] = subscriber
 
     for component in PLATFORMS:

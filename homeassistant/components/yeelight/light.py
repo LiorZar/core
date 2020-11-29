@@ -146,23 +146,6 @@ YEELIGHT_COLOR_EFFECT_LIST = [
 ]
 
 EFFECTS_MAP = {
-<<<<<<< HEAD
-<<<<<<< HEAD
-    EFFECT_DISCO: yee_transitions.disco,
-    EFFECT_TEMP: yee_transitions.temp,
-    EFFECT_STROBE: yee_transitions.strobe,
-    EFFECT_STROBE_COLOR: yee_transitions.strobe_color,
-    EFFECT_ALARM: yee_transitions.alarm,
-    EFFECT_POLICE: yee_transitions.police,
-    EFFECT_POLICE2: yee_transitions.police2,
-    EFFECT_CHRISTMAS: yee_transitions.christmas,
-    EFFECT_RGB: yee_transitions.rgb,
-    EFFECT_RANDOM_LOOP: yee_transitions.random_loop,
-    EFFECT_LSD: yee_transitions.lsd,
-    EFFECT_SLOWDOWN: yee_transitions.slowdown,
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     EFFECT_DISCO: flows.disco,
     EFFECT_TEMP: flows.temp,
     EFFECT_STROBE: flows.strobe,
@@ -184,10 +167,6 @@ EFFECTS_MAP = {
     EFFECT_ROMANCE: flows.romance,
     EFFECT_HAPPY_BIRTHDAY: flows.happy_birthday,
     EFFECT_CANDLE_FLICKER: flows.candle_flicker,
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }
 
 VALID_BRIGHTNESS = vol.All(vol.Coerce(int), vol.Range(min=1, max=100))
@@ -703,15 +682,7 @@ class YeelightGenericLight(YeelightEntity, LightEntity):
         elif effect in EFFECTS_MAP:
             flow = EFFECTS_MAP[effect]()
         elif effect == EFFECT_FAST_RANDOM_LOOP:
-<<<<<<< HEAD
-<<<<<<< HEAD
-            flow = Flow(count=0, transitions=yee_transitions.random_loop(duration=250))
-=======
             flow = flows.random_loop(duration=250)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-            flow = flows.random_loop(duration=250)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         elif effect == EFFECT_WHATSAPP:
             flow = Flow(count=2, transitions=yee_transitions.pulse(37, 211, 102))
         elif effect == EFFECT_FACEBOOK:

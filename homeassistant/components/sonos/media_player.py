@@ -9,12 +9,6 @@ import urllib.parse
 import async_timeout
 import pysonos
 from pysonos import alarms
-<<<<<<< HEAD
-<<<<<<< HEAD
-from pysonos.core import PLAY_MODE_BY_MEANING, PLAY_MODES
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from pysonos.core import (
     PLAY_MODE_BY_MEANING,
     PLAY_MODES,
@@ -22,10 +16,6 @@ from pysonos.core import (
     PLAYING_RADIO,
     PLAYING_TV,
 )
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from pysonos.exceptions import SoCoException, SoCoUPnPException
 import pysonos.music_library
 import pysonos.snapshot

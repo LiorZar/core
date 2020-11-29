@@ -4,17 +4,8 @@
             "already_configured": "Service is already configured",
             "authorize_url_fail": "Unknown error generating an authorize url.",
             "authorize_url_timeout": "Timeout generating authorize URL.",
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "unknown": "Unexpected error"
-=======
             "unknown": "Unexpected error",
             "unknown_authorize_url_generation": "Unknown error generating an authorize url."
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-            "unknown": "Unexpected error",
-            "unknown_authorize_url_generation": "Unknown error generating an authorize url."
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },
         "error": {
             "invalid_auth": "Invalid authentication"

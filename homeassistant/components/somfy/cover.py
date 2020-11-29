@@ -8,11 +8,6 @@ from homeassistant.components.cover import (
     ATTR_TILT_POSITION,
     DEVICE_CLASS_BLIND,
     DEVICE_CLASS_SHUTTER,
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     SUPPORT_CLOSE,
     SUPPORT_CLOSE_TILT,
     SUPPORT_OPEN,
@@ -21,10 +16,6 @@ from homeassistant.components.cover import (
     SUPPORT_SET_TILT_POSITION,
     SUPPORT_STOP,
     SUPPORT_STOP_TILT,
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     CoverEntity,
 )
 from homeassistant.const import STATE_CLOSED, STATE_OPEN
@@ -74,23 +65,10 @@ class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
         self.cover = None
         self._create_device()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    def _create_device(self):
-        """Update the device with the latest data."""
-        self.cover = Blind(self.device, self.api)
-
-=======
     def _create_device(self) -> Blind:
         """Update the device with the latest data."""
         self.cover = Blind(self.device, self.api)
 
-=======
-    def _create_device(self) -> Blind:
-        """Update the device with the latest data."""
-        self.cover = Blind(self.device, self.api)
-
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     @property
     def supported_features(self) -> int:
         """Flag supported features."""
@@ -113,10 +91,6 @@ class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
 
         return supported_features
 
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     async def async_close_cover(self, **kwargs):
         """Close the cover."""
         self._is_closing = True
@@ -164,7 +138,6 @@ class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
         if not self.has_state("position"):
             return None
         return 100 - self.cover.get_position()
-<<<<<<< HEAD
 
     @property
     def is_opening(self):
@@ -174,27 +147,6 @@ class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
         return self._is_opening
 
     @property
-<<<<<<< HEAD
-    def is_opening(self):
-        """Return if the cover is opening."""
-        if not self.optimistic:
-            return None
-        return self._is_opening
-
-    @property
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-
-    @property
-    def is_opening(self):
-        """Return if the cover is opening."""
-        if not self.optimistic:
-            return None
-        return self._is_opening
-
-    @property
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     def is_closing(self):
         """Return if the cover is closing."""
         if not self.optimistic:
@@ -202,15 +154,7 @@ class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
         return self._is_closing
 
     @property
-<<<<<<< HEAD
-<<<<<<< HEAD
-    def is_closed(self):
-=======
     def is_closed(self) -> bool:
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    def is_closed(self) -> bool:
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         """Return if the cover is closed."""
         is_closed = None
         if self.has_state("position"):

@@ -89,25 +89,6 @@ REST_SENSORS = {
             "installed_version": status["update"]["old_version"],
         },
     ),
-<<<<<<< HEAD
-}
-
-REST_SENSORS = {
-    "cloud": RestAttributeDescription(
-        name="Cloud",
-        device_class=DEVICE_CLASS_CONNECTIVITY,
-        default_enabled=False,
-        path="cloud/connected",
-    ),
-    "fwupdate": RestAttributeDescription(
-        name="Firmware update",
-        icon="mdi:update",
-        default_enabled=False,
-        path="update/has_update",
-        attributes={"description": "available version:", "path": "update/new_version"},
-    ),
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 }
 
 

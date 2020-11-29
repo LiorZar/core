@@ -43,15 +43,7 @@ async def async_setup_entry_gateway(hass, config_entry, async_add_entities):
                 model = "Switch Group"
 
             entities.append(
-<<<<<<< HEAD
-<<<<<<< HEAD
-                PwSwitch(
-=======
                 GwSwitch(
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-                GwSwitch(
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                     api, coordinator, device_properties["name"], dev_id, members, model
                 )
             )

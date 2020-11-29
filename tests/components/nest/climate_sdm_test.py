@@ -364,35 +364,8 @@ async def test_thermostat_eco_heat_only(hass):
     assert thermostat.attributes[ATTR_PRESET_MODES] == [PRESET_ECO, PRESET_NONE]
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-class FakeAuth:
-    """A fake implementation of the auth class that records requests."""
-
-    def __init__(self):
-        """Initialize FakeAuth."""
-        self.method = None
-        self.url = None
-        self.json = None
-
-    async def request(self, method, url, json):
-        """Capure the request arguments for tests to assert on."""
-        self.method = method
-        self.url = url
-        self.json = json
-
-
-async def test_thermostat_set_hvac_mode(hass):
-    """Test a thermostat changing hvac modes."""
-    auth = FakeAuth()
-=======
 async def test_thermostat_set_hvac_mode(hass, auth):
     """Test a thermostat changing hvac modes."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-async def test_thermostat_set_hvac_mode(hass, auth):
-    """Test a thermostat changing hvac modes."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     subscriber = await setup_climate(
         hass,
         {
@@ -444,15 +417,7 @@ async def test_thermostat_set_hvac_mode(hass, auth):
         },
         auth=None,
     )
-<<<<<<< HEAD
-<<<<<<< HEAD
-    subscriber.receive_event(event)
-=======
     await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await hass.async_block_till_done()  # Process dispatch/update signal
 
     thermostat = hass.states.get("climate.my_thermostat")
@@ -476,15 +441,7 @@ async def test_thermostat_set_hvac_mode(hass, auth):
         },
         auth=None,
     )
-<<<<<<< HEAD
-<<<<<<< HEAD
-    subscriber.receive_event(event)
-=======
     await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await hass.async_block_till_done()  # Process dispatch/update signal
 
     thermostat = hass.states.get("climate.my_thermostat")
@@ -493,19 +450,8 @@ async def test_thermostat_set_hvac_mode(hass, auth):
     assert thermostat.attributes[ATTR_HVAC_ACTION] == CURRENT_HVAC_HEAT
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-async def test_thermostat_set_eco_preset(hass):
-    """Test a thermostat put into eco mode."""
-    auth = FakeAuth()
-=======
 async def test_thermostat_set_eco_preset(hass, auth):
     """Test a thermostat put into eco mode."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-async def test_thermostat_set_eco_preset(hass, auth):
-    """Test a thermostat put into eco mode."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     subscriber = await setup_climate(
         hass,
         {
@@ -568,15 +514,7 @@ async def test_thermostat_set_eco_preset(hass, auth):
         },
         auth=auth,
     )
-<<<<<<< HEAD
-<<<<<<< HEAD
-    subscriber.receive_event(event)
-=======
     await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await hass.async_block_till_done()  # Process dispatch/update signal
 
     thermostat = hass.states.get("climate.my_thermostat")
@@ -597,19 +535,8 @@ async def test_thermostat_set_eco_preset(hass, auth):
     }
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-async def test_thermostat_set_cool(hass):
-    """Test a thermostat in cool mode with a temperature change."""
-    auth = FakeAuth()
-=======
 async def test_thermostat_set_cool(hass, auth):
     """Test a thermostat in cool mode with a temperature change."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-async def test_thermostat_set_cool(hass, auth):
-    """Test a thermostat in cool mode with a temperature change."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await setup_climate(
         hass,
         {
@@ -641,19 +568,8 @@ async def test_thermostat_set_cool(hass, auth):
     }
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-async def test_thermostat_set_heat(hass):
-    """Test a thermostat heating mode with a temperature change."""
-    auth = FakeAuth()
-=======
 async def test_thermostat_set_heat(hass, auth):
     """Test a thermostat heating mode with a temperature change."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-async def test_thermostat_set_heat(hass, auth):
-    """Test a thermostat heating mode with a temperature change."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await setup_climate(
         hass,
         {
@@ -685,19 +601,8 @@ async def test_thermostat_set_heat(hass, auth):
     }
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-async def test_thermostat_set_heat_cool(hass):
-    """Test a thermostat in heatcool mode with a temperature change."""
-    auth = FakeAuth()
-=======
 async def test_thermostat_set_heat_cool(hass, auth):
     """Test a thermostat in heatcool mode with a temperature change."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-async def test_thermostat_set_heat_cool(hass, auth):
-    """Test a thermostat in heatcool mode with a temperature change."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await setup_climate(
         hass,
         {
@@ -806,19 +711,8 @@ async def test_thermostat_fan_on(hass):
     assert thermostat.attributes[ATTR_FAN_MODES] == [FAN_ON, FAN_OFF]
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-async def test_thermostat_set_fan(hass):
-    """Test a thermostat enabling the fan."""
-    auth = FakeAuth()
-=======
 async def test_thermostat_set_fan(hass, auth):
     """Test a thermostat enabling the fan."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-async def test_thermostat_set_fan(hass, auth):
-    """Test a thermostat enabling the fan."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await setup_climate(
         hass,
         {
@@ -889,19 +783,8 @@ async def test_thermostat_fan_empty(hass):
     assert ATTR_FAN_MODES not in thermostat.attributes
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-async def test_thermostat_target_temp(hass):
-    """Test a thermostat changing hvac modes and affected on target temps."""
-    auth = FakeAuth()
-=======
 async def test_thermostat_target_temp(hass, auth):
     """Test a thermostat changing hvac modes and affected on target temps."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-async def test_thermostat_target_temp(hass, auth):
-    """Test a thermostat changing hvac modes and affected on target temps."""
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     subscriber = await setup_climate(
         hass,
         {
@@ -951,15 +834,7 @@ async def test_thermostat_target_temp(hass, auth):
         },
         auth=None,
     )
-<<<<<<< HEAD
-<<<<<<< HEAD
-    subscriber.receive_event(event)
-=======
     await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    await subscriber.async_receive_event(event)
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     await hass.async_block_till_done()  # Process dispatch/update signal
 
     thermostat = hass.states.get("climate.my_thermostat")

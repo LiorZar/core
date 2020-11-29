@@ -4,14 +4,7 @@ from typing import Optional
 
 from google_nest_sdm.device import Device
 from google_nest_sdm.device_traits import FanTrait, TemperatureTrait
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 from google_nest_sdm.exceptions import GoogleNestException
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-from google_nest_sdm.exceptions import GoogleNestException
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from google_nest_sdm.thermostat_traits import (
     ThermostatEcoTrait,
     ThermostatHvacTrait,
@@ -42,14 +35,7 @@ from homeassistant.components.climate.const import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 from homeassistant.exceptions import PlatformNotReady
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-from homeassistant.exceptions import PlatformNotReady
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.typing import HomeAssistantType
 
@@ -96,20 +82,10 @@ async def async_setup_sdm_entry(
     """Set up the client entities."""
 
     subscriber = hass.data[DOMAIN][entry.entry_id]
-<<<<<<< HEAD
-<<<<<<< HEAD
-    device_manager = await subscriber.async_get_device_manager()
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     try:
         device_manager = await subscriber.async_get_device_manager()
     except GoogleNestException as err:
         raise PlatformNotReady from err
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     entities = []
     for device in device_manager.devices.values():

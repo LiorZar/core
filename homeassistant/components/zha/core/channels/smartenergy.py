@@ -1,12 +1,6 @@
 """Smart energy channels module for Zigbee Home Automation."""
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from typing import Union
 
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 import zigpy.zcl.clusters.smartenergy as smartenergy
 
 from homeassistant.const import (

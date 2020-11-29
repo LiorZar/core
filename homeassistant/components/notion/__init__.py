@@ -248,21 +248,10 @@ class NotionEntity(CoordinatorEntity):
     @callback
     def _handle_coordinator_update(self):
         """Respond to a DataUpdateCoordinator update."""
-<<<<<<< HEAD
-<<<<<<< HEAD
-        self.hass.async_create_task(self._async_update_bridge_id())
-        self._async_update_from_latest_data()
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         if self.task_id in self.coordinator.data["tasks"]:
             self.hass.async_create_task(self._async_update_bridge_id())
             self._async_update_from_latest_data()
 
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         self.async_write_ha_state()
 
     async def async_added_to_hass(self):

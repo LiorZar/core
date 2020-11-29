@@ -2,22 +2,10 @@
     "config": {
         "abort": {
             "already_configured": "Us\u0142uga jest ju\u017c skonfigurowana",
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "authorize_url_fail": "Nieznany b\u0142\u0105d podczas generowania url autoryzacji",
-            "authorize_url_timeout": "Przekroczono limit czasu generowania URL autoryzacji",
-            "unknown": "Nieoczekiwany b\u0142\u0105d"
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "authorize_url_fail": "Nieznany b\u0142\u0105d podczas generowania URL autoryzacji",
             "authorize_url_timeout": "Przekroczono limit czasu generowania URL autoryzacji",
             "unknown": "Nieoczekiwany b\u0142\u0105d",
             "unknown_authorize_url_generation": "Nieznany b\u0142\u0105d podczas generowania URL autoryzacji"
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },
         "error": {
             "invalid_auth": "Niepoprawne uwierzytelnienie"

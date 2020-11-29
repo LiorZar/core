@@ -4,15 +4,7 @@ import asyncio
 
 from plugwise.exceptions import XMLDataMissingError
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-from homeassistant.components.plugwise import DOMAIN
-=======
 from homeassistant.components.plugwise.const import DOMAIN
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-from homeassistant.components.plugwise.const import DOMAIN
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 from homeassistant.config_entries import (
     ENTRY_STATE_NOT_LOADED,
     ENTRY_STATE_SETUP_ERROR,

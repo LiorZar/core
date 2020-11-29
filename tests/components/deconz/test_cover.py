@@ -3,15 +3,6 @@
 from copy import deepcopy
 
 from homeassistant.components.cover import (
-<<<<<<< HEAD
-<<<<<<< HEAD
-    DOMAIN as COVER_DOMAIN,
-    SERVICE_CLOSE_COVER,
-    SERVICE_OPEN_COVER,
-    SERVICE_STOP_COVER,
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     ATTR_CURRENT_TILT_POSITION,
     ATTR_POSITION,
     ATTR_TILT_POSITION,
@@ -24,10 +15,6 @@ from homeassistant.components.cover import (
     SERVICE_SET_COVER_TILT_POSITION,
     SERVICE_STOP_COVER,
     SERVICE_STOP_COVER_TILT,
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 )
 from homeassistant.components.deconz.const import DOMAIN as DECONZ_DOMAIN
 from homeassistant.components.deconz.gateway import get_gateway_from_config_entry
@@ -125,11 +112,6 @@ async def test_cover(hass):
     await hass.async_block_till_done()
 
     assert hass.states.get("cover.level_controllable_cover").state == STATE_CLOSED
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     # Verify service calls for cover
 
@@ -190,10 +172,6 @@ async def test_cover(hass):
         )
         await hass.async_block_till_done()
         set_callback.assert_called_with("put", "/lights/2/state", json={"stop": True})
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     # Verify service calls for legacy cover
 

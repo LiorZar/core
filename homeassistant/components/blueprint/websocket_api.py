@@ -79,26 +79,12 @@ async def ws_import_blueprint(hass, connection, msg):
     connection.send_result(
         msg["id"],
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "url": imported_blueprint.url,
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             "suggested_filename": imported_blueprint.suggested_filename,
             "raw_data": imported_blueprint.raw_data,
             "blueprint": {
                 "metadata": imported_blueprint.blueprint.metadata,
             },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
             "validation_errors": imported_blueprint.blueprint.validate(),
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-            "validation_errors": imported_blueprint.blueprint.validate(),
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },
     )
 

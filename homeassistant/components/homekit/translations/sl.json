@@ -36,17 +36,8 @@
             },
             "include_exclude": {
                 "data": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    "entities": "Entitete"
-=======
                     "entities": "Entitete",
                     "mode": "Na\u010din"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-                    "entities": "Entitete",
-                    "mode": "Na\u010din"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
                 },
                 "title": "Izberite entitete, ki jih \u017eelite izpostaviti"
             },

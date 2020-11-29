@@ -30,30 +30,6 @@ class RainMachineFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    def __init__(self):
-        """Initialize the config flow."""
-        self.data_schema = vol.Schema(
-            {
-                vol.Required(CONF_IP_ADDRESS): str,
-                vol.Required(CONF_PASSWORD): str,
-                vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
-            }
-        )
-
-    async def _show_form(self, errors=None):
-        """Show the form to the user."""
-        return self.async_show_form(
-            step_id="user",
-            data_schema=self.data_schema,
-            errors=errors if errors else {},
-        )
-
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):

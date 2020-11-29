@@ -25,13 +25,6 @@ COMMUNITY_CODE_BLOCK = re.compile(
 GITHUB_FILE_PATTERN = re.compile(
     r"^https://github.com/(?P<repository>.+)/blob/(?P<path>.+)$"
 )
-<<<<<<< HEAD
-<<<<<<< HEAD
-GITHUB_RAW_FILE_PATTERN = re.compile(r"^https://raw.githubusercontent.com/")
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 COMMUNITY_TOPIC_SCHEMA = vol.Schema(
     {
@@ -43,30 +36,14 @@ COMMUNITY_TOPIC_SCHEMA = vol.Schema(
 )
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 class UnsupportedUrl(HomeAssistantError):
     """When the function doesn't support the url."""
 
 
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 @dataclass(frozen=True)
 class ImportedBlueprint:
     """Imported blueprint."""
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    url: str
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     suggested_filename: str
     raw_data: str
     blueprint: Blueprint
@@ -77,30 +54,13 @@ def _get_github_import_url(url: str) -> str:
 
     Async friendly.
     """
-<<<<<<< HEAD
-<<<<<<< HEAD
-    match = GITHUB_RAW_FILE_PATTERN.match(url)
-    if match is not None:
-=======
     if url.startswith("https://raw.githubusercontent.com/"):
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-    if url.startswith("https://raw.githubusercontent.com/"):
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         return url
 
     match = GITHUB_FILE_PATTERN.match(url)
 
     if match is None:
-<<<<<<< HEAD
-<<<<<<< HEAD
-        raise ValueError("Not a GitHub file url")
-=======
         raise UnsupportedUrl("Not a GitHub file url")
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-        raise UnsupportedUrl("Not a GitHub file url")
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     repo, path = match.groups()
 
@@ -114,15 +74,7 @@ def _get_community_post_import_url(url: str) -> str:
     """
     match = COMMUNITY_TOPIC_PATTERN.match(url)
     if match is None:
-<<<<<<< HEAD
-<<<<<<< HEAD
-        raise ValueError("Not a topic url")
-=======
         raise UnsupportedUrl("Not a topic url")
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-        raise UnsupportedUrl("Not a topic url")
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
     _topic, post = match.groups()
 
@@ -172,23 +124,11 @@ def _extract_blueprint_from_community_topic(
         break
 
     if blueprint is None:
-<<<<<<< HEAD
-<<<<<<< HEAD
-        return None
-
-    return ImportedBlueprint(url, topic["slug"], block_content, blueprint)
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         raise HomeAssistantError("No valid blueprint found in the topic")
 
     return ImportedBlueprint(
         f'{post["username"]}/{topic["slug"]}', block_content, blueprint
     )
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def fetch_blueprint_from_community_post(
@@ -222,16 +162,6 @@ async def fetch_blueprint_from_github_url(
     blueprint = Blueprint(data)
 
     parsed_import_url = yarl.URL(import_url)
-<<<<<<< HEAD
-<<<<<<< HEAD
-    suggested_filename = f"{parsed_import_url.parts[1]}-{parsed_import_url.parts[-1]}"
-    if suggested_filename.endswith(".yaml"):
-        suggested_filename = suggested_filename[:-5]
-
-    return ImportedBlueprint(url, suggested_filename, raw_yaml, blueprint)
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     suggested_filename = f"{parsed_import_url.parts[1]}/{parsed_import_url.parts[-1]}"
     if suggested_filename.endswith(".yaml"):
         suggested_filename = suggested_filename[:-5]
@@ -279,23 +209,10 @@ async def fetch_blueprint_from_github_gist_url(
     return ImportedBlueprint(
         f"{gist['owner']['login']}/{filename[:-5]}", content, blueprint
     )
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
 
 
 async def fetch_blueprint_from_url(hass: HomeAssistant, url: str) -> ImportedBlueprint:
     """Get a blueprint from a url."""
-<<<<<<< HEAD
-<<<<<<< HEAD
-    for func in (fetch_blueprint_from_community_post, fetch_blueprint_from_github_url):
-        try:
-            return await func(hass, url)
-        except ValueError:
-=======
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
     for func in (
         fetch_blueprint_from_community_post,
         fetch_blueprint_from_github_url,
@@ -306,10 +223,6 @@ async def fetch_blueprint_from_url(hass: HomeAssistant, url: str) -> ImportedBlu
             imported_bp.blueprint.update_metadata(source_url=url)
             return imported_bp
         except UnsupportedUrl:
-<<<<<<< HEAD
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
             pass
 
     raise HomeAssistantError("Unsupported url")

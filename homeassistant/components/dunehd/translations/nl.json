@@ -5,17 +5,8 @@
         },
         "error": {
             "already_configured": "Apparaat is al geconfigureerd",
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "cannot_connect": "Kon niet verbinden"
-=======
             "cannot_connect": "Kon niet verbinden",
             "invalid_host": "ongeldige host of IP adres"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
-=======
-            "cannot_connect": "Kon niet verbinden",
-            "invalid_host": "ongeldige host of IP adres"
->>>>>>> 5462d6e79818947bb866bd5a53daba9e9a35fe4f
         },
         "step": {
             "user": {
