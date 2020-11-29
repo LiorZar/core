@@ -1,0 +1,13 @@
+- id: '1606299395246'
+  alias: New Automation1
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.conxdimmer1
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: script.9cut
+    data: {}
+  mode: single

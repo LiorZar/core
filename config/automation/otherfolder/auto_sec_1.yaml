@@ -1,17 +1,17 @@
-alias: auto1
+alias: auto11
 description: ''
 trigger:
 - platform: state
-  entity_id: light.conxdimmer1
-  from: 'on'
-  to: 'off'
+  entity_id: light.conxdimmer5
+  from: 'off'
+  to: 'on'
 condition: []
 action:
 - service: conx.fade
   data:
-    entity_id: light.conxdimmer2
+    entity_id: light.conxdimmer6
     service: light.turn_on
     transition: 2.5
     end:
-      brightness: 255
+      brightness: 128
 mode: single
