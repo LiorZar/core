@@ -46,7 +46,7 @@ fade:
     start:
       description: Optional. The attrbiutes and values to start from. This value is not must, system will take the current entity values
     end:
-      description:  The attrbiutes and values to goto.
+      description: The attrbiutes and values to goto.
       example: "{brightness: 255, hs_color: [300,100]}"
     ease:
       description: Optional. The fade method to control Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Elastic, Back, Bounce, each one have In, Out and input, in out
@@ -56,7 +56,6 @@ fade:
       description: Optional. how many loops to repeat. default is 1, 0 is endless loop
     loopDelay:
       description: Optional. The time to wait before you start a new loop. default is 0
-
 
 patch:
   description: will load the config/lights/conx.yaml and add the new patch to its dmx part
@@ -84,7 +83,6 @@ patch:
     count:
       description: The number of entities to create
       example: 10
-
 
 automata_send:
   description: send packet to automata box
