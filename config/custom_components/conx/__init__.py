@@ -74,13 +74,13 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-WEBSOCKET_COMMAND = ["conx/POST", "conx/GET"]
+WEBSOCKET_COMMAND = "conx.cmd"
 SCHEMA_WEBSOCKET = websocket_api.BASE_COMMAND_MESSAGE_SCHEMA.extend(
     {
         "type": vol.In(WEBSOCKET_COMMAND),
-        vol.Optional("entity_id"): cv.entity_id,
-        vol.Optional("entity_ids"): cv.entity_ids,
-        vol.Optional("value"): cv.string,
+        vol.Required("cmd"): cv.string,
+        vol.Optional("module", default="db"): cv.string,
+        vol.Optional("data", default={}): dict,
     }
 )
 
@@ -123,12 +123,9 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
         self.hass.services.async_register(DOMAIN, "kincony_send", self.kincony.send)
 
-        for cmd in WEBSOCKET_COMMAND:
-            self.hass.components.websocket_api.async_register_command(
-                cmd, self.websocket_handle, SCHEMA_WEBSOCKET
-            )
-
-        # hass.components.persistent_notification.async_create(f"ConX started", title="ConX")
+        self.hass.components.websocket_api.async_register_command(
+            WEBSOCKET_COMMAND, self.websocket_handle, SCHEMA_WEBSOCKET
+        )
         self.active = True
         self.start()
 
@@ -144,8 +141,25 @@ class ConX(threading.Thread):
         # self.edt.onStop()
 
     def websocket_handle(self, hass: HomeAssistant, connection, msg):
-        print(msg)
+        msg["payload"] = self.websocket_process(msg["module"], msg["cmd"], msg["data"])
+        del msg["data"]
         connection.send_message(websocket_api.result_message(msg["id"], msg))
+
+    def websocket_process(self, module: str, cmd: str, data: dict):
+        print("websocket", module, cmd, data)
+        if False == hasattr(self, module):
+            return None
+        md = getattr(self, module)
+        if False == hasattr(md, cmd):
+            return None
+        fn = getattr(md, cmd)
+        if False == callable(fn):
+            return None
+
+        try:
+            return fn(**data)
+        except Exception as ex:
+            print("websocket error", ex)
 
     def onTick(self, elapse: float):
         self.db.onTick(elapse)
