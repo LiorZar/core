@@ -5,10 +5,10 @@ channel:
       description: The name of the universe
       example: dmx1
     channel:
-      description: the index(s) of the channel. 10, [10,20], [10,20,3] -> will jump 3
+      description: the index of the channel. or sequence ;1>10 + 50
       example: 10
     value:
-      description: the value(s) to set the channel to. 50, [0,100], [100,0]
+      description: the value to set the channel to. or sequence ;1>10 + 50
       example: 50
 
 universe:
@@ -31,10 +31,8 @@ fade:
   description: fade any entity with any service
   fields:
     entity_id:
-      description: The entity id or [entity1, entity2, entity3]
+      description: The entity id or selection light_;1>10|3 - 10>4
       example: light.kitchen_main_lamp
-    range:
-      description: while entity_id is part of the name, use range to add multiple entities. Example entity_id=rgb_ and range=[1,4] will be [rgb_1,rgb_2,rgb_3,rgb_4]
     service:
       description: the service to call to
       example: light.turn_on

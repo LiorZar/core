@@ -180,6 +180,7 @@ class KinconyLight(LightEntity, RestoreEntity):
         self._box: KinconyBox = self._kincony.boxes[self._boxName]
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
+        self._fixture: int = config.get("fixture")
 
         self._on = None
         self._features = 0
@@ -195,6 +196,10 @@ class KinconyLight(LightEntity, RestoreEntity):
     @property
     def name(self):
         return self._name
+
+    @property
+    def fixture(self):
+        return self._fixture
 
     @property
     def is_on(self):

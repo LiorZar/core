@@ -57,8 +57,9 @@
     - 38
     - 41
     name: conxColor
-
-    type: dimmer
+    fadeOn: 6
+    fadeOff: 3
+    type: rgb
 
   - dmxName: dmx2
     channel: 1

@@ -193,6 +193,7 @@ class AutomataLight(LightEntity, RestoreEntity):
         self._box: AutomataBox = self._automata.boxes[self._boxName]
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
+        self._fixture: int = config.get("fixture")
 
         self._on = None
         self._features = 0
@@ -208,6 +209,10 @@ class AutomataLight(LightEntity, RestoreEntity):
     @property
     def name(self):
         return self._name
+
+    @property
+    def fixture(self):
+        return self._fixture
 
     @property
     def is_on(self):
@@ -244,6 +249,7 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         self._name = config.get(CONF_NAME)
         self.ip = config.get("ip")
         self.port = config.get("port")
+        self._fixture: int = config.get("fixture")
 
         self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNetworkMessage)
 
@@ -269,6 +275,10 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
     @property
     def name(self):
         return self._name
+
+    @property
+    def fixture(self):
+        return self._fixture
 
     @property
     def unq_name(self):

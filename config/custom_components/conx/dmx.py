@@ -1,6 +1,7 @@
 # region imports
 import yaml
 import time
+import math
 import socket
 import asyncio
 import logging
@@ -27,7 +28,7 @@ import homeassistant.util.color as color_util
 
 
 from .db import DB
-from .const import DOMAIN, EVENT_UNIVERSE_CHANGE
+from .const import DOMAIN, EVENT_UNIVERSE_CHANGE, fract
 
 # endregion
 
@@ -94,29 +95,33 @@ class Universe:
             if j < self.channelCount:
                 self.channels[j] = int(state[i : i + 2], 16)
 
-    def setChannel(self, ch, val):
-        idx = [ch]
-        vals = [val]
-        if isinstance(ch, list):
-            idx = list(range(ch[0], ch[1] + 1, ch[2] if len(ch) >= 3 else 1))
-            cnt = len(idx)
+    def getVal(self, i: int, cnt: int, vnt: int, vals: list) -> int:
+        f: float = float(i) / float(cnt - 1)  # [0,1]
+        fi: float = f * vnt  # [0,vnt)
+        j: int = math.floor(fi)  # [0,vnt-1]
+        if j >= vnt:
+            return vals[j]
 
-            if not isinstance(val, list):
-                vals = [val] * cnt
-            else:
-                vals = [0] * cnt
-                st = val[0]
-                en = val[1]
-                dt = (en - st) / (cnt - 1)
-                for i in range(0, cnt):
-                    vals[i] = st + i * dt
+        f = fract(f)
+        f = vals[j] * (1.0 - f) + vals[j + 1] * f
+        return int(max(min(round(f), 255), 0))
+
+    def setChannel(self, ch: str, val):
+        idx = self.db.ParseSelection(ch)
+        idx = [int(x) for x in idx]
+
+        vals = [val]
+        if isinstance(val, str):
+            vals = self.db.ParseSelection(val)
+            vals = [int(x) for x in vals]
 
         cnt = len(idx)
+        vnt = len(vals) - 1
         vals = [int(max(min(round(x * 2.55), 255), 0)) for x in vals]
 
         for i in range(0, cnt):
             j = idx[i] - 1
-            v = vals[i]
+            v = self.getVal(i, cnt, vnt, vals)
             if j < self.channelCount:
                 self.channels[j] = v
 
@@ -331,6 +336,7 @@ class DMXLight(LightEntity):
         self._unviverse: Universe = self._dmx.get_universe(self._dmxName)
         self._name = config.get(CONF_NAME)
         self._type = config.get(CONF_TYPE)
+        self._fixture: int = config.get("fixture")
         self._fadeOn = config.get("fadeOn")
         self._fadeOff = config.get("fadeOff")
         ch = config.get("channel")
@@ -363,6 +369,10 @@ class DMXLight(LightEntity):
     @property
     def name(self):
         return self._name
+
+    @property
+    def fixture(self):
+        return self._fixture
 
     @property
     def brightness(self):
@@ -458,8 +468,10 @@ class DMXLight(LightEntity):
         hsv = None
         vals = self._unviverse.getChannels(self._channels)
         if self._type == CONF_LIGHT_TYPE_RGB:
-            hsv = color_util.color_RGB_to_hsv(vals[0], vals[1], vals[2])
-            self._rgb = vals[0:3]
+            hsv = color_util.color_RGB_to_hsv(
+                max(vals[0], 0.001), max(vals[1], 0.001), max(vals[2], 0.001)
+            )
+            self._rgb = color_util.color_hs_to_RGB(hsv[0], hsv[1])
             self._brightness = round(hsv[2] * 2.55)
         elif self._type == CONF_LIGHT_TYPE_RGBA:
             self._rgb = vals[0:3]

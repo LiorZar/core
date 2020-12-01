@@ -13,7 +13,6 @@ from .db import DB
 from .net import UDP, TCP
 from .dmx import DMX
 from .fde import FDE
-from .edt import EDT
 from .automata import Automata
 from .kincony import Kincony
 import homeassistant.helpers.config_validation as cv
@@ -112,10 +111,7 @@ class ConX(threading.Thread):
         self.fde: FDE = FDE(hass, self, self.config)
         self.automata: Automata = Automata(hass, self, self.config)
         self.kincony: Kincony = Kincony(hass, self, self.config)
-        # self.edt = EDT(hass, self.db, self.config)
 
-        self.hass.services.async_register(DOMAIN, "restore", self.db.restore_state)
-        self.hass.services.async_register(DOMAIN, "save", self.db.save_state_srv)
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
         self.hass.services.async_register(DOMAIN, "patch", self.dmx.patch)
@@ -138,7 +134,6 @@ class ConX(threading.Thread):
         self.tcp.onStop()
         self.dmx.onStop()
         self.fde.onStop()
-        # self.edt.onStop()
 
     def websocket_handle(self, hass: HomeAssistant, connection, msg):
         msg["payload"] = self.websocket_process(msg["module"], msg["cmd"], msg["data"])
@@ -167,7 +162,6 @@ class ConX(threading.Thread):
         self.tcp.onTick(elapse)
         self.dmx.onTick(elapse)
         self.fde.onTick(elapse)
-        # self.edt.onTick(elapse)
 
     def run(self):
         _LOGGER.debug("Conx thread started")

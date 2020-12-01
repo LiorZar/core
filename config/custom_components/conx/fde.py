@@ -35,59 +35,6 @@ class FDE:
         for entity_id in remove:
             del self.tweens[entity_id]
 
-    def fixRange(self, ran: list):
-        if len(ran) >= 3:
-            pass
-        elif ran[0] < ran[1]:
-            ran += [1]
-        else:
-            ran += [-1]
-        ran[1] += ran[2]
-
-    def getEntities(self, id, ran: list) -> list:
-        entities = []
-        if type(id) is list:
-            idx = 0
-            l = len(id) - 1
-            if l <= 0:
-                l = 1
-            for i in id:
-                entity: Entity = self.db.getEntity(i)
-                if None == entity:
-                    return None
-                entities.append({"id": i, "entity": entity, "f": idx / l})
-                idx = idx + 1
-            return entities
-
-        if None != ran and type(ran) is list:
-            ids = []
-            if type(ran[0]) is list:
-                for r in ran:
-                    self.fixRange(r)
-                    ids += list(range(r[0], r[1], r[2]))
-            else:
-                self.fixRange(ran)
-                ids += list(range(ran[0], ran[1], ran[2]))
-
-            idx = 0
-            l = len(ids) - 1
-            if l <= 0:
-                l = 1
-            for i in ids:
-                eid = id + str(i)
-                entity: Entity = self.db.getEntity(eid)
-                if None == entity:
-                    return None
-                entities.append({"id": eid, "entity": entity, "f": idx / l})
-                idx = idx + 1
-            return entities
-
-        entity: Entity = self.db.getEntity(id)
-        if None == entity:
-            return None
-        entities.append({"id": id, "entity": entity, "f": 0})
-        return entities
-
     def fade(self, call):
         print("fade", call)
         data = None
@@ -99,7 +46,7 @@ class FDE:
             if None == service:
                 return False
 
-            entities = self.getEntities(data.get("entity_id"), data.get("range"))
+            entities = self.db.GetEntities(data.get("entity_id"))
             if None == entities:
                 return False
 

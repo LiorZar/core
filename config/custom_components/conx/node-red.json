@@ -37,7 +37,7 @@
         "type": "function",
         "z": "190eb768.bbe479",
         "name": "create entities by name",
-        "func": "function toNums(seq) {\n    let parts = seq.split(\"|\"), inc = 1, sign = 1;\n    if (parts.length > 1)\n        inc = parseFloat(parts[1]);\n\n    let nums = parts[0].split(\">\");\n    if (nums.length < 2)\n        return [parseFloat(nums[0])];\n\n    let a = parseFloat(nums[0]),\n        b = parseFloat(nums[1]);\n    if (a > b) {\n        inc = -inc;\n        sign = -1;\n    }\n\n    res = [];\n    for (; a * sign <= b * sign; a += inc)\n        res.push(a);\n\n    return res;\n}\n\nfunction removeItems(res, items) {\n    let i, len = items.length;\n    for (i = 0; i < len; ++i) {\n        index = res.indexOf(items[i]);\n        if (-1 !== index)\n            res.splice(index, 1);\n    }\n}\n\nfunction parseItems(data) {\n    let names = [];\n    let entities = data.split(\",\");\n    let i, len = entities.length;\n    for (i = 0; i < len; ++i) {\n        let entity = entities[i];\n        let parts = entity.split(\":\");\n        if (parts.length < 2) {\n            names.push(parts[0].trim());\n            continue;\n        }\n        if (parts.length > 2)\n            continue;\n\n        let res = [];\n        let name = parts[0].trim();\n        let seqs = parts[1].split(/([+]|[-])/);\n        let tlen = seqs.length, j;\n        for (j = 0; j < tlen; j += 2) {\n            let s = toNums(seqs[j]);\n            if (0 == j || \"+\" == seqs[j - 1])\n                res = res.concat(s);\n            else\n                removeItems(res, s);\n        }\n        tlen = res.length;\n        for (j = 0; j < tlen; ++j)\n            names.push(name + res[j]);\n    }\n    return names;\n}\nmsg.payload = parseItems(msg.payload);\n\nreturn msg;\n\nreturn msg;",
+        "func": "function toNums(seq) {\n    let parts = seq.split(\"|\"), inc = 1, sign = 1;\n    if (parts.length > 1)\n        inc = parseFloat(parts[1]);\n\n    let nums = parts[0].split(\">\");\n    if (nums.length < 2)\n        return [parseFloat(nums[0])];\n\n    let a = parseFloat(nums[0]),\n        b = parseFloat(nums[1]);\n    if (a > b) {\n        inc = -inc;\n        sign = -1;\n    }\n\n    res = [];\n    for (; a * sign <= b * sign; a += inc)\n        res.push(a);\n\n    return res;\n}\n\nfunction removeItems(res, items) {\n    let i, len = items.length;\n    for (i = 0; i < len; ++i) {\n        index = res.indexOf(items[i]);\n        if (-1 !== index)\n            res.splice(index, 1);\n    }\n}\n\nfunction parseItems(data) {\n    let names = [];\n    let entities = data.split(\",\");\n    let i, len = entities.length;\n    for (i = 0; i < len; ++i) {\n        let entity = entities[i];\n        let parts = entity.split(\";\");\n        if (parts.length < 2) {\n            names.push(parts[0].trim());\n            continue;\n        }\n        if (parts.length > 2)\n            continue;\n\n        let res = [];\n        let name = parts[0].trim();\n        let seqs = parts[1].split(/([+]|[-])/);\n        let tlen = seqs.length, j;\n        for (j = 0; j < tlen; j += 2) {\n            let s = toNums(seqs[j]);\n            if (0 == j || \"+\" == seqs[j - 1])\n                res = res.concat(s);\n            else\n                removeItems(res, s);\n        }\n        tlen = res.length;\n        for (j = 0; j < tlen; ++j)\n            names.push(name + res[j]);\n    }\n    return names;\n}\nmsg.payload = parseItems(msg.payload);\n\nreturn msg;\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -143,23 +143,23 @@
         "cacheJson": true
     },
     {
-        "id": "8e8656cd.d157a8",
+        "id": "e2440fda.4787a",
         "type": "subflow:ffd0fbad.519b88",
-        "z": "cf8e7716.d39498",
+        "z": "ae55250c.f60028",
         "name": "",
-        "x": 300,
-        "y": 660,
+        "x": 470,
+        "y": 440,
         "wires": [
             []
         ]
     },
     {
-        "id": "33d62a8b.2ed166",
+        "id": "e17be6ec.8082d8",
         "type": "subflow:190eb768.bbe479",
-        "z": "cf8e7716.d39498",
+        "z": "ae55250c.f60028",
         "name": "",
-        "x": 150,
-        "y": 660,
+        "x": 470,
+        "y": 380,
         "wires": [
             []
         ]

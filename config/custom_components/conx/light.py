@@ -27,6 +27,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                     vol.Optional(CONF_TYPE, default=CONF_LIGHT_TYPE_SWITCH): vol.In(
                         CONF_LIGHT_TYPES
                     ),
+                    vol.Optional("fixture", default=-1): int,
                     vol.Optional("fadeOn", default=0): cv.Number,
                     vol.Optional("fadeOff", default=0): cv.Number,
                     vol.Optional("level", default=0): cv.byte,
@@ -46,6 +47,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                         vol.Coerce(int), vol.Range(min=1, max=20)
                     ),
                     vol.Required(CONF_NAME): cv.string,
+                    vol.Optional("fixture", default=-1): int,
                 }
             ],
         ),
@@ -56,6 +58,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                     vol.Required(CONF_NAME): cv.string,
                     vol.Required("ip"): cv.string,
                     vol.Required("port"): cv.port,
+                    vol.Optional("fixture", default=-1): int,
                 }
             ],
         ),
@@ -68,6 +71,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                         vol.Coerce(int), vol.Range(min=1, max=20)
                     ),
                     vol.Required(CONF_NAME): cv.string,
+                    vol.Optional("fixture", default=-1): int,
                 }
             ],
         ),
