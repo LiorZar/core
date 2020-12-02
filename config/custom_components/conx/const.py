@@ -1,6 +1,7 @@
 """Constants for the conx integration."""
 
 DOMAIN = "conx"
+LISTEN_DOMAINS = ["light", "switch", "sensor", "cover"]
 
 EVENT_UNIVERSE_CHANGE = "universe_change_"
 EVENT_AUTOMATA_BOX_CHANGE = "automata_box_change_"

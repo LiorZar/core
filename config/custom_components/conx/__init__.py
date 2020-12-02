@@ -5,10 +5,10 @@ import logging
 import threading
 import voluptuous as vol
 from homeassistant.core import HomeAssistant
-from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP, EVENT_STATE_CHANGED
 from homeassistant.components import websocket_api
 
-from .const import DOMAIN
+from .const import DOMAIN, LISTEN_DOMAINS
 from .db import DB
 from .net import UDP, TCP
 from .dmx import DMX
@@ -94,7 +94,19 @@ async def async_setup(hass: HomeAssistant, config: dict):
     def on_hass_stop(event):
         conx.onStop()
 
+    def on_hass_state_changed(event):
+        if (
+            None != event
+            and None != event.data
+            and event.data.get("entity_id").split(".")[0] in LISTEN_DOMAINS
+        ):
+            hass.bus.async_fire(
+                "conx_proxy",
+                {"entity_id": event.data.get("entity_id")},
+            )
+
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, on_hass_stop)
+    hass.bus.async_listen(EVENT_STATE_CHANGED, on_hass_state_changed)
 
     return True
 

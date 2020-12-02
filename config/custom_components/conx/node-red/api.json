@@ -30,6 +30,12 @@
         ],
         "env": [],
         "color": "#5050FF",
+        "inputLabels": [
+            "selection sequence"
+        ],
+        "outputLabels": [
+            "array of selection names"
+        ],
         "icon": "node-red/parser-csv.svg"
     },
     {
@@ -49,29 +55,29 @@
         ]
     },
     {
-        "id": "ffd0fbad.519b88",
+        "id": "75d25c28.ea26a4",
         "type": "subflow",
-        "name": "ConxAPI",
+        "name": "Filter",
         "info": "",
         "category": "ConX",
         "in": [
             {
-                "x": 40,
+                "x": 60,
                 "y": 40,
                 "wires": [
                     {
-                        "id": "eeb3135.c9365f"
+                        "id": "e73a7a51.b02f88"
                     }
                 ]
             }
         ],
         "out": [
             {
-                "x": 500,
-                "y": 40,
+                "x": 660,
+                "y": 100,
                 "wires": [
                     {
-                        "id": "72b66e91.50d5e",
+                        "id": "8667b03f.5342c",
                         "port": 0
                     }
                 ]
@@ -79,87 +85,114 @@
         ],
         "env": [
             {
-                "name": "module",
+                "name": "property",
                 "type": "str",
-                "value": "db"
-            },
-            {
-                "name": "cmd",
-                "type": "str",
-                "value": "get"
+                "value": "entity_id"
             }
         ],
         "color": "#5050FF",
-        "icon": "font-awesome/fa-paper-plane-o"
+        "inputLabels": [
+            "filter and value"
+        ],
+        "outputLabels": [
+            "value"
+        ],
+        "icon": "font-awesome/fa-filter"
     },
     {
-        "id": "72b66e91.50d5e",
-        "type": "ha-api",
-        "z": "ffd0fbad.519b88",
+        "id": "e73a7a51.b02f88",
+        "type": "switch",
+        "z": "75d25c28.ea26a4",
         "name": "",
-        "server": "fc94c963.ab32c8",
-        "debugenabled": false,
-        "protocol": "websocket",
-        "method": "get",
-        "path": "",
-        "data": "{\t   \"id\":1,\t   \"type\":\"conx.cmd\",\t   \"cmd\":cmd,\t   \"module\":module,\t   \"data\":payload\t}",
-        "dataType": "jsonata",
-        "location": "payload",
-        "locationType": "msg",
-        "responseType": "json",
-        "x": 350,
-        "y": 40,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "eeb3135.c9365f",
-        "type": "function",
-        "z": "ffd0fbad.519b88",
-        "name": "",
-        "func": "msg.cmd = env.get('cmd');\nmsg.module = env.get('module');\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "x": 180,
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "selection",
+                "vt": "str"
+            },
+            {
+                "t": "neq",
+                "v": "selection",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 210,
         "y": 40,
         "wires": [
             [
-                "72b66e91.50d5e"
+                "3955eca3.c4a5e4"
+            ],
+            [
+                "8667b03f.5342c"
             ]
         ]
     },
     {
-        "id": "fc94c963.ab32c8",
-        "type": "server",
-        "name": "Home Assistant",
-        "legacy": false,
-        "addon": false,
-        "rejectUnauthorizedCerts": false,
-        "ha_boolean": "y|yes|true|on|home|open",
-        "connectionDelay": true,
-        "cacheJson": true
+        "id": "3955eca3.c4a5e4",
+        "type": "subflow:190eb768.bbe479",
+        "z": "75d25c28.ea26a4",
+        "name": "",
+        "x": 420,
+        "y": 40,
+        "wires": [
+            [
+                "745dcf21.23c47"
+            ]
+        ]
     },
     {
-        "id": "e2440fda.4787a",
-        "type": "subflow:ffd0fbad.519b88",
-        "z": "ae55250c.f60028",
+        "id": "8667b03f.5342c",
+        "type": "function",
+        "z": "75d25c28.ea26a4",
         "name": "",
-        "x": 470,
-        "y": 440,
+        "func": "let prop = env.get('property');\nlet arr = flow.get(\"data\");\nif( -1 !== arr.indexOf(msg.payload[prop]))\n    return msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 420,
+        "y": 100,
         "wires": [
             []
         ]
     },
     {
-        "id": "e17be6ec.8082d8",
-        "type": "subflow:190eb768.bbe479",
+        "id": "745dcf21.23c47",
+        "type": "change",
+        "z": "75d25c28.ea26a4",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "data",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 630,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c970a695.a199e8",
+        "type": "subflow:75d25c28.ea26a4",
         "z": "ae55250c.f60028",
         "name": "",
-        "x": 470,
-        "y": 380,
+        "x": 220,
+        "y": 660,
         "wires": [
             []
         ]
