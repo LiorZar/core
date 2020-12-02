@@ -264,10 +264,10 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         state = await self.async_get_last_state()
-        if None != state and STATE_ON == state.state and None != state.attributes:
-            self._brightness = state and state.attributes.get(ATTR_BRIGHTNESS)
-            self._rgb = state and state.attributes.get(ATTR_RGB_COLOR)
-            self._transition = state and state.attributes.get(ATTR_TRANSITION)
+        if None != state and None != state.attributes:
+            self._brightness = state.attributes.get(ATTR_BRIGHTNESS)
+            self._rgb = state.attributes.get(ATTR_RGB_COLOR)
+            self._transition = state.attributes.get(ATTR_TRANSITION)
 
     def onNetworkMessage(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
