@@ -172,6 +172,7 @@ class ConX(threading.Thread):
             ts = time.perf_counter()
             es = ts - es
             self.onTick(es)
+            # self.onTick(0.02)
             time.sleep(0.02)
 
         _LOGGER.debug("Conx thread stopped")

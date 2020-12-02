@@ -13,7 +13,7 @@ from homeassistant.const import CONF_NAME, CONF_TYPE, STATE_ON, STATE_OFF
 from homeassistant.util.yaml import load_yaml, save_yaml
 from typing import Any, Dict
 
-
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_HS_COLOR,
@@ -325,7 +325,7 @@ def scale_rgb_to_brightness(rgb, brightness):
     return scaled_rgb
 
 
-class DMXLight(LightEntity):
+class DMXLight(LightEntity, RestoreEntity):
     def __init__(self, conx, config):
         self._conx = conx
         self._db: DB = conx.db
@@ -345,7 +345,8 @@ class DMXLight(LightEntity):
         self._patch = ch
         self._patchCount = len(ch)
 
-        self._brightness = 0
+        self._brightness: int = 0
+        self._nbrightness: int = 0
         self._rgb = [0, 0, 0]
 
         # Apply maps and calculations
@@ -356,15 +357,20 @@ class DMXLight(LightEntity):
             self._channels += [channel for channel in range(a, a + self._channel_count)]
         self._features = FEATURE_MAP.get(self._type)
 
-        self.read_values()
-
         conx.hass.bus.async_listen(
             EVENT_UNIVERSE_CHANGE + self._dmxName, self.on_universe_change
         )
-        # Send default levels to the controller
-        # self.update_universe()
-        _LOGGER.debug(f"Initialized DMX light {self._name}")
         self.haTS = timer()
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+
+        state = await self.async_get_last_state()
+        if None != state and None != state.attributes:
+            self._brightness = state.attributes.get(ATTR_BRIGHTNESS)
+            self._rgb = state.attributes.get(ATTR_RGB_COLOR)
+            self._nbrightness = self._brightness
+            self.update_universe()
 
     @property
     def name(self):
@@ -380,7 +386,7 @@ class DMXLight(LightEntity):
 
     @property
     def is_on(self):
-        return self.brightness > 0
+        return self._nbrightness > 0
 
     @property
     def hs_color(self):
@@ -417,6 +423,9 @@ class DMXLight(LightEntity):
             if type(kwargs[a]) is tuple:
                 kwargs[a] = list(kwargs[a])
 
+        if ATTR_BRIGHTNESS in kwargs:
+            self._nbrightness = int(kwargs[ATTR_BRIGHTNESS])
+
         props = {
             "entity_id": self.entity_id,
             "service": "light.turn_on",
@@ -431,16 +440,16 @@ class DMXLight(LightEntity):
 
     async def async_turn_on(self, **kwargs):
         if len(kwargs) <= 0:
-            if self._brightness == 0:
-                kwargs[ATTR_BRIGHTNESS] = 255
-
-        if self._fadeOn > 0 and True != kwargs.get("tween"):
-            self.Fade(kwargs, True)
-            return
+            kwargs[ATTR_BRIGHTNESS] = 255
+            if self._fadeOn > 0:
+                self.Fade(kwargs, True)
+                return
 
         # Update state from service call
         if ATTR_BRIGHTNESS in kwargs:
             self._brightness = int(kwargs[ATTR_BRIGHTNESS])
+            if True != kwargs.get("tween"):
+                self._nbrightness = self._brightness
 
         if ATTR_HS_COLOR in kwargs:
             self._rgb = color_util.color_hs_to_RGB(*kwargs[ATTR_HS_COLOR])
@@ -452,15 +461,16 @@ class DMXLight(LightEntity):
         self.update_universe()
 
     async def async_turn_off(self, **kwargs):
-        if self._brightness > 0:
+        if len(kwargs) <= 0:
             kwargs[ATTR_BRIGHTNESS] = 0
 
-        if self._fadeOff > 0 and True != kwargs.get("tween"):
-            self.Fade(kwargs, False)
-            return
+            if self._fadeOff > 0:
+                self.Fade(kwargs, False)
+                return
 
         if ATTR_BRIGHTNESS in kwargs:
             self._brightness = int(kwargs[ATTR_BRIGHTNESS])
+            self._nbrightness = self._brightness
 
         self.update_universe()
 
@@ -481,10 +491,11 @@ class DMXLight(LightEntity):
             self._brightness = vals[3]
         else:
             self._brightness = vals[0]
+        self._nbrightness = self._brightness
 
     def dmx_values(self):
         # Select which values to send over DMX
-        if False == self.is_on:
+        if self._brightness <= 0:
             return [0] * len(self._channels)
 
         if self._type == CONF_LIGHT_TYPE_RGB:
