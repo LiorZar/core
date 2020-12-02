@@ -474,7 +474,10 @@ class DMXLight(LightEntity):
             self._rgb = color_util.color_hs_to_RGB(hsv[0], hsv[1])
             self._brightness = round(hsv[2] * 2.55)
         elif self._type == CONF_LIGHT_TYPE_RGBA:
-            self._rgb = vals[0:3]
+            hsv = color_util.color_RGB_to_hsv(
+                max(vals[0], 0.001), max(vals[1], 0.001), max(vals[2], 0.001)
+            )
+            self._rgb = color_util.color_hs_to_RGB(hsv[0], hsv[1])
             self._brightness = vals[3]
         else:
             self._brightness = vals[0]
