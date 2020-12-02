@@ -1,3 +1,4 @@
+import copy
 import logging
 import voluptuous as vol
 
@@ -90,7 +91,20 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     lights = []
     for cfg in dmx or []:
         try:
-            lights.append(DMXLight(conx, cfg))
+            name: str = cfg.get(CONF_NAME)
+            if -1 == name.find(";"):
+                lights.append(DMXLight(conx, cfg))
+            else:
+                names = conx.db.ParseSelection(name)
+                channel: int = cfg.get("channel")
+                for name in names:
+                    c = copy.copy(cfg)
+                    c["name"] = name
+                    c["channel"] = channel
+                    l = DMXLight(conx, c)
+                    lights.append(l)
+                    channel += l._channel_count
+
         except Exception as ex:
             print(cfg, ex)
     for cfg in automata or []:

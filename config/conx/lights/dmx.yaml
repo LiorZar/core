@@ -63,12 +63,13 @@
 
   - dmxName: dmx2
     channel: 1
-    name: conxDimmer22
+    name: dimmer_;1>10
     type: dimmer
 
   - dmxName: dmx2
-    channel: 10
-    name: conxColor2
-    type: rgba
+    channel: 11
+    name: rgb_;1>160
+    type: rgb
+
 
 
