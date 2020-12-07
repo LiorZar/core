@@ -36,13 +36,16 @@ class FDE:
             del self.tweens[entity_id]
 
     def fade(self, call):
-        print("fade", call)
         data = None
         service = None
         entities = None
         try:
             data = call.data
-            service = self.services.get(data.get("service"))
+            print("_fade", data)
+            servName = data.get("service")
+            if None == servName:
+                servName = data.get("Service")
+            service = self.services.get(servName)
             if None == service:
                 return False
 

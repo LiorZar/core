@@ -254,7 +254,7 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNetworkMessage)
 
         self._brightness = 0
-        self._rgb = [0, 0, 0]
+        self._rgb = [255, 255, 255]
         self._transition = 0
 
         self._features = SUPPORT_BRIGHTNESS | SUPPORT_COLOR | SUPPORT_TRANSITION

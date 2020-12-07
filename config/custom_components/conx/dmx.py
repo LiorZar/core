@@ -347,7 +347,7 @@ class DMXLight(LightEntity, RestoreEntity):
 
         self._brightness: int = 0
         self._nbrightness: int = 0
-        self._rgb = [0, 0, 0]
+        self._rgb = [255, 255, 255]
 
         # Apply maps and calculations
         self._channel_count = CHANNEL_COUNT_MAP.get(self._type, 1)
@@ -368,7 +368,8 @@ class DMXLight(LightEntity, RestoreEntity):
         state = await self.async_get_last_state()
         if None != state and None != state.attributes:
             self._brightness = state.attributes.get(ATTR_BRIGHTNESS)
-            self._rgb = state.attributes.get(ATTR_RGB_COLOR)
+            if self.supported_features & SUPPORT_COLOR:
+                self._rgb = state.attributes.get(ATTR_RGB_COLOR)
             self._nbrightness = self._brightness
             self.update_universe()
 

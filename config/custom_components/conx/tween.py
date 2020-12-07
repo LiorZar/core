@@ -114,6 +114,13 @@ class Ease:
         return n
 
     @staticmethod
+    def Mirror(n):
+        Ease._checkRange(n)
+        if n < 0.5:
+            return n * 2
+        return (1.0 - n) * 2
+
+    @staticmethod
     def OutLinear(n):
         Ease._checkRange(n)
         return n
@@ -678,6 +685,8 @@ class Tween:
             self.state = "PLAY"
 
     def onEnded(self):
+        del self.cprops["tween"]
+        self.setState()
         self.entity.async_write_ha_state()
         return True
 
