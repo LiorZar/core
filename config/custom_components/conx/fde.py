@@ -19,6 +19,7 @@ class FDE:
         self.tweens: Dict[str, Tween] = {}
         self.services: Dict[str, Callable[[Entity, Any], None]] = {}
         self.services["light.turn_on"] = self.light_turn_on
+        self.services["switch.turn_on"] = self.switch_turn_on
 
     def onStop(self):
         pass
@@ -92,3 +93,27 @@ class FDE:
             ).result()
         except Exception as e:
             print("light_turn_on failed", e, props)
+
+    def switch_turn_on(self, entity: Entity, props):
+        try:
+            return asyncio.run_coroutine_threadsafe(
+                entity.async_turn_on(**props), self.hass.loop
+            ).result()
+        except Exception as e:
+            print("switch_turn_on failed", e, props)
+
+    def entity_set_state(self, entity: Entity, state):
+        try:
+            s = state.get("state")
+            atts = state.get("atts")
+            if "off" != s:
+                return asyncio.run_coroutine_threadsafe(
+                    entity.async_turn_on(**atts), self.hass.loop
+                ).result()
+            else:
+                return asyncio.run_coroutine_threadsafe(
+                    entity.async_turn_off(**atts), self.hass.loop
+                ).result()
+
+        except Exception as e:
+            print("entity_turn_on failed", e, state)

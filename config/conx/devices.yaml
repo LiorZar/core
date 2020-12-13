@@ -6,8 +6,8 @@ dmx:
     fps: 0
 
   - name: "dmx2"
-    ip: "192.168.1.36"
-    universe: 1
+    ip: "192.168.1.116"
+    universe: 0
     channels: 512
 
   - name: "dmx3"
@@ -19,6 +19,7 @@ dmx:
     ip: "192.168.1.36"
     universe: 3
     channels: 512
+    fps: 20
 
   - name: "dmx5"
     ip: "192.168.1.36"

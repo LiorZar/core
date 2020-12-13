@@ -13,9 +13,14 @@ from .db import DB
 from .net import UDP, TCP
 from .dmx import DMX
 from .fde import FDE
+from .cue import CUE
 from .automata import Automata
 from .kincony import Kincony
 import homeassistant.helpers.config_validation as cv
+
+
+from homeassistant.core import Context, State
+from homeassistant.helpers.state import async_reproduce_state
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -121,13 +126,18 @@ class ConX(threading.Thread):
         self.tcp: TCP = TCP(hass, self, self.config)
         self.dmx: DMX = DMX(hass, self, self.config)
         self.fde: FDE = FDE(hass, self, self.config)
+        self.cue: CUE = CUE(hass, self, self.config)
         self.automata: Automata = Automata(hass, self, self.config)
         self.kincony: Kincony = Kincony(hass, self, self.config)
 
+        self.hass.services.async_register(DOMAIN, "test", self.test)
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
         self.hass.services.async_register(DOMAIN, "patch", self.dmx.patch)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
+        self.hass.services.async_register(DOMAIN, "cue-store", self.cue.Store)
+        self.hass.services.async_register(DOMAIN, "cue-play", self.cue.Play)
+        self.hass.services.async_register(DOMAIN, "cue-delete", self.cue.Delete)
         self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
         self.hass.services.async_register(DOMAIN, "kincony_send", self.kincony.send)
 
@@ -146,6 +156,14 @@ class ConX(threading.Thread):
         self.tcp.onStop()
         self.dmx.onStop()
         self.fde.onStop()
+        self.cue.onStop()
+
+    async def test(self, call):
+        print("test", call)
+        state = State(
+            call.data.get("entity_id"), call.data.get("state"), call.data.get("atts")
+        )
+        await async_reproduce_state(self.hass, state)
 
     def websocket_handle(self, hass: HomeAssistant, connection, msg):
         msg["payload"] = self.websocket_process(msg["module"], msg["cmd"], msg["data"])
@@ -174,6 +192,7 @@ class ConX(threading.Thread):
         self.tcp.onTick(elapse)
         self.dmx.onTick(elapse)
         self.fde.onTick(elapse)
+        self.cue.onTick(elapse)
 
     def run(self):
         _LOGGER.debug("Conx thread started")

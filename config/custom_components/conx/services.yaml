@@ -1,3 +1,16 @@
+test:
+  description: test
+  fields:
+    entity_id:
+      description: entity_id
+      example: light.lior
+    state:
+      description: The state
+      example: "on"
+    atts:
+      description: The attrbiutes and values to goto.
+      example: "{brightness: 255, hs_color: [300,100]}"
+
 channel:
   description: set a channel(s) value
   fields:
@@ -54,6 +67,39 @@ fade:
       description: Optional. how many loops to repeat. default is 1, 0 is endless loop
     loopDelay:
       description: Optional. The time to wait before you start a new loop. default is 0
+
+cue-store:
+  description: store entities into a cue
+  fields:
+    name:
+      description: the name of cue to store or update
+      example: cue5
+    transition:
+      description: the fade time in seconds
+      example: 2.5
+    entity_id:
+      description: The entity id or selection light_;1>10|3 - 10>4
+      example: light.kitchen_main_lamp
+
+
+cue-play:
+  description: store entities into a cue
+  fields:
+    name:
+      description: the name of cue to play
+      example: cue5
+    transition:
+      description: the fade time in seconds
+      example: 2.5
+
+cue-delete:
+  description: store entities into a cue
+  fields:
+    name:
+      description: the name of cue to delete
+      example: cue5
+
+
 
 patch:
   description: will load the config/lights/conx.yaml and add the new patch to its dmx part

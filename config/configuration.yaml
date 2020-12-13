@@ -13,20 +13,21 @@ default_config:
 
 # Example filter to include specified domains and exclude specified entities
 recorder:
+  purge_keep_days: 1
   include:
     domains:
-      - sensor
+      - switch
+
+history:
+  use_include_order: true
+  include:
+    domains:
+      - switch
 
 
 # Text to speech
 # Example configuration.yaml entry for Google Translate TTS service
-tts:
-  - platform: google_translate
-    cache: true
-    cache_dir: /tmp/tts
-    time_memory: 300
-    base_url: http://127.0.0.1:8123
-    service_name: google_say
+
 
 
 group: !include groups.yaml
@@ -44,12 +45,5 @@ switch kincony: !include conx/switches/kincony.yaml
 sensor automata: !include conx/sensors/automata.yaml
 sensor udp: !include conx/sensors/udp.yaml
 light moshiko_i_can_write_what_ever_i_like: !include conx/lights/automata.yaml
+light hanuka: !include conx/lights/hanuka.yaml
 
-panel_custom:
-  - name: conx-editor-panel
-    url_path: conx-editor
-    sidebar_title: Conx Editor
-    sidebar_icon: mdi:server
-    module_url: /local/conx/conx.js
-    config:
-      hello: world

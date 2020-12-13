@@ -55,12 +55,24 @@ class DB:
         self.data[group][id] = data
         self.dataDirty = True
 
-    def getData(self, group: str, id: str):
+    def getData(self, group: str, id: str = None):
         data = None
         g = self.data.get(group)
+        if None == id:
+            return g
         if None != g:
             data = g.get(id)
         return data
+
+    def delData(self, group: str, id: str = None):
+        g = self.data.get(group)
+        if None == id:
+            del self.data[group]
+        elif None != g:
+            del g[id]
+        else:
+            return
+        self.dataDirty = True
 
     def getEntity(self, entity_id: str) -> Entity:
         domain = entity_id.split(".")[0]
