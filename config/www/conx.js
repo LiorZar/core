@@ -105,6 +105,10 @@ var conx;
             }
             return [h, s, v];
         }
+        static HSVtoHEX(h, s, v) {
+            let rgb = this.HSVtoRGB(h, s, v);
+            return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
+        }
         static RGBAtoHEX(r, g, b, a) {
             let hsv = this.RGBtoHSV(r, g, b);
             hsv[2] = a;
@@ -477,7 +481,8 @@ var conx;
                             dominantBaseline: "middle",
                             fill: "white",
                             textAnchor: "middle",
-                            fontSize: `20px`
+                            fontSize: "20px",
+                            textShadow: "1px 1px #000000"
                         },
                         textContent: ""
                     }
@@ -501,7 +506,7 @@ var conx;
                 let r_barTotal = controls.utils.SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "#919191" }, id: `bg` });
                 let r_barProgress = controls.utils.SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "red" }, id: `progress` });
                 let r_thumb = controls.utils.SVGRect({ x: "0", y: "0", width: "1px", height: "100%", style: { fill: "black" }, id: `thumb` });
-                let t_title = controls.utils.SVGText({ x: "50%", y: "50%", style: { fill: "white", textAnchor: "middle", fontSize: "20px" }, id: `text` });
+                let t_title = controls.utils.SVGText({ x: "50%", y: "50%", style: { fill: "white", textAnchor: "middle", fontSize: "20px", textShadow: "1px 1px #000000" }, id: `text` });
                 // Grouping
                 g_group.appendChild(r_barTotal);
                 g_group.appendChild(r_barProgress);
@@ -692,9 +697,9 @@ var conx;
                 super.create();
                 this.innerHTML = `
                 <conx-slider id="white" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#000000"}}}'></conx-slider>
-                <conx-slider id="red" width="100%" height="40px" locals='{"align":0}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
-                <conx-slider id="green" width="100%" height="40px" locals='{"align":0}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
-                <conx-slider id="blue" width="100%" height="40px" locals='{"align":0}' params='{"progress":{"style":{"fill":"#0000FF"}}}'></conx-slider>
+                <conx-slider id="red" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
+                <conx-slider id="green" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
+                <conx-slider id="blue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#0000FF"}}}'></conx-slider>
             `;
                 this.root = {};
                 this.root.white = conx.glo.getChild(this, "white");
@@ -763,28 +768,27 @@ var conx;
         class Light_HSV extends cards.HACard {
             create() {
                 super.create();
+                let local = window.location.origin;
                 this.innerHTML = `
-                <conx-slider id="hue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"bg":{"style":{"fill":"none"}}, "image":{"href":"local/gradientH.png", "visibility":"visible"}}'></conx-slider>
-                <conx-slider id="sat" width="100%" height="40px" locals='{"align":0}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
-                <conx-slider id="val" width="100%" height="40px" locals='{"align":0}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
+                <conx-slider id="val" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
+                <conx-slider id="sat" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
+                <conx-slider id="hue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"bg":{"style":{"fill":"none"}}, "image":{"href":"${local}/local/images/gradH.png", "visibility":"visible"}}'></conx-slider>
             `;
                 this.root = {};
                 this.root.hue = conx.glo.getChild(this, "hue");
                 this.root.hue.onChange = this.onChange.bind(this);
-                this.root.hue.locals.title = this.state.attributes.friendly_name;
+                this.root.hue.locals.title = "";
                 this.root.sat = conx.glo.getChild(this, "sat");
                 this.root.sat.onChange = this.onChange.bind(this);
                 this.root.sat.locals.title = "";
                 this.root.val = conx.glo.getChild(this, "val");
                 this.root.val.onChange = this.onChange.bind(this);
-                this.root.val.locals.title = "";
+                this.root.val.locals.title = this.state.attributes.friendly_name;
             }
-            /*protected refreshColors(): void {
-                this.root.white.params.bg.style.fill = this.root.white.bg.style.fill = glo.RGBAtoHEX(this.root.red._val, this.root.green._val, this.root.blue._val, this.root.white._val);
-                this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
-                this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
-                this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
-            }*/
+            refreshColors() {
+                this.root.sat.params.bg.style.fill = this.root.sat.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val * 5 / 6, this.root.sat._val, 1);
+                this.root.val.params.bg.style.fill = this.root.val.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val * 5 / 6, this.root.sat._val, this.root.val._val);
+            }
             updateState() {
                 super.updateState();
                 if (!this.root || !this.connected || conx.glo.time - this.updateTS < 1000)
@@ -793,6 +797,7 @@ var conx;
                 this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
                 this.root.sat._val = this.state.attributes.hs_color[1] / 100.0;
                 ;
+                this.refreshColors();
                 this.root.val.updateByValue();
                 this.root.hue.updateByValue();
                 this.root.sat.updateByValue();
@@ -807,6 +812,7 @@ var conx;
                         Math.floor(this.root.sat._val * 100)
                     ]
                 });
+                this.refreshColors();
             }
         }
         cards.Light_HSV = Light_HSV;
