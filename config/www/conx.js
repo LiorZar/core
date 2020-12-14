@@ -115,6 +115,61 @@ var conx;
             let rgb = this.HSVtoRGB(hsv[0], hsv[1], hsv[2]);
             return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
         }
+        static toNums(seq) {
+            let parts = seq.split("|"), inc = 1, sign = 1;
+            if (parts.length > 1)
+                inc = parseFloat(parts[1]);
+            let nums = parts[0].split(">");
+            if (nums.length < 2)
+                return [parseFloat(nums[0])];
+            let a = parseFloat(nums[0]), b = parseFloat(nums[1]);
+            if (a > b) {
+                inc = -inc;
+                sign = -1;
+            }
+            let res = [];
+            for (; a * sign <= b * sign; a += inc)
+                res.push(a);
+            return res;
+        }
+        static removeItems(res, items) {
+            let i, len = items.length, index;
+            for (i = 0; i < len; ++i) {
+                index = res.indexOf(items[i]);
+                if (-1 !== index)
+                    res.splice(index, 1);
+            }
+        }
+        static ParseSelection(data) {
+            let names = [];
+            let entities = data.split(",");
+            let i, len = entities.length;
+            for (i = 0; i < len; ++i) {
+                let entity = entities[i];
+                let parts = entity.split(";");
+                if (parts.length < 2) {
+                    names.push(parts[0].trim());
+                    continue;
+                }
+                if (parts.length > 2)
+                    continue;
+                let res = [];
+                let name = parts[0].trim();
+                let seqs = parts[1].split(/([+]|[-])/);
+                let tlen = seqs.length, j;
+                for (j = 0; j < tlen; j += 2) {
+                    let s = this.toNums(seqs[j]);
+                    if (0 == j || "+" == seqs[j - 1])
+                        res = res.concat(s);
+                    else
+                        this.removeItems(res, s);
+                }
+                tlen = res.length;
+                for (j = 0; j < tlen; ++j)
+                    names.push(name + res[j]);
+            }
+            return names;
+        }
         static trace(...args) {
             console.log.apply(null, args);
         }
@@ -613,6 +668,8 @@ var conx;
         class HACard extends HTMLElement {
             constructor() {
                 super(...arguments);
+                this.states = [];
+                this.entities = [];
                 this.connected = false;
                 this.updateTS = 0;
             }
@@ -622,7 +679,8 @@ var conx;
             }
             set hass(hass) {
                 this._hass = hass;
-                this.state = hass.states[this.entity];
+                for (let i = 0; i < this.entities.length; ++i)
+                    this.states[i] = hass.states[this.entities[i]];
                 if (undefined === this.root)
                     this.create();
                 this.updateState();
@@ -639,7 +697,13 @@ var conx;
                     throw new Error('You need to define an entity');
                 }
                 this.config = config;
-                this.entity = config.entity;
+                this.entities = conx.glo.ParseSelection(config.entity);
+                this.states.length = this.entities.length;
+            }
+            get state() {
+                if (this.states.length > 0)
+                    return this.states[0];
+                return undefined;
             }
             static get properties() {
                 return {
@@ -663,7 +727,7 @@ var conx;
                 this.innerHTML = `<conx-slider id="main" width="100%" height="40px" locals='{"align":0}'/>`;
                 this.root = conx.glo.getChild(this, "main");
                 this.root.onChange = this.onChange.bind(this);
-                this.root.locals.title = this.state.attributes.friendly_name;
+                this.root.locals.title = this.config.name || this.state.attributes.friendly_name;
             }
             updateState() {
                 super.updateState();
@@ -673,7 +737,7 @@ var conx;
                 this.root.updateByValue();
             }
             onChange(id, value, pvalue) {
-                this._hass.callService("light", "turn_on", { entity_id: this.entity, brightness: Math.floor(value * 255) });
+                this._hass.callService("light", "turn_on", { entity_id: this.entities, brightness: Math.floor(value * 255) });
             }
         }
         cards.Dimmer = Dimmer;
@@ -738,7 +802,7 @@ var conx;
             onChange(id, value, pvalue) {
                 this.updateTS = conx.glo.time;
                 this._hass.callService("light", "turn_on", {
-                    entity_id: this.entity,
+                    entity_id: this.entities,
                     brightness: Math.floor(this.root.white._val * 255),
                     rgb_color: [
                         Math.floor(this.root.red._val * 255),
@@ -807,7 +871,7 @@ var conx;
             onChange(id, value, pvalue) {
                 this.updateTS = conx.glo.time;
                 this._hass.callService("light", "turn_on", {
-                    entity_id: this.entity,
+                    entity_id: this.entities,
                     brightness: Math.floor(this.root.val._val * 255),
                     hs_color: [
                         Math.floor(this.root.hue._val * 360),
