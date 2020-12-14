@@ -704,7 +704,7 @@ var conx;
                 this.root = {};
                 this.root.white = conx.glo.getChild(this, "white");
                 this.root.white.onChange = this.onChange.bind(this);
-                this.root.white.locals.title = this.state.attributes.friendly_name;
+                this.root.white.locals.title = this.config.name || this.state.attributes.friendly_name;
                 this.root.red = conx.glo.getChild(this, "red");
                 this.root.red.onChange = this.onChange.bind(this);
                 this.root.red.locals.title = "";
@@ -770,9 +770,11 @@ var conx;
                 super.create();
                 let local = window.location.origin;
                 this.innerHTML = `
+            <div>
                 <conx-slider id="val" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
                 <conx-slider id="sat" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
                 <conx-slider id="hue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"bg":{"style":{"fill":"none"}}, "image":{"href":"${local}/local/images/gradH.png", "visibility":"visible"}}'></conx-slider>
+            </div>
             `;
                 this.root = {};
                 this.root.hue = conx.glo.getChild(this, "hue");
@@ -783,7 +785,7 @@ var conx;
                 this.root.sat.locals.title = "";
                 this.root.val = conx.glo.getChild(this, "val");
                 this.root.val.onChange = this.onChange.bind(this);
-                this.root.val.locals.title = this.state.attributes.friendly_name;
+                this.root.val.locals.title = this.config.name || this.state.attributes.friendly_name;
             }
             refreshColors() {
                 this.root.sat.params.bg.style.fill = this.root.sat.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val * 5 / 6, this.root.sat._val, 1);

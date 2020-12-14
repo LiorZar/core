@@ -39,7 +39,7 @@ class CUE:
         self.loadCues()
 
     def loadCues(self):
-        cues = self.db.getData("cues")
+        cues = self.db.getData("cues") or {}
         for name in cues:
             c = cue(self.db, name, cues[name])
             self.cues[name] = c
