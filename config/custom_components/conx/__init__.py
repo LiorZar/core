@@ -11,6 +11,7 @@ from homeassistant.components import websocket_api
 from .const import DOMAIN, LISTEN_DOMAINS
 from .db import DB
 from .net import UDP, TCP
+from .ext import EXT
 from .dmx import DMX
 from .fde import FDE
 from .cue import CUE
@@ -124,6 +125,7 @@ class ConX(threading.Thread):
         self.db: DB = DB(hass, self.config)
         self.udp: UDP = UDP(hass, self, self.config)
         self.tcp: TCP = TCP(hass, self, self.config)
+        self.ext: EXT = EXT(hass, self, self.config)
         self.dmx: DMX = DMX(hass, self, self.config)
         self.fde: FDE = FDE(hass, self, self.config)
         self.cue: CUE = CUE(hass, self, self.config)
@@ -154,6 +156,7 @@ class ConX(threading.Thread):
         self.db.onStop()
         self.udp.onStop()
         self.tcp.onStop()
+        self.ext.onStop()
         self.dmx.onStop()
         self.fde.onStop()
         self.cue.onStop()
@@ -190,6 +193,7 @@ class ConX(threading.Thread):
         self.db.onTick(elapse)
         self.udp.onTick(elapse)
         self.tcp.onTick(elapse)
+        self.ext.onTick(elapse)
         self.dmx.onTick(elapse)
         self.fde.onTick(elapse)
         self.cue.onTick(elapse)

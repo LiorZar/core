@@ -17,7 +17,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_HS_COLOR,
-    ATTR_RGB_COLOR,
+    ATTR_RGB_COLOR, ATTR_TRANSITION,
     LightEntity,
     PLATFORM_SCHEMA,
     SUPPORT_BRIGHTNESS,
@@ -28,6 +28,7 @@ import homeassistant.util.color as color_util
 
 
 from .db import DB
+from .ext import EXT
 from .const import DOMAIN, EVENT_UNIVERSE_CHANGE, fract
 
 # endregion
@@ -330,6 +331,7 @@ class DMXLight(LightEntity, RestoreEntity):
         self._conx = conx
         self._db: DB = conx.db
         self._dmx: DMX = conx.dmx
+        self._ext: EXT = conx.ext
 
         # Fixture configuration
         self._dmxName = config.get("dmxName")
@@ -419,18 +421,20 @@ class DMXLight(LightEntity, RestoreEntity):
 
         return {key: val for key, val in data.items() if val is not None}
 
-    def Fade(self, kwargs, on: bool):
+    def Fade(self, kwargs):
         for a in kwargs:
             if type(kwargs[a]) is tuple:
                 kwargs[a] = list(kwargs[a])
 
+        fade = kwargs[ATTR_TRANSITION]
+        del kwargs[ATTR_TRANSITION]
         if ATTR_BRIGHTNESS in kwargs:
             self._nbrightness = int(kwargs[ATTR_BRIGHTNESS])
 
         props = {
             "entity_id": self.entity_id,
             "service": "light.turn_on",
-            "transition": self._fadeOn if on else self._fadeOff,
+            "transition": fade,
             "end": kwargs,
         }
 
@@ -443,8 +447,13 @@ class DMXLight(LightEntity, RestoreEntity):
         if len(kwargs) <= 0:
             kwargs[ATTR_BRIGHTNESS] = 255
             if self._fadeOn > 0:
-                self.Fade(kwargs, True)
-                return
+                kwargs[ATTR_TRANSITION] = self._fadeOn
+
+        if ATTR_TRANSITION in kwargs:
+            if kwargs[ATTR_TRANSITION] <= 0:
+                kwargs[ATTR_TRANSITION] = self._fadeOn
+            self.Fade(kwargs)
+            return
 
         # Update state from service call
         if ATTR_BRIGHTNESS in kwargs:
@@ -464,10 +473,14 @@ class DMXLight(LightEntity, RestoreEntity):
     async def async_turn_off(self, **kwargs):
         if len(kwargs) <= 0:
             kwargs[ATTR_BRIGHTNESS] = 0
-
             if self._fadeOff > 0:
-                self.Fade(kwargs, False)
-                return
+                kwargs[ATTR_TRANSITION] = self._fadeOff
+
+        if ATTR_TRANSITION in kwargs:
+            if kwargs[ATTR_TRANSITION] <= 0:
+                kwargs[ATTR_TRANSITION] = self._fadeOff
+            self.Fade(kwargs)
+            return
 
         if ATTR_BRIGHTNESS in kwargs:
             self._brightness = int(kwargs[ATTR_BRIGHTNESS])
@@ -525,11 +538,15 @@ class DMXLight(LightEntity, RestoreEntity):
         self.read_values()
         self.writeState()
 
-    def writeState(self):
+    def writeState(self, includeTS:bool = True):
         ts = timer()
-        if ts - self.haTS < 0.125:
+        if True == includeTS and ts - self.haTS < 0.125:
+            self._ext.callLater( 0.125 - (ts - self.haTS), self.writeState, self, {"includeTS": False})
             return
-        self.haTS = ts
+
+        self._ext.remove(self.entity_id)
+        if True == includeTS:
+            self.haTS = ts
         self.async_write_ha_state()
 
     def async_update(self):

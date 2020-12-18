@@ -69,7 +69,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                 {
                     vol.Required("boxName"): cv.string,
                     vol.Required("channel"): vol.All(
-                        vol.Coerce(int), vol.Range(min=1, max=20)
+                        vol.Coerce(int), vol.Range(min=1, max=32)
                     ),
                     vol.Required(CONF_NAME): cv.string,
                     vol.Optional("fixture", default=-1): int,

@@ -2,18 +2,28 @@
 var conx;
 (function (conx) {
     class glo {
+        static trace(...args) {
+            console.log.apply(null, args);
+        }
         static get wnd() {
             return window;
         }
         static get time() {
             return (new Date).getTime();
         }
-        static getChild(node, id) {
+        static getChild(_this, id) {
+            let ids = id.split(".");
+            for (let i = 0; undefined !== _this && i < ids.length; ++i) {
+                _this = _this[ids[i]];
+            }
+            return _this;
+        }
+        static findChild(node, id) {
             if (node.id == id)
                 return node;
             let len = node.children.length, res;
             for (let i = 0; i < len; ++i) {
-                res = this.getChild(node.children[i], id);
+                res = this.findChild(node.children[i], id);
                 if (null !== res)
                     return res;
             }
@@ -105,6 +115,9 @@ var conx;
             }
             return [h, s, v];
         }
+        static HEXtoRGB(hex) {
+            return [parseInt('0x' + hex[1] + hex[2], 16), parseInt('0x' + hex[3] + hex[4], 16), parseInt('0x' + hex[5] + hex[6], 16)];
+        }
         static HSVtoHEX(h, s, v) {
             let rgb = this.HSVtoRGB(h, s, v);
             return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
@@ -170,10 +183,40 @@ var conx;
             }
             return names;
         }
-        static trace(...args) {
-            console.log.apply(null, args);
+        static update(_this, atts = undefined) {
+            atts = atts || (_this === null || _this === void 0 ? void 0 : _this.params);
+            if (!atts)
+                return;
+            let child, childAtts;
+            for (let childId in atts) {
+                child = this.getChild(_this, childId);
+                childAtts = atts[childId];
+                for (let att in childAtts) {
+                    if ("style" !== att) {
+                        if ("visibility" == att)
+                            child.setAttribute(att, childAtts[att]);
+                        else {
+                            if (child.hasAttribute(att))
+                                child.setAttribute(att, childAtts[att]);
+                            else if (undefined !== child[att])
+                                child[att] = childAtts[att];
+                        }
+                    }
+                    else
+                        child.setAttribute("style", this.Style(childAtts[att]));
+                }
+            }
         }
     }
+    glo.Style = (props) => {
+        let combinedString = [];
+        for (let k in props) {
+            let v = props[k];
+            k = k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+            combinedString.push(`${k}:${v}`);
+        }
+        return combinedString.join(";");
+    };
     conx.glo = glo;
 })(conx || (conx = {}));
 var conx;
@@ -353,7 +396,7 @@ var conx;
                 this.copyData(this.locals, conx.glo.JSON(this.getAttribute("locals")));
                 this.copyData(this.params, conx.glo.JSON(this.getAttribute("params")));
                 this.copyData(this.params.root, conx.glo.attributesToObject(this.attributes));
-                this.update();
+                conx.glo.update(this);
                 this.appendChild(this.root);
                 setTimeout(this.postConnected.bind(this), 0);
             }
@@ -364,32 +407,8 @@ var conx;
             copyData(dst, src, override = true) {
                 conx.glo.copy(dst, src, override);
             }
-            update(atts = undefined) {
-                atts = atts || this.params;
-                if (!atts)
-                    return;
-                let child, _this = this, childAtts;
-                for (let childId in atts) {
-                    child = _this[childId];
-                    childAtts = atts[childId];
-                    for (let att in childAtts) {
-                        if ("style" !== att) {
-                            if ("visibility" == att)
-                                child.setAttribute(att, childAtts[att]);
-                            else {
-                                if (child.hasAttribute(att))
-                                    child.setAttribute(att, childAtts[att]);
-                                else if (undefined !== child[att])
-                                    child[att] = childAtts[att];
-                            }
-                        }
-                        else
-                            child.setAttribute("style", controls.utils.Style(childAtts[att]));
-                    }
-                }
-            }
-            getChild(id) {
-                return conx.glo.getChild(this.root, id);
+            findChild(id) {
+                return conx.glo.findChild(this.root, id);
             }
             connectItems() {
             }
@@ -545,13 +564,13 @@ var conx;
             }
             connectItems() {
                 this.enablePointer();
-                this.image = this.getChild(`image`);
-                this.group = this.getChild(`group`);
-                this.frame = this.getChild(`frame`);
-                this.bg = this.getChild(`bg`);
-                this.progress = this.getChild(`progress`);
-                this.thumb = this.getChild(`thumb`);
-                this.text = this.getChild(`text`);
+                this.image = this.findChild(`image`);
+                this.group = this.findChild(`group`);
+                this.frame = this.findChild(`frame`);
+                this.bg = this.findChild(`bg`);
+                this.progress = this.findChild(`progress`);
+                this.thumb = this.findChild(`thumb`);
+                this.text = this.findChild(`text`);
             }
             createChildren() {
                 super.createChildren();
@@ -577,7 +596,7 @@ var conx;
                 this.updateByValue(false);
                 let s = Math.min(this.clientRect.width, this.clientRect.height) / 2.5;
                 this.params.text.style.fontSize = `${s}px`;
-                this.update();
+                conx.glo.update(this);
             }
             updateByAlign(upd) {
                 if (0 == this.locals.align) {
@@ -597,7 +616,7 @@ var conx;
                     this.params.thumb.visibility = "visible";
                 }
                 if (upd)
-                    this.update({ svg: this.params.svg });
+                    conx.glo.update(this, { svg: this.params.svg });
             }
             updateByValue(upd = true) {
                 let length;
@@ -630,7 +649,7 @@ var conx;
                     this.params.thumb.y = `${100 - talue - this.locals.thumb}%`;
                 }
                 if (upd)
-                    this.update({ progress: this.params.progress, thumb: this.params.thumb, text: this.params.text });
+                    conx.glo.update(this, { progress: this.params.progress, thumb: this.params.thumb, text: this.params.text });
             }
             onPointer(e, type) {
                 //super.onPointer(e,type);
@@ -675,14 +694,23 @@ var conx;
             }
             create() {
             }
+            postCreate() {
+                if (undefined !== this.html)
+                    conx.glo.update(this, this.html);
+            }
             updateState() {
+                if (!this.root || !this.connected || conx.glo.time - this.updateTS < 1000 || this.entities.length > 1)
+                    return false;
+                return true;
             }
             set hass(hass) {
                 this._hass = hass;
                 for (let i = 0; i < this.entities.length; ++i)
                     this.states[i] = hass.states[this.entities[i]];
-                if (undefined === this.root)
+                if (undefined === this.root) {
                     this.create();
+                    this.postCreate();
+                }
                 this.updateState();
             }
             connectedCallback() {
@@ -693,10 +721,13 @@ var conx;
                 this.connected = false;
             }
             setConfig(config) {
+                var _a, _b;
                 if (undefined === config.entity) {
                     throw new Error('You need to define an entity');
                 }
                 this.config = config;
+                if (undefined !== ((_a = this.config) === null || _a === void 0 ? void 0 : _a.html) && typeof ((_b = this.config) === null || _b === void 0 ? void 0 : _b.html) === "string")
+                    this.html = JSON.parse(this.config.html);
                 this.entities = conx.glo.ParseSelection(config.entity);
                 this.states.length = this.entities.length;
             }
@@ -721,20 +752,51 @@ var conx;
 (function (conx) {
     var cards;
     (function (cards) {
+        class Title extends cards.HACard {
+            create() {
+                super.create();
+                this.innerHTML = `<h1 id="main" width="100%" height="40px" style="font-size: 20px;">abbc</h1>`;
+                this.root = conx.glo.findChild(this, "main");
+                this.root.innerHTML = this.config.name || this.state.attributes.friendly_name;
+            }
+            updateState() {
+                if (false === super.updateState())
+                    return false;
+                //this.root._val = this.state.attributes.brightness / 255.0;
+                //this.root.updateByValue();
+                return true;
+            }
+        }
+        cards.Title = Title;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-title', conx.cards.Title);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-title',
+    name: 'conx-title',
+    description: 'shows entity title',
+});
+/// <reference path="../controls/slider.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards) {
         class Dimmer extends cards.HACard {
             create() {
                 super.create();
                 this.innerHTML = `<conx-slider id="main" width="100%" height="40px" locals='{"align":0}'/>`;
-                this.root = conx.glo.getChild(this, "main");
+                this.root = conx.glo.findChild(this, "main");
                 this.root.onChange = this.onChange.bind(this);
                 this.root.locals.title = this.config.name || this.state.attributes.friendly_name;
             }
             updateState() {
-                super.updateState();
-                if (!this.root || !this.connected)
-                    return;
+                if (false === super.updateState())
+                    return false;
                 this.root._val = this.state.attributes.brightness / 255.0;
                 this.root.updateByValue();
+                return true;
             }
             onChange(id, value, pvalue) {
                 this._hass.callService("light", "turn_on", { entity_id: this.entities, brightness: Math.floor(value * 255) });
@@ -756,6 +818,50 @@ var conx;
 (function (conx) {
     var cards;
     (function (cards) {
+        class Swatch extends cards.HACard {
+            create() {
+                var _a;
+                super.create();
+                let html = ``;
+                let size = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.size) || 50, clr;
+                for (let i = 0; i < this.config.colors.length; ++i) {
+                    clr = this.config.colors[i];
+                    html += `<button id="clr${i}" style="width:${size}px; height:${size}px; background-color:${clr}"></button>`;
+                }
+                this.innerHTML = `<div id="main">${html}</div>`;
+                this.root = conx.glo.findChild(this, "main");
+                let bt;
+                for (let i = 0; i < this.config.colors.length; ++i) {
+                    bt = conx.glo.findChild(this.root, `clr${i}`);
+                    bt.onclick = this.onColor.bind(this, i);
+                }
+            }
+            onColor(i) {
+                let rgb = conx.glo.HEXtoRGB(this.config.colors[i]);
+                this.updateTS = conx.glo.time;
+                this._hass.callService("light", "turn_on", {
+                    entity_id: this.entities,
+                    rgb_color: rgb,
+                    transition: 0
+                });
+            }
+        }
+        cards.Swatch = Swatch;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-swatch', conx.cards.Swatch);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-swatch',
+    name: 'conx-swatch',
+    description: 'shows color swatches',
+});
+/// <reference path="../controls/slider.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards) {
         class Light_RGB extends cards.HACard {
             create() {
                 super.create();
@@ -766,16 +872,19 @@ var conx;
                 <conx-slider id="blue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#0000FF"}}}'></conx-slider>
             `;
                 this.root = {};
-                this.root.white = conx.glo.getChild(this, "white");
+                this.root.white = conx.glo.findChild(this, "white");
                 this.root.white.onChange = this.onChange.bind(this);
-                this.root.white.locals.title = this.config.name || this.state.attributes.friendly_name;
-                this.root.red = conx.glo.getChild(this, "red");
+                if (false !== this.config.showTitle)
+                    this.root.white.locals.title = this.config.name || this.state.attributes.friendly_name;
+                else
+                    this.root.white.locals.title = "";
+                this.root.red = conx.glo.findChild(this, "red");
                 this.root.red.onChange = this.onChange.bind(this);
                 this.root.red.locals.title = "";
-                this.root.green = conx.glo.getChild(this, "green");
+                this.root.green = conx.glo.findChild(this, "green");
                 this.root.green.onChange = this.onChange.bind(this);
                 this.root.green.locals.title = "";
-                this.root.blue = conx.glo.getChild(this, "blue");
+                this.root.blue = conx.glo.findChild(this, "blue");
                 this.root.blue.onChange = this.onChange.bind(this);
                 this.root.blue.locals.title = "";
             }
@@ -786,9 +895,8 @@ var conx;
                 this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
             }
             updateState() {
-                super.updateState();
-                if (!this.root || !this.connected || conx.glo.time - this.updateTS < 1000)
-                    return;
+                if (false === super.updateState())
+                    return false;
                 this.root.white._val = this.state.attributes.brightness / 255.0;
                 this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
                 this.root.green._val = this.state.attributes.rgb_color[1] / 255.0;
@@ -798,6 +906,7 @@ var conx;
                 this.root.red.updateByValue();
                 this.root.green.updateByValue();
                 this.root.blue.updateByValue();
+                return true;
             }
             onChange(id, value, pvalue) {
                 this.updateTS = conx.glo.time;
@@ -841,24 +950,26 @@ var conx;
             </div>
             `;
                 this.root = {};
-                this.root.hue = conx.glo.getChild(this, "hue");
+                this.root.hue = conx.glo.findChild(this, "hue");
                 this.root.hue.onChange = this.onChange.bind(this);
                 this.root.hue.locals.title = "";
-                this.root.sat = conx.glo.getChild(this, "sat");
+                this.root.sat = conx.glo.findChild(this, "sat");
                 this.root.sat.onChange = this.onChange.bind(this);
                 this.root.sat.locals.title = "";
-                this.root.val = conx.glo.getChild(this, "val");
+                this.root.val = conx.glo.findChild(this, "val");
                 this.root.val.onChange = this.onChange.bind(this);
-                this.root.val.locals.title = this.config.name || this.state.attributes.friendly_name;
+                if (false !== this.config.showTitle)
+                    this.root.val.locals.title = this.config.name || this.state.attributes.friendly_name;
+                else
+                    this.root.val.locals.title = "";
             }
             refreshColors() {
-                this.root.sat.params.bg.style.fill = this.root.sat.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val * 5 / 6, this.root.sat._val, 1);
-                this.root.val.params.bg.style.fill = this.root.val.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val * 5 / 6, this.root.sat._val, this.root.val._val);
+                this.root.sat.params.bg.style.fill = this.root.sat.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.sat._val, 1);
+                this.root.val.params.bg.style.fill = this.root.val.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.sat._val, this.root.val._val);
             }
             updateState() {
-                super.updateState();
-                if (!this.root || !this.connected || conx.glo.time - this.updateTS < 1000)
-                    return;
+                if (false === super.updateState())
+                    return false;
                 this.root.val._val = this.state.attributes.brightness / 255.0;
                 this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
                 this.root.sat._val = this.state.attributes.hs_color[1] / 100.0;
@@ -867,6 +978,7 @@ var conx;
                 this.root.val.updateByValue();
                 this.root.hue.updateByValue();
                 this.root.sat.updateByValue();
+                return true;
             }
             onChange(id, value, pvalue) {
                 this.updateTS = conx.glo.time;
@@ -891,7 +1003,9 @@ conx.glo.wnd.customCards.push({
     name: 'conx-light-hsv',
     description: 'Control a single light with hsv. support conx.fade',
 });
+/// <reference path="conx/cards/title.ts" />
 /// <reference path="conx/cards/dimmer.ts" />
+/// <reference path="conx/cards/swatch.ts" />
 /// <reference path="conx/cards/light-rgb.ts" />
 /// <reference path="conx/cards/light-hsv.ts" />
 /// <reference path="svg.ts" />
@@ -927,9 +1041,9 @@ var conx;
             }
             connectItems() {
                 this.enablePointer();
-                this.bg = this.getChild(`bg`);
-                this.frame = this.getChild(`frame`);
-                this.text = this.getChild(`text`);
+                this.bg = this.findChild(`bg`);
+                this.frame = this.findChild(`frame`);
+                this.text = this.findChild(`text`);
             }
             createChildren() {
                 super.createChildren();
@@ -945,7 +1059,7 @@ var conx;
                 this.updateByValue(false, false);
                 let s = Math.min(this.clientRect.width, this.clientRect.height) / 2.5;
                 this.params.text.style.fontSize = `${s}px`;
-                this.update();
+                conx.glo.update(this);
             }
             updateByValue(clicked, upd) {
                 if (clicked)
@@ -953,7 +1067,7 @@ var conx;
                 else
                     this.params.bg.style.fill = this.locals.normal;
                 if (upd)
-                    this.update({ bg: this.params.bg });
+                    conx.glo.update(this, { bg: this.params.bg });
             }
             onPointer(e, type) {
                 //super.onPointer(e,type);
@@ -1013,9 +1127,9 @@ var conx;
             }
             connectItems() {
                 this.enablePointer();
-                this.bg = this.getChild(`bg`);
-                this.thumb = this.getChild(`thumb`);
-                this.text = this.getChild(`text`);
+                this.bg = this.findChild(`bg`);
+                this.thumb = this.findChild(`thumb`);
+                this.text = this.findChild(`text`);
             }
             createChildren() {
                 super.createChildren();
@@ -1036,7 +1150,7 @@ var conx;
                 this.params.thumb.height = `${this.clientRect.height - 10}px`;
                 let s = Math.min(this.clientRect.width, this.clientRect.height) / 2.5;
                 this.params.text.style.fontSize = `${s}px`;
-                this.update();
+                conx.glo.update(this);
             }
             updateByValue(upd) {
                 let x = 5;
@@ -1047,7 +1161,7 @@ var conx;
                 else
                     this.params.bg.style.fill = this.locals.offBG;
                 this.params.thumb.x = `${x}px`;
-                this.update({ bg: this.params.bg, thumb: this.params.thumb });
+                conx.glo.update(this, { bg: this.params.bg, thumb: this.params.thumb });
             }
             onPointer(e, type) {
                 //super.onPointer(e,type);
@@ -1087,13 +1201,13 @@ var conx;
             }
             connectItems() {
                 this.enablePointer();
-                this.elSlider = this.getChild(`slider`);
-                this.elFrame = this.getChild(`slider-frame`);
-                this.elGFrame = this.getChild(`slider-g`);
-                this.elTotal = this.getChild(`slider-bar-total`);
-                this.elTotal1 = this.getChild(`slider-bar-total1`);
-                this.elProgress = this.getChild(`slider-bar-progress`);
-                this.elTitle = this.getChild(`slider-title`);
+                this.elSlider = this.findChild(`slider`);
+                this.elFrame = this.findChild(`slider-frame`);
+                this.elGFrame = this.findChild(`slider-g`);
+                this.elTotal = this.findChild(`slider-bar-total`);
+                this.elTotal1 = this.findChild(`slider-bar-total1`);
+                this.elProgress = this.findChild(`slider-bar-progress`);
+                this.elTitle = this.findChild(`slider-title`);
                 this.setParams(this.params);
             }
             setParams(params) {

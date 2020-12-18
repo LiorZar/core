@@ -27,6 +27,7 @@ class Connection:
         self.rbuff: bytearray = bytearray(b"")
         self.wbuff: bytearray = bytearray(b"")
         self.sock: socket = None
+        print("create connection", id, addr)
 
     def clear(self):
         self.sock = None

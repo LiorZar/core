@@ -685,9 +685,9 @@ class Tween:
             self.state = "PLAY"
 
     def onEnded(self):
-        del self.cprops["tween"]
-        self.setState()
-        self.entity.async_write_ha_state()
+        #del self.cprops["tween"]
+        #self.setState()
+        #self.entity.async_write_ha_state()
         return True
 
     def setCurrent(self, progress: float):
