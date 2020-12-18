@@ -684,12 +684,6 @@ class Tween:
             self.elapsed = 0
             self.state = "PLAY"
 
-    def onEnded(self):
-        #del self.cprops["tween"]
-        #self.setState()
-        #self.entity.async_write_ha_state()
-        return True
-
     def setCurrent(self, progress: float):
         progress = clamp(self.ease(progress), 0, 1)
         f = fract(progress + self.factor)
@@ -750,7 +744,7 @@ class Tween:
                 self.loopCounter += 1
                 if self.loopCounter >= self.loop:
                     self.state = "END"
-                    return self.onEnded()
+                    return True
 
             self.elapsed = diff
             if self.loopDelay > 0:
