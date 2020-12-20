@@ -820,13 +820,13 @@ var conx;
     (function (cards) {
         class Swatch extends cards.HACard {
             create() {
-                var _a;
+                var _a, _b;
                 super.create();
                 let html = ``;
-                let size = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.size) || 50, clr;
+                let size = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.size) || 50, space = ((_b = this.config) === null || _b === void 0 ? void 0 : _b.space) || 2, clr;
                 for (let i = 0; i < this.config.colors.length; ++i) {
                     clr = this.config.colors[i];
-                    html += `<button id="clr${i}" style="width:${size}px; height:${size}px; background-color:${clr}"></button>`;
+                    html += `<button id="clr${i}" style="width:${size}px; height:${size}px; background-color:${clr}; margin:${space}px;"></button>`;
                 }
                 this.innerHTML = `<div id="main">${html}</div>`;
                 this.root = conx.glo.findChild(this, "main");

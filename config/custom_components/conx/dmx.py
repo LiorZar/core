@@ -17,7 +17,8 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_HS_COLOR,
-    ATTR_RGB_COLOR, ATTR_TRANSITION,
+    ATTR_RGB_COLOR,
+    ATTR_TRANSITION,
     LightEntity,
     PLATFORM_SCHEMA,
     SUPPORT_BRIGHTNESS,
