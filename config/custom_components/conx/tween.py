@@ -711,7 +711,9 @@ class Tween:
 
     def toEnd(self):
         self.setCurrent(1)
+        self.cprops["tween"] = False
         self.setState()
+        self.cprops["tween"] = True
 
     def onTick(self, elapse: float):
         if self.state == "END":
