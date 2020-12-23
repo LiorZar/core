@@ -12,11 +12,28 @@ var conx;
             return (new Date).getTime();
         }
         static getChild(_this, id) {
-            let ids = id.split(".");
-            for (let i = 0; undefined !== _this && i < ids.length; ++i) {
-                _this = _this[ids[i]];
+            let node = _this, ids = id.split("."), i, len = ids.length;
+            for (i = 0; undefined !== node && i < len; ++i) {
+                node = node[ids[i]];
             }
-            return _this;
+            if (undefined !== node)
+                return node;
+            node = _this;
+            let j, clen, res;
+            for (i = 0; undefined !== node && i < len; ++i) {
+                res = undefined;
+                clen = node.children.length;
+                for (j = 0; j < clen; ++j) {
+                    if (node.children[j].id == ids[i]) {
+                        res = node.children[j];
+                        break;
+                    }
+                }
+                if (undefined === res)
+                    return undefined;
+                node = res;
+            }
+            return node;
         }
         static findChild(node, id) {
             if (node.id == id)
@@ -28,6 +45,73 @@ var conx;
                     return res;
             }
             return null;
+        }
+        static findCSS(node, css, res = undefined) {
+            if (undefined === res)
+                res = [];
+            if (node.className == css) {
+                res.push(node);
+                return res;
+            }
+            let len = node.children.length;
+            for (let i = 0; i < len; ++i)
+                this.findCSS(node.children[i], css, res);
+            return res;
+        }
+        static setStyle(child, style) {
+            for (let att in style) {
+                let _att = att.replace(/-[a-z]/g, match => `${match.substr(1).toUpperCase()}`);
+                child.style[_att] = style[att];
+            }
+        }
+        static setAtts(child, childAtts) {
+            for (let att in childAtts) {
+                if ("style" !== att) {
+                    if ("visibility" == att)
+                        child.setAttribute(att, childAtts[att]);
+                    else {
+                        if (child.hasAttribute(att))
+                            child.setAttribute(att, childAtts[att]);
+                        else if (undefined !== child[att])
+                            child[att] = childAtts[att];
+                    }
+                }
+                else
+                    this.setStyle(child, childAtts[att]);
+            }
+        }
+        static updateCSS(_this, csss = undefined) {
+            if (!csss)
+                return;
+            let nodes, style, i, len;
+            for (let cssId in csss) {
+                nodes = this.findCSS(_this, cssId);
+                style = csss[cssId];
+                len = nodes.length;
+                for (i = 0; i < len; ++i)
+                    this.setStyle(nodes[i], style);
+            }
+        }
+        static update(_this, atts = undefined) {
+            atts = atts || (_this === null || _this === void 0 ? void 0 : _this.params);
+            if (!atts)
+                return;
+            let child, childAtts;
+            for (let childId in atts) {
+                child = this.getChild(_this, childId);
+                if (undefined === child)
+                    continue;
+                childAtts = atts[childId];
+                if (undefined !== (child === null || child === void 0 ? void 0 : child.updateParams)) {
+                    child.updateParams(childAtts);
+                    continue;
+                }
+                this.setAtts(child, childAtts);
+            }
+            childAtts = atts["root"];
+            if (undefined !== childAtts) {
+                this.setAtts(_this, childAtts);
+            }
         }
         static clamp(val, minVal, maxVal) {
             return Math.max(minVal, Math.min(maxVal, val));
@@ -183,40 +267,7 @@ var conx;
             }
             return names;
         }
-        static update(_this, atts = undefined) {
-            atts = atts || (_this === null || _this === void 0 ? void 0 : _this.params);
-            if (!atts)
-                return;
-            let child, childAtts;
-            for (let childId in atts) {
-                child = this.getChild(_this, childId);
-                childAtts = atts[childId];
-                for (let att in childAtts) {
-                    if ("style" !== att) {
-                        if ("visibility" == att)
-                            child.setAttribute(att, childAtts[att]);
-                        else {
-                            if (child.hasAttribute(att))
-                                child.setAttribute(att, childAtts[att]);
-                            else if (undefined !== child[att])
-                                child[att] = childAtts[att];
-                        }
-                    }
-                    else
-                        child.setAttribute("style", this.Style(childAtts[att]));
-                }
-            }
-        }
     }
-    glo.Style = (props) => {
-        let combinedString = [];
-        for (let k in props) {
-            let v = props[k];
-            k = k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
-            combinedString.push(`${k}:${v}`);
-        }
-        return combinedString.join(";");
-    };
     conx.glo = glo;
 })(conx || (conx = {}));
 var conx;
@@ -391,6 +442,9 @@ var conx;
                 this.connected = true;
                 this.clientRect = this.root.getBoundingClientRect();
                 //glo.trace("postConnected", this.id, this.clientRect);
+            }
+            updateParams(params) {
+                this.copyData(this.params, params);
             }
             connectedCallback() {
                 this.copyData(this.locals, conx.glo.JSON(this.getAttribute("locals")));
@@ -695,8 +749,10 @@ var conx;
             create() {
             }
             postCreate() {
+                if (undefined !== this.css)
+                    conx.glo.updateCSS(this.root, this.css);
                 if (undefined !== this.html)
-                    conx.glo.update(this, this.html);
+                    conx.glo.update(this.root, this.html);
             }
             updateState() {
                 if (!this.root || !this.connected || conx.glo.time - this.updateTS < 1000 || this.entities.length > 1)
@@ -721,12 +777,14 @@ var conx;
                 this.connected = false;
             }
             setConfig(config) {
-                var _a, _b;
+                var _a, _b, _c, _d;
                 if (undefined === config.entity) {
                     throw new Error('You need to define an entity');
                 }
                 this.config = config;
-                if (undefined !== ((_a = this.config) === null || _a === void 0 ? void 0 : _a.html) && typeof ((_b = this.config) === null || _b === void 0 ? void 0 : _b.html) === "string")
+                if (undefined !== ((_a = this.config) === null || _a === void 0 ? void 0 : _a.css) && typeof ((_b = this.config) === null || _b === void 0 ? void 0 : _b.css) === "string")
+                    this.css = JSON.parse(this.config.css);
+                if (undefined !== ((_c = this.config) === null || _c === void 0 ? void 0 : _c.html) && typeof ((_d = this.config) === null || _d === void 0 ? void 0 : _d.html) === "string")
                     this.html = JSON.parse(this.config.html);
                 this.entities = conx.glo.ParseSelection(config.entity);
                 this.states.length = this.entities.length;
@@ -755,15 +813,13 @@ var conx;
         class Title extends cards.HACard {
             create() {
                 super.create();
-                this.innerHTML = `<h1 id="main" width="100%" height="40px" style="font-size: 20px;">abbc</h1>`;
-                this.root = conx.glo.findChild(this, "main");
+                this.innerHTML = `<h1 id="root" width="100%" height="40px" style="font-size: 20px;"></h1>`;
+                this.root = conx.glo.findChild(this, "root");
                 this.root.innerHTML = this.config.name || this.state.attributes.friendly_name;
             }
             updateState() {
                 if (false === super.updateState())
                     return false;
-                //this.root._val = this.state.attributes.brightness / 255.0;
-                //this.root.updateByValue();
                 return true;
             }
         }
@@ -786,8 +842,8 @@ var conx;
         class Dimmer extends cards.HACard {
             create() {
                 super.create();
-                this.innerHTML = `<conx-slider id="main" width="100%" height="40px" locals='{"align":0}'/>`;
-                this.root = conx.glo.findChild(this, "main");
+                this.innerHTML = `<conx-slider id="root" width="100%" height="40px" locals='{"align":0}'/>`;
+                this.root = conx.glo.findChild(this, "root");
                 this.root.onChange = this.onChange.bind(this);
                 this.root.locals.title = this.config.name || this.state.attributes.friendly_name;
             }
@@ -820,21 +876,23 @@ var conx;
     (function (cards) {
         class Swatch extends cards.HACard {
             create() {
-                var _a, _b, _c;
                 super.create();
                 let html = ``;
-                let size = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.size) || 50, space = ((_b = this.config) === null || _b === void 0 ? void 0 : _b.space) || 2, radius = ((_c = this.config) === null || _c === void 0 ? void 0 : _c.radius) || 4, clr;
+                let clr;
                 for (let i = 0; i < this.config.colors.length; ++i) {
                     clr = this.config.colors[i];
-                    html += `<button id="clr${i}" style="width:${size}px; height:${size}px; background-color:${clr}; margin:${space}px; border-radius:${radius}px"></button>`;
+                    html += `<button id="clr${i}" class="swatch" style="width:50px; height:50px; background-color:${clr};"></button>`;
                 }
-                this.innerHTML = `<div id="main">${html}</div>`;
-                this.root = conx.glo.findChild(this, "main");
+                this.innerHTML = `<div id="root">${html}</div>`;
+                this.root = conx.glo.findChild(this, "root");
                 let bt;
                 for (let i = 0; i < this.config.colors.length; ++i) {
                     bt = conx.glo.findChild(this.root, `clr${i}`);
                     bt.onclick = this.onColor.bind(this, i);
                 }
+            }
+            postCreate() {
+                super.postCreate();
             }
             onColor(i) {
                 let rgb = conx.glo.HEXtoRGB(this.config.colors[i]);
@@ -866,12 +924,14 @@ var conx;
             create() {
                 super.create();
                 this.innerHTML = `
+            <div id="root">
                 <conx-slider id="white" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#000000"}}}'></conx-slider>
                 <conx-slider id="red" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
                 <conx-slider id="green" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
                 <conx-slider id="blue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#0000FF"}}}'></conx-slider>
+            </div>
             `;
-                this.root = {};
+                this.root = conx.glo.findChild(this, "root");
                 this.root.white = conx.glo.findChild(this, "white");
                 this.root.white.onChange = this.onChange.bind(this);
                 if (false !== this.config.showTitle)
@@ -943,13 +1003,13 @@ var conx;
                 super.create();
                 let local = window.location.origin;
                 this.innerHTML = `
-            <div>
+            <div id="root">
                 <conx-slider id="val" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
                 <conx-slider id="sat" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
                 <conx-slider id="hue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"bg":{"style":{"fill":"none"}}, "image":{"href":"${local}/local/images/gradH.png", "visibility":"visible"}}'></conx-slider>
             </div>
             `;
-                this.root = {};
+                this.root = conx.glo.findChild(this, "root");
                 this.root.hue = conx.glo.findChild(this, "hue");
                 this.root.hue.onChange = this.onChange.bind(this);
                 this.root.hue.locals.title = "";
