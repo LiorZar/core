@@ -10,7 +10,8 @@ import homeassistant.helpers.config_validation as cv
 
 
 from .const import DOMAIN, IsIdOrIds
-from .dmx import DMXLight, CONF_LIGHT_TYPE_SWITCH, CONF_LIGHT_TYPES
+from .dmx import CONF_LIGHT_TYPE_SWITCH
+from .dmxLight import DMXLight, CONF_LIGHT_TYPES
 from .automata import AutomataLight, Automata4ColorLight
 from .kincony import KinconyLight
 

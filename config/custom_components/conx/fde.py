@@ -36,6 +36,30 @@ class FDE:
         for entity_id in remove:
             del self.tweens[entity_id]
 
+    def light(self, call):
+        data = None
+        entities = None
+        try:
+            data = call.data
+            print("light", data)
+            entities = self.db.GetEntities(data.get("entity_id"))
+            if None == entities:
+                return False
+
+        except Exception as ex:
+            print("light fail", ex)
+
+        if None == data or None == entities:
+            print("light fail, bad data")
+
+        try:
+            for e in entities:
+                en = e["entity"]
+                if None != hasattr(en, "light"):
+                    en.light(e["f"], **data)
+        except Exception as ex:
+            print("light fail", ex)
+
     def fade(self, call):
         data = None
         service = None
@@ -70,15 +94,14 @@ class FDE:
                     service,
                     e["entity"],
                     id,
-                    e["f"],
                     data.get("start"),
                     data.get("end"),
                     data.get("transition"),
+                    e["f"],
                     data.get("offset"),
                     data.get("ease"),
                     data.get("delay"),
                     data.get("loop"),
-                    data.get("loopDelay"),
                 )
                 if tw.valid:
                     self.tweens[id] = tw

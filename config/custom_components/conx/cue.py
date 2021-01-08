@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from typing import Any, Dict, Callable
 
-from .const import DOMAIN
+from .const import DOMAIN, Del
 from .db import DB
 from .fde import FDE
 
@@ -15,19 +15,24 @@ _LOGGER = logging.getLogger(__name__)
 class cue:
     def __init__(self, db: DB, name: str, _states: Dict[str, Any] = None):
         self.db: DB = db
-        self._name = name
+        self.name = name
         self._states: Dict[str, Any] = _states or {}
 
     @property
     def states(self):
         return self._states
 
-    @states.setter
-    def states(self, _states: Dict[str, Any]):
-        for s in _states:
-            self._states[s] = _states[s]
+    def setStates(self, states: Dict[str, Any]):
+        for s in states:
+            self._states[s] = states[s]
 
-        self.db.setData("cues", self._name, self._states)
+        self.db.setData("cues", self.name, self._states, True)
+
+    def delEntities(self, entities: list):
+        for e in entities:
+            Del(self._states, e["id"])
+
+        self.db.setData("cues", self.name, self._states, True)
 
 
 class CUE:
@@ -53,7 +58,8 @@ class CUE:
     def Store(self, call):
         try:
             data = call.data
-            name = data.get("name")
+            name = data.get("name") or self.db.cueName
+            transition = data.get("transition") or self.db.transition
             entities = self.db.GetEntities(data.get("entity_id"))
             if None == name or None == entities:
                 return False
@@ -61,13 +67,16 @@ class CUE:
             states: Dict[str, Any] = {}
             for e in entities:
                 en: Entity = e["entity"]
-                states[e["id"]] = {"state": en.state, "atts": en.state_attributes}
+                st = {"state": en.state, "atts": en.state_attributes}
+                st["atts"] = st["atts"] or {}
+                st["atts"]["transition"] = transition
+                states[e["id"]] = st
 
             c: cue = self.cues.get(name)
             if None == c:
                 c = cue(self.db, name)
                 self.cues[name] = c
-            c.states = states
+            c.setStates(states)
 
         except Exception as ex:
             print("Store fail", ex)
@@ -75,7 +84,7 @@ class CUE:
     def Play(self, call):
         try:
             data = call.data
-            name = data.get("name")
+            name = data.get("name") or self.db.cueName
             if None == name:
                 return False
 
@@ -93,7 +102,7 @@ class CUE:
     def Delete(self, call):
         try:
             data = call.data
-            name = data.get("name")
+            name = data.get("name") or self.db.cueName
             if None == name:
                 return False
 
@@ -101,8 +110,14 @@ class CUE:
             if None == c:
                 return False
 
+            entities = self.db.GetEntities(data.get("entity_id"))
+            if None != entities and len(entities) > 0:
+                c.delEntities(entities)
+                if len(c.states) > 0:
+                    return
+
             del self.cues[name]
-            self.db.delData("cues", name)
+            self.db.delData("cues", name, True)
 
         except Exception as ex:
             print("Delete fail", ex)

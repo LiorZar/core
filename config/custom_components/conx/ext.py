@@ -9,17 +9,18 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.core import HomeAssistant
 from typing import Any, Dict, Callable
 
-from .const import DOMAIN
+from .const import DOMAIN, Del
 from .db import DB
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class Timer:
-    def __init__(self, delay:float, once:bool, fn:Callable, data:dict):
-        self.delay:float = delay
-        self.once:bool = once
-        self.elapse:float = 0
-        self.fn:float = fn
+    def __init__(self, delay: float, once: bool, fn: Callable, data: dict):
+        self.delay: float = delay
+        self.once: bool = once
+        self.elapse: float = 0
+        self.fn: float = fn
         self.data = data
 
     def onTick(self, elapse):
@@ -38,16 +39,28 @@ class EXT:
         self.hass = hass
         self.db: DB = conx.db
         self.timers: Dict[str, Timer] = {}
+        self.tickers: Dict[str, Any] = {}
 
-    def addTimer( self, delay:float, fn:Callable, entity:Entity, data:dict ):
+    def addTimer(self, delay: float, fn: Callable, entity: Entity, data: dict):
         self.timers[entity.entity_id] = Timer(delay, False, fn, data)
 
-    def remove( self, id:str ):
-        t = self.timers.get(id)
-        if None != t:
-            del self.timers[id]
+    def addTick(self, entity: Entity):
+        self.tickers[entity.entity_id] = entity
 
-    def callLater( self, delay:float, fn:Callable, entity:Entity, data:dict, override:bool = False ):
+    def remTick(self, entity: Entity):
+        Del(self.tickers, entity.entity_id)
+
+    def remove(self, id: str):
+        Del(self.timers, id)
+
+    def callLater(
+        self,
+        delay: float,
+        fn: Callable,
+        entity: Entity,
+        data: dict,
+        override: bool = False,
+    ):
         if False == override and None != self.timers.get(entity.entity_id):
             return
         self.timers[entity.entity_id] = Timer(delay, True, fn, data)
@@ -58,12 +71,15 @@ class EXT:
     def onTick(self, elapse):
         remove = []
         timers = self.timers.copy()
-
         for id in timers:
             t = timers[id]
             if True == t.onTick(elapse):
                 remove.append(id)
 
         for id in remove:
-            self.remove( id )
+            self.remove(id)
 
+        tickers = self.tickers.copy()
+        for id in tickers:
+            t: Any = tickers[id]
+            t.onTick(elapse)

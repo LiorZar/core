@@ -40,6 +40,37 @@ universe:
       description: the frame per second to send artnet. 0 means only on change
       example: 25
 
+light:
+  description: run a light state by parameter.
+  fields:
+    entity_id:
+      description:  The entity id or selection light_;1>10|3 - 10>4
+      example: "light.kitchen"
+    transition:
+      description: Duration in seconds it takes to fade in to this state (timein)
+      example: 10
+    ease:
+      description: Optional. The fade method to control Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Elastic, Back, Bounce, each one have In, Out and input, in out
+    delay:
+      description: Optional. The delay time before animation starts, by default it is 0
+    loop:
+      description: Optional. how many loops to repeat. default is 1, 0 is endless loop
+    intensity:
+      description: Optional. supply any parameter [intensity,hue,saturation,red,green,blue] and value/effect. all values are 0.0-1.0,
+                   for effect you need to supply the parameters
+                   fn. any function in fn.yaml [one,linear,up,down,mirror,sin,cos,step]. this will run the effect function
+                   sel. any function in fn.yaml [one,linear,up,down,mirror,sin,cos,step]. this will be the selection function
+                   base. in 0.0-1.0,
+                   size. in 0.0-1.0,
+                   cycle. in seconds
+                   up. not working at the moment
+                   offset. in 0.0-1.0. 0 means no offset, 1.0 means full offset of the cycle
+                   ease. same as fade
+                   loop. 0 means forever
+                   delay. in seconds
+      example: "{fn: sin, cycle: 4}"
+
+
 fade:
   description: fade any entity with any service
   fields:
@@ -65,8 +96,7 @@ fade:
       description: Optional. The delay time before animation starts, by default it is 0
     loop:
       description: Optional. how many loops to repeat. default is 1, 0 is endless loop
-    loopDelay:
-      description: Optional. The time to wait before you start a new loop. default is 0
+
 
 cue-store:
   description: store entities into a cue

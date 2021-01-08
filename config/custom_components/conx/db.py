@@ -8,8 +8,10 @@ from typing import Any, Dict
 from homeassistant.util.yaml import load_yaml, save_yaml
 
 from .const import DOMAIN
+from .fn import gFN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.entity_platform import EntityPlatform
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,10 +23,20 @@ class DB:
         self.initStates = {}
         self.platforms: Dict[str, EntityPlatform] = {}
         self.dataDirty = False
+        self.hard = False
         self.saveDuration = 0
+        self.selection = ""
+        self.cueName = ""
+        self.transition: float = 2
+        self.hass.states.async_set("conx.selection", "")
+        self.hass.states.async_set("conx.cuename", "")
+        self.hass.states.async_set("conx.transition", 2)
 
         try:
             self.data: Dict[str, Any] = load_yaml(self.hass.config.path("db.yaml"))
+            gFN.Parse(
+                load_yaml(self.hass.config.path("custom_components/conx/fn.yaml"))
+            )
         except Exception as e:
             print(e)
             self.data: Dict[str, Any] = {}
@@ -35,8 +47,9 @@ class DB:
 
     def onTick(self, elapse: float):
         self.saveDuration += elapse
-        if not self.dataDirty or self.saveDuration < 60:
+        if not self.hard and (not self.dataDirty or self.saveDuration < 60):
             return False
+        self.hard = False
         self.dataDirty = False
         self.saveDuration = 0
         self.save_data()
@@ -46,14 +59,35 @@ class DB:
         return asyncio.run_coroutine_threadsafe(self.async_save_data(), self.hass.loop)
 
     async def async_save_data(self):
-        # print("db_save", self.data)
         save_yaml(self.hass.config.path("db.yaml"), self.data)
 
-    def setData(self, group: str, id: str, data):
+    def Select(self, call):
+        self.setSelection(call.data.get("id"))
+
+    def setSelection(self, sel: str):
+        self.selection = sel
+        self.hass.states.async_set("conx.selection", self.selection)
+
+    def CueName(self, call):
+        self.setCueName(call.data.get("name"))
+
+    def setCueName(self, sel: str):
+        self.cueName = sel
+        self.hass.states.async_set("conx.cuename", self.cueName)
+
+    def Transition(self, call):
+        self.setTransition(call.data.get("value"))
+
+    def setTransition(self, value: float):
+        self.transition = value
+        self.hass.states.async_set("conx.transition", self.transition)
+
+    def setData(self, group: str, id: str, data, hard: bool = False):
         if None == self.data.get(group):
             self.data[group] = {}
         self.data[group][id] = data
         self.dataDirty = True
+        self.hard = self.hard or hard
 
     def getData(self, group: str, id: str = None):
         data = None
@@ -64,7 +98,7 @@ class DB:
             data = g.get(id)
         return data
 
-    def delData(self, group: str, id: str = None):
+    def delData(self, group: str, id: str = None, hard: bool = False):
         g = self.data.get(group)
         if None == id:
             del self.data[group]
@@ -73,6 +107,7 @@ class DB:
         else:
             return
         self.dataDirty = True
+        self.hard = self.hard or hard
 
     def getEntity(self, entity_id: str) -> Entity:
         domain = entity_id.split(".")[0]
@@ -108,6 +143,8 @@ class DB:
 
     def ParseSelection(self, selection: str):
         names = []
+        if None == selection or len(selection) <= 0:
+            selection = self.selection
         entities = selection.split(",")
 
         for entity in entities:

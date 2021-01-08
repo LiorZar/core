@@ -2,73 +2,16 @@
   dmx:
   - dmxName: dmx1
     channel: 1
-    name: conxDimmer1
+    name: dim_;1>10
+    fadeOn: 4
+    fadeOff: 2
     type: dimmer
 
   - dmxName: dmx1
-    channel: 2
-    name: conxDimmer2
-    type: dimmer
-
-  - dmxName: dmx1
-    channel: 3
-    name: conxDimmer3
-    type: dimmer
-
-  - dmxName: dmx1
-    channel: 4
-    name: conxDimmer4
-    type: dimmer
-
-  - dmxName: dmx1
-    channel: 5
-    name: conxDimmer5
-    type: dimmer
-
-  - dmxName: dmx1
-    channel: 6
-    name: conxDimmer6
-    type: dimmer
-
-  - dmxName: dmx1
-    channel: 7
-    name: conxDimmer7
-    type: dimmer
-
-  - dmxName: dmx1
-    channel: 8
-    name: conxDimmer8
-    type: dimmer
-
-  - dmxName: dmx1
-    channel: 9
-    name: conxDimmer9
-    type: dimmer
-
-  - dmxName: dmx1
-    channel:
-    - 10
-    - 20
-    - 23
-    - 26
-    - 29
-    - 32
-    - 35
-    - 38
-    - 41
-    name: conxColor
-    fadeOn: 6
-    fadeOff: 3
-    type: rgb
-
-  - dmxName: dmx2
-    channel: 1
-    name: dimmer_;1>10
-    type: dimmer
-
-  - dmxName: dmx2
     channel: 11
-    name: rgb_;1>160
+    name: rgb_;1>10
+    fadeOn: 4
+    fadeOff: 2
     type: rgb
 
 

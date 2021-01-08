@@ -1,8 +1,8 @@
 [
     {
-        "id": "190eb768.bbe479",
+        "id": "b80b5b42.02b348",
         "type": "subflow",
-        "name": "Selection",
+        "name": "Set",
         "info": "",
         "category": "ConX",
         "in": [
@@ -11,18 +11,18 @@
                 "y": 80,
                 "wires": [
                     {
-                        "id": "8dd458d2.8739b8"
+                        "id": "d9d2efa7.caa35"
                     }
                 ]
             }
         ],
         "out": [
             {
-                "x": 480,
+                "x": 320,
                 "y": 80,
                 "wires": [
                     {
-                        "id": "8dd458d2.8739b8",
+                        "id": "d9d2efa7.caa35",
                         "port": 0
                     }
                 ]
@@ -31,24 +31,79 @@
         "env": [],
         "color": "#5050FF",
         "inputLabels": [
-            "selection sequence"
+            "path of global variable + value of global variable"
         ],
         "outputLabels": [
-            "array of selection names"
+            "pass though message"
         ],
-        "icon": "node-red/parser-csv.svg"
+        "icon": "font-awesome/fa-chevron-right"
     },
     {
-        "id": "8dd458d2.8739b8",
+        "id": "d9d2efa7.caa35",
         "type": "function",
-        "z": "190eb768.bbe479",
-        "name": "create entities by name",
-        "func": "function toNums(seq) {\n    let parts = seq.split(\"|\"), inc = 1, sign = 1;\n    if (parts.length > 1)\n        inc = parseFloat(parts[1]);\n\n    let nums = parts[0].split(\">\");\n    if (nums.length < 2)\n        return [parseFloat(nums[0])];\n\n    let a = parseFloat(nums[0]),\n        b = parseFloat(nums[1]);\n    if (a > b) {\n        inc = -inc;\n        sign = -1;\n    }\n\n    res = [];\n    for (; a * sign <= b * sign; a += inc)\n        res.push(a);\n\n    return res;\n}\n\nfunction removeItems(res, items) {\n    let i, len = items.length;\n    for (i = 0; i < len; ++i) {\n        index = res.indexOf(items[i]);\n        if (-1 !== index)\n            res.splice(index, 1);\n    }\n}\n\nfunction parseItems(data) {\n    let names = [];\n    let entities = data.split(\",\");\n    let i, len = entities.length;\n    for (i = 0; i < len; ++i) {\n        let entity = entities[i];\n        let parts = entity.split(\";\");\n        if (parts.length < 2) {\n            names.push(parts[0].trim());\n            continue;\n        }\n        if (parts.length > 2)\n            continue;\n\n        let res = [];\n        let name = parts[0].trim();\n        let seqs = parts[1].split(/([+]|[-])/);\n        let tlen = seqs.length, j;\n        for (j = 0; j < tlen; j += 2) {\n            let s = toNums(seqs[j]);\n            if (0 == j || \"+\" == seqs[j - 1])\n                res = res.concat(s);\n            else\n                removeItems(res, s);\n        }\n        tlen = res.length;\n        for (j = 0; j < tlen; ++j)\n            names.push(name + res[j]);\n    }\n    return names;\n}\nmsg.payload = parseItems(msg.payload);\n\nreturn msg;\n\nreturn msg;",
+        "z": "b80b5b42.02b348",
+        "name": "set",
+        "func": "var names = msg.payload.split(\".\");\nvar value = msg.value;\nvar item = global.get(names[0]);\nif( undefined == item || names.length < 2 )\n    return msg;\n\nvar subitem = item, i = 1;\nfor( ; i < names.length - 1; ++i )\n{\n    subitem = subitem[names[i]];\n    if( undefined == pubitem )\n        return msg;\n}   \nsubitem[names[i]] = value;\nglobal.set( names[0], item );\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "x": 270,
+        "x": 190,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b28821de.2bde",
+        "type": "subflow",
+        "name": "Get",
+        "info": "",
+        "category": "ConX",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "6ad1780f.2158c8"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 320,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "6ad1780f.2158c8",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "color": "#5050ff",
+        "inputLabels": [
+            "path of global variabale"
+        ],
+        "outputLabels": [
+            "value of global variable"
+        ],
+        "icon": "font-awesome/fa-chevron-left"
+    },
+    {
+        "id": "6ad1780f.2158c8",
+        "type": "function",
+        "z": "b28821de.2bde",
+        "name": "get",
+        "func": "var names = msg.payload.split(\".\");\nmsg.payload = undefined;\nmsg.payload = global.get(names[0]);\nfor( var i = 1; i < names.length; ++i )\n{\n    msg.payload = msg.payload[names[i]];\n    if( undefined == msg.payload )\n        return msg;\n}    \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 190,
         "y": 80,
         "wires": [
             []
@@ -187,12 +242,205 @@
         ]
     },
     {
-        "id": "c970a695.a199e8",
-        "type": "subflow:75d25c28.ea26a4",
-        "z": "ae55250c.f60028",
+        "id": "ffd0fbad.519b88",
+        "type": "subflow",
+        "name": "API",
+        "info": "",
+        "category": "ConX",
+        "in": [
+            {
+                "x": 40,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "eeb3135.c9365f"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 500,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "72b66e91.50d5e",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "module",
+                "type": "str",
+                "value": "db"
+            },
+            {
+                "name": "cmd",
+                "type": "str",
+                "value": "get"
+            }
+        ],
+        "color": "#5050FF",
+        "icon": "font-awesome/fa-paper-plane-o"
+    },
+    {
+        "id": "72b66e91.50d5e",
+        "type": "ha-api",
+        "z": "ffd0fbad.519b88",
         "name": "",
-        "x": 220,
-        "y": 660,
+        "server": "fc94c963.ab32c8",
+        "debugenabled": false,
+        "protocol": "websocket",
+        "method": "get",
+        "path": "",
+        "data": "{\t   \"id\":1,\t   \"type\":\"conx.cmd\",\t   \"cmd\":cmd,\t   \"module\":module,\t   \"data\":payload\t}",
+        "dataType": "jsonata",
+        "location": "payload",
+        "locationType": "msg",
+        "responseType": "json",
+        "x": 350,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eeb3135.c9365f",
+        "type": "function",
+        "z": "ffd0fbad.519b88",
+        "name": "",
+        "func": "msg.cmd = env.get('cmd');\nmsg.module = env.get('module');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 180,
+        "y": 40,
+        "wires": [
+            [
+                "72b66e91.50d5e"
+            ]
+        ]
+    },
+    {
+        "id": "fc94c963.ab32c8",
+        "type": "server",
+        "name": "Home Assistant",
+        "legacy": false,
+        "addon": false,
+        "rejectUnauthorizedCerts": false,
+        "ha_boolean": "y|yes|true|on|home|open",
+        "connectionDelay": true,
+        "cacheJson": true
+    },
+    {
+        "id": "190eb768.bbe479",
+        "type": "subflow",
+        "name": "Selection",
+        "info": "",
+        "category": "ConX",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "8dd458d2.8739b8"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 480,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "8dd458d2.8739b8",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "color": "#5050FF",
+        "inputLabels": [
+            "selection sequence"
+        ],
+        "outputLabels": [
+            "array of selection names"
+        ],
+        "icon": "node-red/parser-csv.svg"
+    },
+    {
+        "id": "8dd458d2.8739b8",
+        "type": "function",
+        "z": "190eb768.bbe479",
+        "name": "create entities by name",
+        "func": "function toNums(seq) {\n    let parts = seq.split(\"|\"), inc = 1, sign = 1;\n    if (parts.length > 1)\n        inc = parseFloat(parts[1]);\n\n    let nums = parts[0].split(\">\");\n    if (nums.length < 2)\n        return [parseFloat(nums[0])];\n\n    let a = parseFloat(nums[0]),\n        b = parseFloat(nums[1]);\n    if (a > b) {\n        inc = -inc;\n        sign = -1;\n    }\n\n    res = [];\n    for (; a * sign <= b * sign; a += inc)\n        res.push(a);\n\n    return res;\n}\n\nfunction removeItems(res, items) {\n    let i, len = items.length;\n    for (i = 0; i < len; ++i) {\n        index = res.indexOf(items[i]);\n        if (-1 !== index)\n            res.splice(index, 1);\n    }\n}\n\nfunction parseItems(data) {\n    let names = [];\n    let entities = data.split(\",\");\n    let i, len = entities.length;\n    for (i = 0; i < len; ++i) {\n        let entity = entities[i];\n        let parts = entity.split(\";\");\n        if (parts.length < 2) {\n            names.push(parts[0].trim());\n            continue;\n        }\n        if (parts.length > 2)\n            continue;\n\n        let res = [];\n        let name = parts[0].trim();\n        let seqs = parts[1].split(/([+]|[-])/);\n        let tlen = seqs.length, j;\n        for (j = 0; j < tlen; j += 2) {\n            let s = toNums(seqs[j]);\n            if (0 == j || \"+\" == seqs[j - 1])\n                res = res.concat(s);\n            else\n                removeItems(res, s);\n        }\n        tlen = res.length;\n        for (j = 0; j < tlen; ++j)\n            names.push(name + res[j]);\n    }\n    return names;\n}\nmsg.payload = parseItems(msg.payload);\n\nreturn msg;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 270,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "45f4a85a.0d9d68",
+        "type": "subflow:190eb768.bbe479",
+        "z": "106276ea.809b09",
+        "name": "",
+        "x": 100,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b838f34b.564af",
+        "type": "subflow:ffd0fbad.519b88",
+        "z": "106276ea.809b09",
+        "name": "",
+        "x": 230,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "12fe45df.51c1ba",
+        "type": "subflow:75d25c28.ea26a4",
+        "z": "106276ea.809b09",
+        "name": "",
+        "x": 150,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a33d7614.53ee48",
+        "type": "subflow:b28821de.2bde",
+        "z": "106276ea.809b09",
+        "name": "",
+        "x": 210,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3d15311a.6f9efe",
+        "type": "subflow:b80b5b42.02b348",
+        "z": "106276ea.809b09",
+        "name": "",
+        "x": 90,
+        "y": 80,
         "wires": [
             []
         ]

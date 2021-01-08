@@ -136,10 +136,14 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
         self.hass.services.async_register(DOMAIN, "patch", self.dmx.patch)
+        self.hass.services.async_register(DOMAIN, "light", self.fde.light)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
-        self.hass.services.async_register(DOMAIN, "cue-store", self.cue.Store)
-        self.hass.services.async_register(DOMAIN, "cue-play", self.cue.Play)
-        self.hass.services.async_register(DOMAIN, "cue-delete", self.cue.Delete)
+        self.hass.services.async_register(DOMAIN, "select", self.db.Select)
+        self.hass.services.async_register(DOMAIN, "cuename", self.db.CueName)
+        self.hass.services.async_register(DOMAIN, "transition", self.db.Transition)
+        self.hass.services.async_register(DOMAIN, "cuestore", self.cue.Store)
+        self.hass.services.async_register(DOMAIN, "cueplay", self.cue.Play)
+        self.hass.services.async_register(DOMAIN, "cuedelete", self.cue.Delete)
         self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
         self.hass.services.async_register(DOMAIN, "kincony_send", self.kincony.send)
 
@@ -206,8 +210,8 @@ class ConX(threading.Thread):
             es = ts
             ts = time.perf_counter()
             es = ts - es
-            self.onTick(es)
-            # self.onTick(0.02)
+            # self.onTick(es)
+            self.onTick(0.02)
             time.sleep(0.02)
 
         _LOGGER.debug("Conx thread stopped")

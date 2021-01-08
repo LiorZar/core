@@ -1,157 +1,3 @@
-loop:
-  alias: Loop
-  sequence:
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer1
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer2
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer3
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer4
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer5
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer6
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer7
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer8
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  - service: conx.fade
-    data:
-      entity_id: light.conxdimmer9
-      service: light.turn_on
-      transition: 10
-      start:
-        brightness: 0
-      end:
-        brightness: 255
-      loop: 10
-  mode: single
-9tofull:
-  alias: 9toFull
-  sequence:
-  - service: conx.fade
-    data:
-      entity_id:
-      - light.conxdimmer1
-      - light.conxdimmer2
-      - light.conxdimmer3
-      - light.conxdimmer4
-      - light.conxdimmer5
-      - light.conxdimmer6
-      - light.conxdimmer7
-      - light.conxdimmer8
-      - light.conxdimmer9
-      service: light.turn_on
-      transition: 20
-      end:
-        brightness: 255
-  mode: single
-9tozero:
-  alias: 9toZero
-  sequence:
-  - service: conx.fade
-    data:
-      entity_id:
-      - light.conxdimmer1
-      - light.conxdimmer2
-      - light.conxdimmer3
-      - light.conxdimmer4
-      - light.conxdimmer5
-      - light.conxdimmer6
-      - light.conxdimmer7
-      - light.conxdimmer8
-      - light.conxdimmer9
-      service: light.turn_on
-      transition: 20
-      end:
-        brightness: 0
-  mode: single
-9cut:
-  alias: 9Cut
-  sequence:
-  - service: conx.fade
-    data:
-      entity_id:
-      - light.conxdimmer1
-      - light.conxdimmer2
-      - light.conxdimmer3
-      - light.conxdimmer4
-      - light.conxdimmer5
-      - light.conxdimmer6
-      - light.conxdimmer7
-      - light.conxdimmer8
-      - light.conxdimmer9
-      service: light.turn_on
-      transition: 0
-      end:
-        brightness: 0
-  mode: single
 call_according_udp_sensor:
   alias: Call_according_udp_sensor
   sequence:
@@ -162,5 +8,23 @@ callscript:
   alias: CallScript
   sequence:
   - service: script.9cut
+    data: {}
+  mode: single
+store:
+  alias: Store
+  sequence:
+  - service: conx.cuestore
+    data: {}
+  mode: single
+delete:
+  alias: Delete
+  sequence:
+  - service: conx.cuedelete
+    data: {}
+  mode: single
+play:
+  alias: Play
+  sequence:
+  - service: conx.cueplay
     data: {}
   mode: single

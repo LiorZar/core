@@ -1,10 +1,13 @@
-from typing import Any, Callable, List, Optional
+import copy
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers.entity import Entity
 
 
 import math
-from .const import DOMAIN, clamp, fract
+from .fn import Fn, gFN
+from .const import DOMAIN, clamp, fract, zclamp, Get
 
 
 class Ease:
@@ -600,36 +603,35 @@ class Ease:
             return Ease.OutBounce(n * 2 - 1) * 0.5 + 0.5
 
 
-class Tween:
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        service: Callable[[Entity, Any], None],
-        entity: Entity,
-        entity_id: str,
-        factor: float,
-        sprops,
-        eprops,
-        duration: float,
-        offset: float,
-        ease: Callable[[float], float],
-        delay: float,
-        loop: int,
-        loopDelay: float,
-    ):
-        self._valid = False
-        self.hass = hass
-        self.service = service
-        self.entity = entity
-        self.entity_id: str = entity_id
-        self.duration: float = duration if duration > 0 else 0.001
-        self.offset: float = offset if None != offset else 0
-        self.factor: float = clamp(factor * self.offset / self.duration, 0, 1)
+class FX(Enum):
+    index = (0,)
+    base = (1,)
+    amplitude = 2
+    offset = 3
+    cycle = 4
+    up = 5
+
+
+class Twe:
+    def __init__(self, **data):
+        self.fade: float = max(Get(data, "fade"), 0.001)
+        self.delay: float = Get(data, "delay")
+        self.loop: int = Get(data, "loop", 1)
+
+        self.fn: Fn = gFN.get(Get(data, "fn", "one"))
+        self.sel: Fn = gFN.get(Get(data, "sel", "linear"))
+
+        self.fx: Dict[FX, float] = {
+            FX.index: Get(data, "index"),
+            FX.base: Get(data, "base"),
+            FX.amplitude: Get(data, "size", 1.0),
+            FX.offset: Get(data, "offset"),
+            FX.cycle: Get(data, "cycle"),
+            FX.up: Get(data, "up"),
+        }
+        ease: str = Get(data, "ease", None)
         self.ease: Callable[[float], float] = ease
-        self.delay: float = delay if None != delay else 0
-        self.loop: int = loop if None != loop else 1
-        self.loopDelay: float = loopDelay if None != loopDelay else 0
-        if None == ease or None == getattr(Ease, ease):
+        if None == ease or False == hasattr(Ease, ease):
             self.ease = Ease.OutSine
         else:
             self.ease = getattr(Ease, ease)
@@ -637,18 +639,113 @@ class Tween:
         self.state = "NONE"
         self.elapsed: float = 0
         self.progress: float = 0
+        self.cycle: float = 0
         self.loopCounter: int = 0
+        self.setCurrent(0, 0)
+
+    def Start(self):
+        if self.delay > 0:
+            self.elapsed = -self.delay
+            self.state = "DELAY"
+        else:
+            self.elapsed = 0
+            self.state = "FADE"
+
+    def setCurrent(self, progress: float, cycle: float):
+        progress = zclamp(self.ease(zclamp(progress)))
+        cycle = zclamp(cycle)
+        g = self.sel.value(clamp(self.fx[FX.index] * self.fx[FX.offset], 0, 1))
+        cycle = fract(cycle + g)
+        self.setFract(progress, cycle)
+
+    def setFract(self, f: float, c: float):
+        pass
+
+    def setState(self):
+        pass
+
+    def onEnd(self):
+        pass
+
+    def toCurrent(self):
+        self.setCurrent(self.progress, self.cycle)
+        self.setState()
+
+    def toEnd(self):
+        self.setCurrent(1, 1)
+        self.setState()
+
+    def onTick(self, elapse: float):
+        if self.state == "END":
+            return True
+
+        self.elapsed += elapse
+        if self.state == "DELAY":
+            if self.elapsed < 0:
+                return False
+            self.state = "FADE"
+
+        if self.state == "FADE":
+            self.progress = zclamp(self.elapsed / self.fade)
+            if self.progress >= 1:
+                self.state = "PLAY"
+
+        pcycle: float = self.cycle
+        self.cycle = (
+            zclamp((self.elapsed % self.fx[FX.cycle]) / self.fx[FX.cycle])
+            if self.fx[FX.cycle] > 0
+            else 1
+        )
+        self.toCurrent()
+
+        if self.state != "PLAY":
+            return False
+
+        if pcycle > self.cycle or self.fx[FX.cycle] <= 0:
+            self.toEnd()
+            if self.loop > 0:
+                self.loopCounter += 1
+                if self.loopCounter >= self.loop:
+                    self.state = "END"
+                    self.onEnd()
+                    return True
+
+        return False
+
+
+class Tween(Twe):
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        service: Callable[[Entity, Any], None],
+        entity: Entity,
+        entity_id: str,
+        sprops,
+        eprops,
+        fade: float,
+        index: float,
+        offset: float,
+        ease: str,
+        delay: float,
+        loop: int,
+    ):
+        self._valid = False
+        self.hass = hass
+        self.service = service
+        self.entity = entity
+        self.entity_id: str = entity_id
 
         currState: State = self.hass.states.get(self.entity_id)
-        if None == currState:
+        if None == currState or None == currState.attributes:
             return
-
+        attributes = currState.attributes
         if None == sprops:
             sprops = {}
 
-        for key in eprops:
+        tprops = copy.copy(eprops)
+        for key in tprops:
             if None == sprops.get(key):
-                sprops[key] = currState.attributes.get(key)
+                sprops[key] = attributes.get(key)
                 if None == sprops[key]:
                     sprops[key] = 0.0
                 if type(sprops[key]) is tuple:
@@ -667,26 +764,20 @@ class Tween:
                             eprops[key].append(sprops[key][elen:])
 
         self.sprops = sprops
-        self.cprops = {"tween": True}
+        self.cprops = {}
         self.eprops = eprops
-        self.setCurrent(0)
+        Twe.__init__(
+            self,
+            fade=fade,
+            index=index,
+            offset=offset,
+            ease=ease,
+            delay=delay,
+            loop=loop,
+        )
         self._valid = True
 
-    @property
-    def valid(self):
-        return self._valid
-
-    def Start(self):
-        if self.delay > 0:
-            self.elapsed = -self.delay
-            self.state = "DELAY"
-        else:
-            self.elapsed = 0
-            self.state = "PLAY"
-
-    def setCurrent(self, progress: float):
-        progress = clamp(self.ease(progress), 0, 1)
-        f = fract(progress + self.factor)
+    def setFract(self, f: float, c: float):
         for key in self.eprops:
             self.cprops[key] = self.setProp(self.sprops[key], self.eprops[key], f)
 
@@ -705,54 +796,6 @@ class Tween:
     def setState(self):
         self.service(self.entity, self.cprops)
 
-    def toCurrent(self):
-        self.setCurrent(self.progress)
-        self.setState()
-
-    def toEnd(self):
-        self.setCurrent(1)
-        self.cprops["tween"] = False
-        self.setState()
-        self.cprops["tween"] = True
-
-    def onTick(self, elapse: float):
-        if self.state == "END":
-            return True
-
-        elapsed: float = self.elapsed
-        duration: float = self.duration
-        diff: float = 0
-
-        elapsed += elapse
-        if elapsed > duration:
-            diff = elapsed - duration
-            elapsed = duration
-
-        progress: float = elapsed / duration
-        self.progress = progress
-        self.elapsed = elapsed
-
-        if self.state == "DELAY":
-            if elapsed < 0:
-                return False
-            self.state = "PLAY"
-
-        if self.state != "PLAY":
-            return False
-
-        if 1 == progress:
-            self.toEnd()
-            if self.loop > 0:
-                self.loopCounter += 1
-                if self.loopCounter >= self.loop:
-                    self.state = "END"
-                    return True
-
-            self.elapsed = diff
-            if self.loopDelay > 0:
-                self.elapsed -= self.loopDelay
-                self.state = "DELAY"
-            return self.onTick(0)
-
-        self.toCurrent()
-        return False
+    @property
+    def valid(self):
+        return self._valid

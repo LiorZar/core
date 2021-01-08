@@ -845,10 +845,10 @@ var conx;
                 this.innerHTML = `<conx-slider id="root" width="100%" height="40px" locals='{"align":0}'/>`;
                 this.root = conx.glo.findChild(this, "root");
                 this.root.onChange = this.onChange.bind(this);
-                this.root.locals.title = this.config.name || this.state.attributes.friendly_name;
+                this.root.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
             }
             updateState() {
-                if (false === super.updateState())
+                if (false === super.updateState() || !this.state)
                     return false;
                 this.root._val = this.state.attributes.brightness / 255.0;
                 this.root.updateByValue();
@@ -935,7 +935,7 @@ var conx;
                 this.root.white = conx.glo.findChild(this, "white");
                 this.root.white.onChange = this.onChange.bind(this);
                 if (false !== this.config.showTitle)
-                    this.root.white.locals.title = this.config.name || this.state.attributes.friendly_name;
+                    this.root.white.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
                 else
                     this.root.white.locals.title = "";
                 this.root.red = conx.glo.findChild(this, "red");
@@ -955,7 +955,7 @@ var conx;
                 this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
             }
             updateState() {
-                if (false === super.updateState())
+                if (false === super.updateState() || !this.state)
                     return false;
                 this.root.white._val = this.state.attributes.brightness / 255.0;
                 this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
@@ -1019,7 +1019,7 @@ var conx;
                 this.root.val = conx.glo.findChild(this, "val");
                 this.root.val.onChange = this.onChange.bind(this);
                 if (false !== this.config.showTitle)
-                    this.root.val.locals.title = this.config.name || this.state.attributes.friendly_name;
+                    this.root.val.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
                 else
                     this.root.val.locals.title = "";
             }
@@ -1028,7 +1028,7 @@ var conx;
                 this.root.val.params.bg.style.fill = this.root.val.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.sat._val, this.root.val._val);
             }
             updateState() {
-                if (false === super.updateState())
+                if (false === super.updateState() || !this.state)
                     return false;
                 this.root.val._val = this.state.attributes.brightness / 255.0;
                 this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;

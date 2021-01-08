@@ -1,13 +1,42 @@
-- id: '1606299395246'
-  alias: New Automation1
+- id: '1610039818897'
+  alias: Selection
   description: ''
   trigger:
   - platform: state
-    entity_id: light.conxdimmer1
-    from: 'off'
-    to: 'on'
+    entity_id: input_text.selection
   condition: []
   action:
-  - service: script.9cut
-    data: {}
+  - service: conx.select
+    data:
+      id: '{{ states.input_text.selection.state }}
+
+        '
+  mode: single
+- id: '1610122315991'
+  alias: CueName
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_text.cuename
+  condition: []
+  action:
+  - service: conx.cuename
+    data:
+      name: '{{ states.input_text.cuename.state }}
+
+        '
+  mode: single
+- id: '1610124444994'
+  alias: Transition
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_number.transition
+  condition: []
+  action:
+  - service: conx.transition
+    data:
+      value: '{{ states.input_number.transition.state }}
+
+        '
   mode: single
