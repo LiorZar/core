@@ -180,10 +180,12 @@ class KinconyLight(LightEntity, RestoreEntity):
         self._box: KinconyBox = self._kincony.boxes[self._boxName]
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
-        self._fixture: int = config.get("fixture")
+        self._fixture: str = config.get("fixture")
 
         self._on = None
         self._features = 0
+        if None != self._fixture:
+            self._db.addFixture(self._fixture, self)
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()

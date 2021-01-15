@@ -28,3 +28,30 @@ play:
   - service: conx.cueplay
     data: {}
   mode: single
+selection:
+  alias: Selection
+  sequence:
+  - service: conx.select
+    data:
+      id: '{{ states.input_text.selection.state }}
+
+        '
+  mode: single
+cuename:
+  alias: CueName
+  sequence:
+  - service: conx.cuename
+    data:
+      name: '{{ states.input_text.cuename.state }}
+
+        '
+  mode: single
+transition:
+  alias: Transition
+  sequence:
+  - service: conx.transition
+    data:
+      value: '{{ states.input_number.transition.state }}
+
+        '
+  mode: single

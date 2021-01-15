@@ -29,7 +29,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                     vol.Optional(CONF_TYPE, default=CONF_LIGHT_TYPE_SWITCH): vol.In(
                         CONF_LIGHT_TYPES
                     ),
-                    vol.Optional("fixture", default=-1): int,
+                    vol.Optional("fixture"): cv.string,
                     vol.Optional("fadeOn", default=0): cv.Number,
                     vol.Optional("fadeOff", default=0): cv.Number,
                     vol.Optional("level", default=0): cv.byte,
@@ -49,7 +49,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                         vol.Coerce(int), vol.Range(min=1, max=20)
                     ),
                     vol.Required(CONF_NAME): cv.string,
-                    vol.Optional("fixture", default=-1): int,
+                    vol.Optional("fixture"): cv.string,
                 }
             ],
         ),
@@ -60,7 +60,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                     vol.Required(CONF_NAME): cv.string,
                     vol.Required("ip"): cv.string,
                     vol.Required("port"): cv.port,
-                    vol.Optional("fixture", default=-1): int,
+                    vol.Optional("fixture"): cv.string,
                 }
             ],
         ),
@@ -73,7 +73,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                         vol.Coerce(int), vol.Range(min=1, max=32)
                     ),
                     vol.Required(CONF_NAME): cv.string,
-                    vol.Optional("fixture", default=-1): int,
+                    vol.Optional("fixture"): cv.string,
                 }
             ],
         ),
@@ -93,15 +93,19 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     for cfg in dmx or []:
         try:
             name: str = cfg.get(CONF_NAME)
+            fixture: str = cfg.get("fixture")
             if -1 == name.find(";"):
                 lights.append(DMXLight(conx, cfg))
             else:
                 names = conx.db.ParseSelection(name)
+                nums = conx.db.ParseSelection(name, True)
                 channel: int = cfg.get("channel")
-                for name in names:
+                for i, name in enumerate(names):
                     c = copy.copy(cfg)
                     c["name"] = name
                     c["channel"] = channel
+                    if None != fixture and len(fixture) > 0:
+                        c["fixture"] = fixture + nums[i]
                     l = DMXLight(conx, c)
                     lights.append(l)
                     channel += l._channel_count

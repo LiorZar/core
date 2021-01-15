@@ -1,6 +1,13 @@
 - platform: conx
   dmx:
   - dmxName: dmx1
+    channel: 100
+    name: dim_;11
+    fadeOn: 4
+    fadeOff: 2
+    type: dimmer
+
+  - dmxName: dmx1
     channel: 1
     name: dim_;1>10
     fadeOn: 4
@@ -10,6 +17,7 @@
   - dmxName: dmx1
     channel: 11
     name: rgb_;1>10
+    fixture: rgb
     fadeOn: 4
     fadeOff: 2
     type: rgb

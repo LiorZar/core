@@ -5,6 +5,8 @@ import logging
 import threading
 
 from typing import Any, Dict
+
+from attr import has
 from homeassistant.util.yaml import load_yaml, save_yaml
 
 from .const import DOMAIN
@@ -22,6 +24,7 @@ class DB:
         self.hass = hass
         self.initStates = {}
         self.platforms: Dict[str, EntityPlatform] = {}
+        self.fixtures: Dict[str, Entity] = {}
         self.dataDirty = False
         self.hard = False
         self.saveDuration = 0
@@ -110,12 +113,22 @@ class DB:
         self.hard = self.hard or hard
 
     def getEntity(self, entity_id: str) -> Entity:
+        if "$" == entity_id[0]:
+            return self.getFixture(entity_id)
+
         domain = entity_id.split(".")[0]
         platform: EntityPlatform = self.platforms.get(domain)
         if None == platform:
             return None
 
         return platform.entities.get(entity_id)
+
+    def addFixture(self, entity_id: str, e: Entity):
+        self.fixtures[entity_id] = e
+
+    def getFixture(self, entity_id: str) -> Entity:
+        entity_id = entity_id[1:]
+        return self.fixtures.get(entity_id)
 
     def toNums(self, seq: str):
         parts = seq.split("|")
@@ -141,7 +154,7 @@ class DB:
         b += last
         return list(range(a, b, inc))
 
-    def ParseSelection(self, selection: str):
+    def ParseSelection(self, selection: str, emptyName: bool = False):
         names = []
         if None == selection or len(selection) <= 0:
             selection = self.selection
@@ -157,6 +170,8 @@ class DB:
 
             res = []
             name = parts[0].strip()
+            if emptyName:
+                name = ""
             total = parts[1]
             seqs = re.split("[+-]", total)
             idx: int = 0
@@ -186,6 +201,8 @@ class DB:
             entity: Entity = self.getEntity(name)
             if None == entity:
                 continue
-            entities.append({"id": name, "entity": entity, "f": idx / l})
+            entities.append(
+                {"id": entity.entity_id, "name": name, "entity": entity, "f": idx / l}
+            )
             idx = idx + 1
         return entities

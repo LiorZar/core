@@ -1,6 +1,6 @@
 dmx:
   - name: "dmx1"
-    ip: "192.168.1.36"
+    ip: "192.168.1.24"
     universe: 0
     channels: 512
     fps: 0

@@ -2,13 +2,13 @@
   automata:
     - boxName: autoBox3
       channel: 1
-      name: conxSwitchlala1
+      name: sw1
 
     - boxName: autoBox3
       channel: 2
-      name: conxSwitch2
+      name: sw2
 
     - boxName: autoBox3
       channel: 3
-      name: conxSwitch3
+      name: sw3
 

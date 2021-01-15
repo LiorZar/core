@@ -193,10 +193,12 @@ class AutomataLight(LightEntity, RestoreEntity):
         self._box: AutomataBox = self._automata.boxes[self._boxName]
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
-        self._fixture: int = config.get("fixture")
+        self._fixture: str = config.get("fixture")
 
         self._on = None
         self._features = 0
+        if None != self._fixture:
+            self._db.addFixture(self._fixture, self)
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -249,7 +251,7 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         self._name = config.get(CONF_NAME)
         self.ip = config.get("ip")
         self.port = config.get("port")
-        self._fixture: int = config.get("fixture")
+        self._fixture: str = config.get("fixture")
 
         self.tcp.Connect(self.unq_name, self.ip, self.port, self.onNetworkMessage)
 

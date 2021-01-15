@@ -132,7 +132,7 @@ class DMXLight(LightEntity, RestoreEntity):
         self._unviverse: Universe = self._dmx.get_universe(self._dmxName)
         self._name = config.get(CONF_NAME)
         self._type = config.get(CONF_TYPE)
-        self._fixture: int = config.get("fixture")
+        self._fixture: str = config.get("fixture")
         self._fadeOn = config.get("fadeOn")
         self._fadeOff = config.get("fadeOff")
         ch = config.get("channel")
@@ -158,6 +158,8 @@ class DMXLight(LightEntity, RestoreEntity):
         conx.hass.bus.async_listen(
             EVENT_UNIVERSE_CHANGE + self._dmxName, self.on_universe_change
         )
+        if None != self._fixture:
+            self._db.addFixture(self._fixture, self)
         self.haTS = timer()
 
     async def async_added_to_hass(self):

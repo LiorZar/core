@@ -55,7 +55,7 @@ class FDE:
         try:
             for e in entities:
                 en = e["entity"]
-                if None != hasattr(en, "light"):
+                if hasattr(en, "light"):
                     en.light(e["f"], **data)
         except Exception as ex:
             print("light fail", ex)
