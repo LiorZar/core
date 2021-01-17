@@ -874,7 +874,7 @@ conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
 conx.glo.wnd.customCards.push({
     type: 'conx-dimmer',
     name: 'conx-dimmer',
-    description: 'Control a single light with dimmer. support conx.fade',
+    description: 'Control a single light with dimmer.',
 });
 /// <reference path="../controls/slider.ts" />
 /// <reference path="HACard.ts" />
@@ -1000,7 +1000,7 @@ conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
 conx.glo.wnd.customCards.push({
     type: 'conx-light-rgb',
     name: 'conx-light-rgb',
-    description: 'Control a single light with brightness and rgb. support conx.fade',
+    description: 'Control a single light with brightness and rgb.',
 });
 /// <reference path="../controls/slider.ts" />
 /// <reference path="HACard.ts" />
@@ -1066,7 +1066,7 @@ conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
 conx.glo.wnd.customCards.push({
     type: 'conx-light-hsv',
     name: 'conx-light-hsv',
-    description: 'Control a single light with hsv. support conx.fade',
+    description: 'Control a single light with hsv.',
 });
 /// <reference path="../controls/slider.ts" />
 /// <reference path="HACard.ts" />
@@ -1187,6 +1187,220 @@ conx.glo.wnd.customCards.push({
 /// <reference path="conx/cards/light-rgb.ts" />
 /// <reference path="conx/cards/light-hsv.ts" />
 /// <reference path="conx/cards/numpad.ts" />
+/// <reference path="../controls/slider.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards) {
+        class Light_CLR extends cards.HACard {
+            create() {
+                super.create();
+                let local = window.location.origin;
+                this.innerHTML = `
+            <div id="root">
+                <conx-slider id="intensity" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
+                <conx-slider id="saturation" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
+                <conx-slider id="hue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"bg":{"style":{"fill":"none"}}, "image":{"href":"${local}/local/images/gradH.png", "visibility":"visible"}}'></conx-slider>
+                <conx-slider id="red" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
+                <conx-slider id="green" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
+                <conx-slider id="blue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#0000FF"}}}'></conx-slider>
+            </div>
+            `;
+                this.root = conx.glo.findChild(this, "root");
+                this.root.intensity = conx.glo.findChild(this, "intensity");
+                this.root.intensity.onChange = this.onChange.bind(this);
+                if (false !== this.config.showTitle)
+                    this.root.intensity.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
+                else
+                    this.root.intensity.locals.title = "";
+                this.root = conx.glo.findChild(this, "root");
+                this.root.hue = conx.glo.findChild(this, "hue");
+                this.root.hue.onChange = this.onChange.bind(this);
+                this.root.hue.locals.title = "";
+                this.root.saturation = conx.glo.findChild(this, "saturation");
+                this.root.saturation.onChange = this.onChange.bind(this);
+                this.root.saturation.locals.title = "";
+                this.root.red = conx.glo.findChild(this, "red");
+                this.root.red.onChange = this.onChange.bind(this);
+                this.root.red.locals.title = "";
+                this.root.green = conx.glo.findChild(this, "green");
+                this.root.green.onChange = this.onChange.bind(this);
+                this.root.green.locals.title = "";
+                this.root.blue = conx.glo.findChild(this, "blue");
+                this.root.blue.onChange = this.onChange.bind(this);
+                this.root.blue.locals.title = "";
+            }
+            refreshColors(hsv) {
+                if (hsv) {
+                    let rgb = conx.glo.HSVtoRGB(this.root.hue._val, this.root.saturation._val, this.root.intensity._val);
+                    this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
+                    this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.rgbToHex(rgb[0], rgb[1], rgb[2]);
+                    this.root.red._val = rgb[0];
+                    this.root.green._val = rgb[1];
+                    this.root.blue._val = rgb[2];
+                    this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
+                    this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
+                    this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
+                    this.root.red.updateByValue();
+                    this.root.green.updateByValue();
+                    this.root.blue.updateByValue();
+                }
+                else {
+                    let hsv = conx.glo.RGBtoHSV(this.root.red._val, this.root.green._val, this.root.blue._val);
+                    this.root.intensity._val = hsv[2];
+                    this.root.hue._val = hsv[0];
+                    this.root.saturation._val = hsv[1];
+                    this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
+                    this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
+                    this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
+                    this.root.intensity.updateByValue();
+                    this.root.hue.updateByValue();
+                    this.root.saturation.updateByValue();
+                }
+            }
+            updateState() {
+                if (false === super.updateState() || !this.state)
+                    return false;
+                this.root.intensity._val = this.state.attributes.brightness / 255.0;
+                this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
+                this.root.saturation._val = this.state.attributes.hs_color[1] / 100.0;
+                this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
+                this.root.green._val = this.state.attributes.rgb_color[1] / 255.0;
+                this.root.blue._val = this.state.attributes.rgb_color[2] / 255.0;
+                this.refreshColors(true);
+                this.root.intensity.updateByValue();
+                this.root.hue.updateByValue();
+                this.root.saturation.updateByValue();
+                this.root.red.updateByValue();
+                this.root.green.updateByValue();
+                this.root.blue.updateByValue();
+                return true;
+            }
+            onChange(id, value, pvalue) {
+                this.updateTS = conx.glo.time;
+                let data = { entity_id: this.entities };
+                data[id] = value;
+                this._hass.callService("conx", "light", data);
+                this.refreshColors("intensity" == id || "hue" == id || "saturation" == id);
+            }
+        }
+        cards.Light_CLR = Light_CLR;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-light-clr', conx.cards.Light_CLR);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-light-clr',
+    name: 'conx-light-clr',
+    description: 'Control a single light with hsv and rgb.',
+});
+/// <reference path="../controls/slider.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards) {
+        class Softkeys extends cards.HACard {
+            constructor() {
+                super(...arguments);
+                this.names = [
+                    "$fix", "$rgb", "$sw", "C", "CE",
+                    "7", "8", "9", "+", "Store",
+                    "4", "5", "6", "-", "Delete",
+                    "1", "2", "3", "|", "Cue",
+                    ">", "0", ",", ";", "Enter"
+                ];
+            }
+            create() {
+                super.create();
+                let html = ``;
+                html += `<label for="selection">selection:</label>`;
+                html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
+                html += `<label for="cue">cue:</label>`;
+                html += `<input type="text" id="cue" style="grid-column: 2/6;">`;
+                for (let i = 0; i < 25; ++i)
+                    html += `<button id="bn${i}" class="bn" style="width:100%; height:64px; background-color:#CC00CC;"></button>`;
+                this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
+                this.root = conx.glo.findChild(this, "root");
+                let bt;
+                this.root.sel = conx.glo.findChild(this.root, "selection");
+                this.root.cue = conx.glo.findChild(this.root, "cue");
+                for (let i = 0; i < 25; ++i) {
+                    bt = conx.glo.findChild(this.root, `bn${i}`);
+                    this.root[`bn${i}`] = bt;
+                    //bt.textContent = this.names[i];
+                    bt.onclick = this.onButton.bind(this, i, this.names[i]);
+                }
+                this.checkSelection(this._hass.states["conx.selection"], false);
+                this.checkCue(this._hass.states["conx.cuename"], false);
+            }
+            postCreate() {
+                super.postCreate();
+            }
+            updateState() {
+                if (!this.root || !this.connected)
+                    return false;
+                this.checkSelection(this._hass.states["conx.selection"]);
+                this.checkCue(this._hass.states["conx.cuename"]);
+                return true;
+            }
+            checkStateTime(state) {
+                if (!state || !state.last_changed)
+                    return false;
+                let changed = Date.parse(state.last_changed);
+                if (conx.glo.time - changed > 1000)
+                    return false;
+                return true;
+            }
+            checkSelection(state, checkTime = true) {
+                if (checkTime && false == this.checkStateTime(state))
+                    return;
+                conx.glo.trace(state);
+                this.root.sel.value = state.state;
+            }
+            checkCue(state, checkTime = true) {
+                if (checkTime && false == this.checkStateTime(state))
+                    return;
+                conx.glo.trace(state);
+                this.root.cue.value = state.state;
+            }
+            onButton(i, name) {
+                let sel = this.root.sel.value;
+                switch (name) {
+                    case 'Store':
+                        this._hass.callService("conx", "cuestore", {});
+                        break;
+                    case 'Delete':
+                        this._hass.callService("conx", "cuedelete", {});
+                        break;
+                    case 'Cue':
+                        this._hass.callService("conx", "cuename", { name: this.root.cue.value });
+                        break;
+                    case 'Enter':
+                        this._hass.callService("conx", "select", { id: sel });
+                        break;
+                    case 'C':
+                        this.root.sel.value = sel.substr(0, sel.length - 1);
+                        break;
+                    case 'CE':
+                        this.root.sel.value = "";
+                        break;
+                    default:
+                        this.root.sel.value = sel + name;
+                }
+            }
+        }
+        cards.Softkeys = Softkeys;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-softkeys', conx.cards.Softkeys);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-softkeys',
+    name: 'conx-softkeys',
+    description: 'Softkeys',
+});
 /// <reference path="svg.ts" />
 var conx;
 (function (conx) {
