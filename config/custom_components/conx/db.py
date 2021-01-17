@@ -9,7 +9,7 @@ from typing import Any, Dict
 from attr import has
 from homeassistant.util.yaml import load_yaml, save_yaml
 
-from .const import DOMAIN
+from .const import DOMAIN, EVENT_DB_RELOAD
 from .fn import gFN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
@@ -35,11 +35,15 @@ class DB:
         self.hass.states.async_set("conx.cuename", "")
         self.hass.states.async_set("conx.transition", 2)
 
+        self.Reload(None)
+
+    def Reload(self, call):
         try:
             self.data: Dict[str, Any] = load_yaml(self.hass.config.path("db.yaml"))
             gFN.Parse(
                 load_yaml(self.hass.config.path("custom_components/conx/fn.yaml"))
             )
+            self.hass.bus.async_fire(EVENT_DB_RELOAD)
         except Exception as e:
             print(e)
             self.data: Dict[str, Any] = {}
@@ -154,11 +158,16 @@ class DB:
         b += last
         return list(range(a, b, inc))
 
-    def ParseSelection(self, selection: str, emptyName: bool = False):
+    def ParseSelection(self, selection: Any, emptyName: bool = False):
         names = []
+        entities = []
         if None == selection or len(selection) <= 0:
             selection = self.selection
-        entities = selection.split(",")
+
+        if isinstance(selection, str):
+            entities = selection.split(",")
+        elif isinstance(selection, list):
+            entities = selection
 
         for entity in entities:
             parts = entity.split(";")

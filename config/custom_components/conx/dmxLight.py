@@ -268,9 +268,14 @@ class DMXLight(LightEntity, RestoreEntity):
             Del(self.parameters, Parameter.red)
             Del(self.parameters, Parameter.green)
             Del(self.parameters, Parameter.blue)
+            Del(self.effects, Parameter.red)
+            Del(self.effects, Parameter.green)
+            Del(self.effects, Parameter.blue)
         elif Parameter.red in data or Parameter.green in data or Parameter.blue in data:
             Del(self.parameters, Parameter.hue)
             Del(self.parameters, Parameter.saturation)
+            Del(self.effects, Parameter.hue)
+            Del(self.effects, Parameter.saturation)
 
         for p in data:
             if False == self.isLegalParam(p):

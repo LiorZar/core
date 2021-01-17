@@ -11,6 +11,9 @@ test:
       description: The attrbiutes and values to goto.
       example: "{brightness: 255, hs_color: [300,100]}"
 
+reload:
+  description: reloads db.yaml
+
 channel:
   description: set a channel(s) value
   fields:

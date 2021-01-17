@@ -48,6 +48,7 @@ class Universe:
         self.keepDirty = True
         self.seq = 1
 
+        """
         state = self.db.getData("dmx", self.name)
         if state == None:
             return
@@ -56,6 +57,7 @@ class Universe:
             j = i // 2
             if j < self.channelCount:
                 self.channels[j] = int(state[i : i + 2], 16)
+        """
 
     def getVal(self, i: int, cnt: int, vnt: int, vals: list) -> int:
         f: float = float(i) / float(cnt - 1)  # [0,1]
@@ -262,8 +264,9 @@ class DMX:
         self._socket.sendto(packet, (unv.ip, unv.port))
 
     def keep(self, unv: Universe):
-        state = "".join("{:02x}".format(x) for x in unv.channels)
-        self.db.setData("dmx", unv.name, state)
+        # state = "".join("{:02x}".format(x) for x in unv.channels)
+        # self.db.setData("dmx", unv.name, state)
+        pass
 
     def onStop(self):
         pass
@@ -275,5 +278,3 @@ class DMX:
                 self.send(unv)
             if unv.should_keep(elapse):
                 self.keep(unv)
-
-

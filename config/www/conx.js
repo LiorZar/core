@@ -1079,10 +1079,10 @@ var conx;
                 super(...arguments);
                 this.names = [
                     "$fix", "$rgb", "$sw", "C", "CE",
-                    "7", "8", "9", "+", "store",
-                    "4", "5", "6", "-", "delete",
-                    "1", "2", "3", "|", "cue",
-                    ">", "0", ",", ";", "enter"
+                    "7", "8", "9", "+", "Store",
+                    "4", "5", "6", "-", "Delete",
+                    "1", "2", "3", "|", "Cue",
+                    ">", "0", ",", ";", "Enter"
                 ];
             }
             create() {
@@ -1095,13 +1095,13 @@ var conx;
                     this.names[1] = (_d = this.config) === null || _d === void 0 ? void 0 : _d.fix2;
                 if ((_e = this.config) === null || _e === void 0 ? void 0 : _e.fix3)
                     this.names[2] = (_f = this.config) === null || _f === void 0 ? void 0 : _f.fix3;
-                html += `<label for="selection">s:</label>`;
-                html += `<input type="text" id="selection" style="width:60%;margin: 2px;">`;
-                html += `<label for="cue">c:</label>`;
-                html += `<input type="text" id="cue" style="width:20%;margin: 2px;">`;
+                html += `<label for="selection">selection:</label>`;
+                html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
+                html += `<label for="cue">cue:</label>`;
+                html += `<input type="text" id="cue" style="grid-column: 2/6;">`;
                 for (let i = 0; i < 25; ++i)
-                    html += `<button id="bn${i}" class="swatch" style="width:64px; height:64px; background-color:#CCCCCC;margin: 2px 2px;"></button>`;
-                this.innerHTML = `<div id="root"">${html}</div>`;
+                    html += `<button id="bn${i}" class="bn" style="width:100%; height:64px; background-color:#CCCCCC;"></button>`;
+                this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let bt;
                 this.root.sel = conx.glo.findChild(this.root, "selection");
@@ -1148,16 +1148,16 @@ var conx;
             onButton(i, name) {
                 let sel = this.root.sel.value;
                 switch (name) {
-                    case 'store':
+                    case 'Store':
                         this._hass.callService("conx", "cuestore", {});
                         break;
-                    case 'delete':
+                    case 'Delete':
                         this._hass.callService("conx", "cuedelete", {});
                         break;
-                    case 'cue':
+                    case 'Cue':
                         this._hass.callService("conx", "cuename", { name: this.root.cue.value });
                         break;
-                    case 'enter':
+                    case 'Enter':
                         this._hass.callService("conx", "select", { id: sel });
                         break;
                     case 'C':

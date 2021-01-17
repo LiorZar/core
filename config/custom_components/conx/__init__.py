@@ -138,6 +138,7 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "patch", self.dmx.patch)
         self.hass.services.async_register(DOMAIN, "light", self.fde.light)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
+        self.hass.services.async_register(DOMAIN, "reload", self.db.Reload)
         self.hass.services.async_register(DOMAIN, "select", self.db.Select)
         self.hass.services.async_register(DOMAIN, "cuename", self.db.CueName)
         self.hass.services.async_register(DOMAIN, "transition", self.db.Transition)
@@ -210,8 +211,8 @@ class ConX(threading.Thread):
             es = ts
             ts = time.perf_counter()
             es = ts - es
-            # self.onTick(es)
-            self.onTick(0.02)
+            self.onTick(es)
+            # self.onTick(0.02)
             time.sleep(0.02)
 
         _LOGGER.debug("Conx thread stopped")

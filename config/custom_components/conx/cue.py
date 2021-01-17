@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from typing import Any, Dict, Callable
 
-from .const import DOMAIN, Del
+from .const import DOMAIN, Del, EVENT_DB_RELOAD
 from .db import DB
 from .fde import FDE
 
@@ -42,8 +42,10 @@ class CUE:
         self.fde: FDE = conx.fde
         self.cues: Dict[str, cue] = {}
         self.loadCues()
+        self.hass.bus.async_listen(EVENT_DB_RELOAD, self.loadCues)
 
-    def loadCues(self):
+    def loadCues(self, event=None):
+        self.cues = {}
         cues = self.db.getData("cues") or {}
         for name in cues:
             c = cue(self.db, name, cues[name])
@@ -61,7 +63,7 @@ class CUE:
             name = data.get("name") or self.db.cueName
             transition = data.get("transition") or self.db.transition
             entities = self.db.GetEntities(data.get("entity_id"))
-            if None == name or None == entities:
+            if None == name or len(name) <= 0 or None == entities:
                 return False
 
             states: Dict[str, Any] = {}
