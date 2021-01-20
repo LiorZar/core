@@ -127,3 +127,57 @@ cues:
       state: 'on'
       atts:
         transition: 4.0
+sk:
+  all:
+    type: group
+    idx: 12
+    data: $rgb;1>10
+  odds:
+    type: group
+    idx: 13
+    data: $rgb;1>10|2
+  isin:
+    type: script
+    idx: 8
+    data:
+      domain: conx
+      service: light
+      data:
+        transition: 10
+        intensity:
+          fn: sin
+          cycle: 4
+      soft: true
+  even:
+    type: group
+    idx: 10
+    data: $rgb;2>10|2
+  effs:
+    type: folder
+    idx: 0
+    data: {}
+  grs:
+    type: folder
+    idx: 1
+    data:
+      all:
+        type: group
+        idx: 13
+        data: $rgb;1>10
+      odds:
+        type: group
+        idx: 11
+        data: $rgb;1>10|2
+  rainbow:
+    type: script
+    idx: 20
+    data:
+      domain: conx
+      service: light
+      data:
+        transition: 0
+        hue:
+          fn: up
+          cycle: 4
+          loop: 6
+      soft: true

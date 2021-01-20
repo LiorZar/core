@@ -48,17 +48,6 @@ class Universe:
         self.keepDirty = True
         self.seq = 1
 
-        """
-        state = self.db.getData("dmx", self.name)
-        if state == None:
-            return
-
-        for i in range(0, len(state), 2):
-            j = i // 2
-            if j < self.channelCount:
-                self.channels[j] = int(state[i : i + 2], 16)
-        """
-
     def getVal(self, i: int, cnt: int, vnt: int, vals: list) -> int:
         f: float = float(i) / float(cnt - 1)  # [0,1]
         fi: float = f * vnt  # [0,vnt)

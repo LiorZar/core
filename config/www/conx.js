@@ -81,15 +81,28 @@ var conx;
             }
         }
         static updateCSS(_this, csss = undefined) {
+            var _a, _b;
             if (!csss)
                 return;
-            let nodes, style, i, len;
+            let cssArr, nodes, style, i, len;
             for (let cssId in csss) {
-                nodes = this.findCSS(_this, cssId);
+                cssArr = cssId.split("-");
+                nodes = this.findCSS(_this, cssArr[0]);
                 style = csss[cssId];
                 len = nodes.length;
-                for (i = 0; i < len; ++i)
-                    this.setStyle(nodes[i], style);
+                if (cssArr.length <= 1) {
+                    for (i = 0; i < len; ++i) {
+                        this.setStyle(nodes[i], style);
+                        if (undefined !== ((_a = nodes[i]) === null || _a === void 0 ? void 0 : _a.css))
+                            nodes[i]["css"]["reg"] = style;
+                    }
+                }
+                else {
+                    for (i = 0; i < len; ++i) {
+                        if (undefined !== ((_b = nodes[i]) === null || _b === void 0 ? void 0 : _b.css))
+                            nodes[i]["css"][cssArr[1]] = style;
+                    }
+                }
             }
         }
         static update(_this, atts = undefined) {
@@ -801,6 +814,35 @@ var conx;
                     return this.states[0];
                 return undefined;
             }
+            checkStateTime(state, delta) {
+                if (!state || !state.last_changed)
+                    return false;
+                let changed = Date.parse(state.last_changed);
+                if (conx.glo.time - changed > delta)
+                    return false;
+                return true;
+            }
+            Get(unq, path, create = false) {
+                this.conx(unq, "db.Get", { path: path, create: create });
+            }
+            Set(unq, path, value) {
+                this.conx(unq, "db.Set", { path: path, value: value });
+            }
+            conx(unq, cmd, data) {
+                this._hass.connection.sendMessagePromise({
+                    type: 'conx.cmd',
+                    cmd: cmd,
+                    unq: unq,
+                    data: data
+                }).then((respond) => {
+                    this.onConxMsg(respond.cmd, respond.unq, respond.payload, undefined === respond.error);
+                }, (respond) => {
+                    this.onConxMsg(respond.cmd, respond.unq, respond.payload, false);
+                });
+            }
+            onConxMsg(cmd, unq, payload, success) {
+                conx.glo.trace(cmd, unq, payload, success);
+            }
             static get properties() {
                 return {
                     config: Object,
@@ -1081,7 +1123,7 @@ var conx;
                     "$fix", "$rgb", "$sw", "C", "CE",
                     "7", "8", "9", "+", "Store",
                     "4", "5", "6", "-", "Delete",
-                    "1", "2", "3", "|", "Cue",
+                    "1", "2", "3", "|", "Name",
                     ">", "0", ",", ";", "Enter"
                 ];
             }
@@ -1095,17 +1137,17 @@ var conx;
                     this.names[1] = (_d = this.config) === null || _d === void 0 ? void 0 : _d.fix2;
                 if ((_e = this.config) === null || _e === void 0 ? void 0 : _e.fix3)
                     this.names[2] = (_f = this.config) === null || _f === void 0 ? void 0 : _f.fix3;
-                html += `<label for="selection">selection:</label>`;
+                html += `<label>selection:</label>`;
                 html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
-                html += `<label for="cue">cue:</label>`;
-                html += `<input type="text" id="cue" style="grid-column: 2/6;">`;
+                html += `<label>name:</label>`;
+                html += `<input type="text" id="name" style="grid-column: 2/6;">`;
                 for (let i = 0; i < 25; ++i)
                     html += `<button id="bn${i}" class="bn" style="width:100%; height:64px; background-color:#CCCCCC;"></button>`;
                 this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let bt;
                 this.root.sel = conx.glo.findChild(this.root, "selection");
-                this.root.cue = conx.glo.findChild(this.root, "cue");
+                this.root.name = conx.glo.findChild(this.root, "name");
                 for (let i = 0; i < 25; ++i) {
                     bt = conx.glo.findChild(this.root, `bn${i}`);
                     this.root[`bn${i}`] = bt;
@@ -1113,7 +1155,7 @@ var conx;
                     bt.onclick = this.onButton.bind(this, i, this.names[i]);
                 }
                 this.checkSelection(this._hass.states["conx.selection"], false);
-                this.checkCue(this._hass.states["conx.cuename"], false);
+                this.checkName(this._hass.states["conx.name"], false);
             }
             postCreate() {
                 super.postCreate();
@@ -1122,28 +1164,20 @@ var conx;
                 if (!this.root || !this.connected)
                     return false;
                 this.checkSelection(this._hass.states["conx.selection"]);
-                this.checkCue(this._hass.states["conx.cuename"]);
-                return true;
-            }
-            checkStateTime(state) {
-                if (!state || !state.last_changed)
-                    return false;
-                let changed = Date.parse(state.last_changed);
-                if (conx.glo.time - changed > 1000)
-                    return false;
+                this.checkName(this._hass.states["conx.name"]);
                 return true;
             }
             checkSelection(state, checkTime = true) {
-                if (checkTime && false == this.checkStateTime(state))
+                if (checkTime && false == this.checkStateTime(state, 1000))
                     return;
                 conx.glo.trace(state);
                 this.root.sel.value = state.state;
             }
-            checkCue(state, checkTime = true) {
-                if (checkTime && false == this.checkStateTime(state))
+            checkName(state, checkTime = true) {
+                if (checkTime && false == this.checkStateTime(state, 1000))
                     return;
                 conx.glo.trace(state);
-                this.root.cue.value = state.state;
+                this.root.name.value = state.state;
             }
             onButton(i, name) {
                 let sel = this.root.sel.value;
@@ -1154,8 +1188,8 @@ var conx;
                     case 'Delete':
                         this._hass.callService("conx", "cuedelete", {});
                         break;
-                    case 'Cue':
-                        this._hass.callService("conx", "cuename", { name: this.root.cue.value });
+                    case 'Name':
+                        this._hass.callService("conx", "name", { name: this.root.name.value });
                         break;
                     case 'Enter':
                         this._hass.callService("conx", "select", { id: sel });
@@ -1295,7 +1329,56 @@ conx.glo.wnd.customCards.push({
     name: 'conx-light-clr',
     description: 'Control a single light with hsv and rgb.',
 });
-/// <reference path="../controls/slider.ts" />
+/// <reference path="../glo.ts" />
+/// <reference path="utils.ts" />
+var conx;
+(function (conx) {
+    var controls;
+    (function (controls) {
+        class Button extends HTMLButtonElement {
+            constructor() {
+                super();
+                this.css = {};
+                this._state = "reg";
+                this.addEventListener("mousedown", this.onMousedown);
+            }
+            get state() { return this._state; }
+            set state(v) {
+                this._state = v;
+                this._setStyle(false);
+            }
+            _setStyle(down) {
+                var _a, _b;
+                let style = this.css[this.state] || ((_a = this.css) === null || _a === void 0 ? void 0 : _a.reg);
+                if (down)
+                    style = ((_b = this.css) === null || _b === void 0 ? void 0 : _b.down) || style;
+                if (style)
+                    conx.glo.setStyle(this, style);
+            }
+            onMousedown(e) {
+                this.addEventListener("mouseup", this.onMouseup);
+                this.addEventListener("mouseover", this.onMouseover);
+                this.addEventListener("mouseout", this.onMouseout);
+                this._setStyle(true);
+            }
+            onMouseover(e) {
+                this._setStyle(true);
+            }
+            onMouseout(e) {
+                this._setStyle(false);
+            }
+            onMouseup(e) {
+                this.removeEventListener("mouseup", this.onMouseup);
+                this.removeEventListener("mouseover", this.onMouseover);
+                this.removeEventListener("mouseout", this.onMouseup);
+                this._setStyle(false);
+            }
+        }
+        controls.Button = Button;
+    })(controls = conx.controls || (conx.controls = {}));
+})(conx || (conx = {}));
+customElements.define("conx-button", conx.controls.Button, { extends: 'button' });
+/// <reference path="../controls/button.ts" />
 /// <reference path="HACard.ts" />
 var conx;
 (function (conx) {
@@ -1304,36 +1387,56 @@ var conx;
         class Softkeys extends cards.HACard {
             constructor() {
                 super(...arguments);
-                this.names = [
-                    "$fix", "$rgb", "$sw", "C", "CE",
-                    "7", "8", "9", "+", "Store",
-                    "4", "5", "6", "-", "Delete",
-                    "1", "2", "3", "|", "Cue",
-                    ">", "0", ",", ";", "Enter"
-                ];
+                this.activeState = "";
+                this.skdata = {};
+                this.skbuttons = [];
+                this.buttonCount = 25;
             }
             create() {
+                var _a, _b;
                 super.create();
+                this.pathRoot = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.path) || "sk";
+                if ("sk" !== this.pathRoot.substr(0, 2))
+                    this.pathRoot = "sk/" + this.pathRoot;
+                this.path = "";
+                this.buttonCount = ((_b = this.config) === null || _b === void 0 ? void 0 : _b.count) || this.buttonCount;
                 let html = ``;
-                html += `<label for="selection">selection:</label>`;
-                html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
-                html += `<label for="cue">cue:</label>`;
-                html += `<input type="text" id="cue" style="grid-column: 2/6;">`;
-                for (let i = 0; i < 25; ++i)
-                    html += `<button id="bn${i}" class="bn" style="width:100%; height:64px; background-color:#CC00CC;"></button>`;
+                html += `<button is="conx-button" id="up" class="cmd" style="width:100%; height:32px;"><ha-icon icon="${this.getIcon("up")}"></ha-icon></button>`;
+                html += `<button is="conx-button" id="delete" class="cmd" style="width:100%; height:32px;"><ha-icon icon="${this.getIcon("delete")}"></ha-icon></button>`;
+                html += `<button is="conx-button" id="folder" class="cmd" style="width:100%; height:32px;"><ha-icon icon="${this.getIcon("folder")}"></ha-icon></button>`;
+                html += `<button is="conx-button" id="group" class="cmd" style="width:100%; height:32px;"><ha-icon icon="${this.getIcon("group")}"></ha-icon></button>`;
+                html += `<button is="conx-button" id="script" class="cmd" style="width:100%; height:32px;"><ha-icon icon="${this.getIcon("script")}"></ha-icon></button>`;
+                for (let i = 0; i < this.buttonCount; ++i)
+                    html += `<button is="conx-button" id="bn${i}" class="bn" style="width:100%; height:64px;"><ha-icon id="ic" icon=""></ha-icon><label id="tx"></label></button>`;
                 this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let bt;
-                this.root.sel = conx.glo.findChild(this.root, "selection");
-                this.root.cue = conx.glo.findChild(this.root, "cue");
-                for (let i = 0; i < 25; ++i) {
+                bt = conx.glo.findChild(this.root, 'up');
+                this.root['up'] = bt;
+                bt.onclick = this.onCommand.bind(this, 'up');
+                bt = conx.glo.findChild(this.root, 'folder');
+                this.root['folder'] = bt;
+                bt.onclick = this.onCommand.bind(this, 'folder');
+                bt = conx.glo.findChild(this.root, 'delete');
+                this.root['delete'] = bt;
+                bt.onclick = this.onCommand.bind(this, 'delete');
+                bt = conx.glo.findChild(this.root, 'group');
+                this.root['group'] = bt;
+                bt.onclick = this.onCommand.bind(this, 'group');
+                bt = conx.glo.findChild(this.root, 'script');
+                this.root['script'] = bt;
+                bt.onclick = this.onCommand.bind(this, 'script');
+                for (let i = 0; i < this.buttonCount; ++i) {
                     bt = conx.glo.findChild(this.root, `bn${i}`);
+                    bt["ic"] = conx.glo.findChild(bt, "ic");
+                    bt["tx"] = conx.glo.findChild(bt, "tx");
                     this.root[`bn${i}`] = bt;
-                    //bt.textContent = this.names[i];
-                    bt.onclick = this.onButton.bind(this, i, this.names[i]);
+                    bt.onclick = this.onButton.bind(this, i);
                 }
-                this.checkSelection(this._hass.states["conx.selection"], false);
-                this.checkCue(this._hass.states["conx.cuename"], false);
+                this.readPath();
+            }
+            readPath() {
+                this.Get("sk-read", this.getPath());
             }
             postCreate() {
                 super.postCreate();
@@ -1341,53 +1444,125 @@ var conx;
             updateState() {
                 if (!this.root || !this.connected)
                     return false;
-                this.checkSelection(this._hass.states["conx.selection"]);
-                this.checkCue(this._hass.states["conx.cuename"]);
+                let state = this._hass.states["conx.db_change"];
+                if (!state)
+                    return false;
+                let path = state.state;
+                if (this.getPath() != path && this.getPath() != path.substr(0, path.lastIndexOf("/")))
+                    return false;
+                if (false == this.checkStateTime(state, 1000))
+                    return false;
+                this.readPath();
                 return true;
             }
-            checkStateTime(state) {
-                if (!state || !state.last_changed)
-                    return false;
-                let changed = Date.parse(state.last_changed);
-                if (conx.glo.time - changed > 1000)
-                    return false;
-                return true;
+            getIcon(type) {
+                switch (type) {
+                    case "up": return "mdi:arrow-up-bold";
+                    case "folder": return "mdi:folder";
+                    case "delete": return "mdi:delete";
+                    case "group": return "mdi:lightbulb-group";
+                    case "script": return "mdi:script-outline";
+                }
+                return "";
             }
-            checkSelection(state, checkTime = true) {
-                if (checkTime && false == this.checkStateTime(state))
+            getPath() {
+                if (this.path.length <= 0)
+                    return this.pathRoot;
+                return this.pathRoot + "/" + this.path;
+            }
+            onButton(i) {
+                var _a;
+                let sk = (_a = this.skbuttons) === null || _a === void 0 ? void 0 : _a[i];
+                if (undefined === sk) {
+                    this.conx("sk-save", "db.SaveSK", { path: this.getPath(), type: this.activeState, idx: i });
                     return;
-                conx.glo.trace(state);
-                this.root.sel.value = state.state;
-            }
-            checkCue(state, checkTime = true) {
-                if (checkTime && false == this.checkStateTime(state))
-                    return;
-                conx.glo.trace(state);
-                this.root.cue.value = state.state;
-            }
-            onButton(i, name) {
-                let sel = this.root.sel.value;
-                switch (name) {
-                    case 'Store':
-                        this._hass.callService("conx", "cuestore", {});
-                        break;
-                    case 'Delete':
-                        this._hass.callService("conx", "cuedelete", {});
-                        break;
-                    case 'Cue':
-                        this._hass.callService("conx", "cuename", { name: this.root.cue.value });
-                        break;
-                    case 'Enter':
-                        this._hass.callService("conx", "select", { id: sel });
-                        break;
-                    case 'C':
-                        this.root.sel.value = sel.substr(0, sel.length - 1);
-                        break;
-                    case 'CE':
-                        this.root.sel.value = "";
+                }
+                switch (this.activeState) {
+                    case "delete":
+                        this.conx("sk-save", "db.SaveSK", { path: this.getPath() + "/" + sk.name, type: this.activeState, idx: i });
                         break;
                     default:
-                        this.root.sel.value = sel + name;
+                        if ("folder" !== sk.data.type)
+                            this.conx("sk-play", "db.PlaySK", { path: this.getPath() + "/" + sk.name, idx: i });
+                        else {
+                            this.path += ((this.path.length > 0) ? "/" : "") + sk.name + "/data";
+                            this.readPath();
+                        }
+                        break;
+                }
+            }
+            onCommand(name) {
+                conx.glo.trace("cmd", name);
+                let bt;
+                switch (name) {
+                    case "delete":
+                    case "group":
+                    case "script":
+                    case "folder":
+                        let bt = this.root[name];
+                        if (undefined !== bt) {
+                            if ("reg" == bt.state)
+                                this.setActiveState(name);
+                            else
+                                this.setActiveState("");
+                        }
+                        break;
+                    case "up":
+                        this.path = this.path.substr(0, this.path.lastIndexOf("/"));
+                        this.path = this.path.substr(0, this.path.lastIndexOf("/"));
+                        this.readPath();
+                        break;
+                }
+            }
+            setActiveState(v) {
+                this.activeState = v;
+                this.root.folder.state = "reg";
+                this.root.delete.state = "reg";
+                this.root.group.state = "reg";
+                this.root.script.state = "reg";
+                let bt = this.root[v];
+                if (undefined !== bt)
+                    bt.state = "sel";
+            }
+            onConxMsg(cmd, unq, payload, success) {
+                conx.glo.trace(cmd, unq, payload, success);
+                switch (unq) {
+                    case "sk-read":
+                        if (false === success)
+                            this.skdata = {};
+                        else
+                            this.skdata = payload;
+                        this.refreshButtons();
+                }
+            }
+            refreshData() {
+                this.skbuttons = [];
+                this.skbuttons.length = this.buttonCount;
+                let idx, sk;
+                for (let s in this.skdata) {
+                    sk = this.skdata[s];
+                    idx = sk === null || sk === void 0 ? void 0 : sk.idx;
+                    if (idx < this.buttonCount)
+                        this.skbuttons[idx] = { name: s, data: sk };
+                }
+            }
+            refreshButtons() {
+                var _a;
+                this.refreshData();
+                let bt, sk;
+                for (let i = 0; i < this.buttonCount; ++i) {
+                    bt = this.root[`bn${i}`];
+                    if (!bt)
+                        continue;
+                    sk = this.skbuttons[i];
+                    if (undefined === sk) {
+                        bt.ic.icon = "";
+                        bt.tx.textContent = "";
+                    }
+                    else {
+                        bt.ic.icon = this.getIcon((_a = sk === null || sk === void 0 ? void 0 : sk.data) === null || _a === void 0 ? void 0 : _a.type);
+                        bt.tx.textContent = sk === null || sk === void 0 ? void 0 : sk.name;
+                    }
                 }
             }
         }
@@ -1401,83 +1576,6 @@ conx.glo.wnd.customCards.push({
     name: 'conx-softkeys',
     description: 'Softkeys',
 });
-/// <reference path="svg.ts" />
-var conx;
-(function (conx) {
-    var controls;
-    (function (controls) {
-        class Button extends controls.Svg {
-            constructor() {
-                super();
-                this.copyData(this.locals, {
-                    normal: "#919191",
-                    clicked: "blue"
-                });
-                this.copyData(this.params, {
-                    bg: {
-                        style: {
-                            fill: "#919191",
-                            stroke: "black",
-                            strokeWidth: "5px"
-                        }
-                    },
-                    text: {
-                        style: {
-                            dominantBaseline: "middle",
-                            fill: "white",
-                            textAnchor: "middle",
-                            fontSize: `20px`
-                        },
-                        textContent: "Button"
-                    }
-                });
-            }
-            connectItems() {
-                this.enablePointer();
-                this.bg = this.findChild(`bg`);
-                this.frame = this.findChild(`frame`);
-                this.text = this.findChild(`text`);
-            }
-            createChildren() {
-                super.createChildren();
-                let g_comp = controls.utils.SVGGroup({ id: `frame` });
-                let r_bg = controls.utils.SVGRect({ x: 0, y: 0, rx: 0, ry: 0, width: "100%", height: "100%", style: { stroke: "black", strokeWidth: "5px" }, id: `bg` });
-                let t_title = controls.utils.SVGText({ x: "50%", y: "50%", style: { dominantBaseline: "middle", fill: "white", textAnchor: "middle", fontSize: `20px` }, id: `text` });
-                g_comp.appendChild(r_bg);
-                g_comp.appendChild(t_title);
-                this.svg.append(g_comp);
-            }
-            postConnected() {
-                super.postConnected();
-                this.updateByValue(false, false);
-                let s = Math.min(this.clientRect.width, this.clientRect.height) / 2.5;
-                this.params.text.style.fontSize = `${s}px`;
-                conx.glo.update(this);
-            }
-            updateByValue(clicked, upd) {
-                if (clicked)
-                    this.params.bg.style.fill = this.locals.clicked;
-                else
-                    this.params.bg.style.fill = this.locals.normal;
-                if (upd)
-                    conx.glo.update(this, { bg: this.params.bg });
-            }
-            onPointer(e, type) {
-                //super.onPointer(e,type);
-                switch (type) {
-                    case "down":
-                        this.updateByValue(true, true);
-                        break;
-                    case "up":
-                        this.updateByValue(false, true);
-                        break;
-                }
-            }
-        }
-        controls.Button = Button;
-    })(controls = conx.controls || (conx.controls = {}));
-})(conx || (conx = {}));
-customElements.define("conx-button", conx.controls.Button);
 /// <reference path="svg.ts" />
 var conx;
 (function (conx) {

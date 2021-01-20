@@ -13,16 +13,16 @@
         '
   mode: single
 - id: '1610122315991'
-  alias: CueName
+  alias: Name
   description: ''
   trigger:
   - platform: state
-    entity_id: input_text.cuename
+    entity_id: input_text.name
   condition: []
   action:
-  - service: conx.cuename
+  - service: conx.name
     data:
-      name: '{{ states.input_text.cuename.state }}
+      name: '{{ states.input_text.name.state }}
 
         '
   mode: single

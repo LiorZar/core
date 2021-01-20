@@ -57,6 +57,8 @@ class FDE:
                 en = e["entity"]
                 if hasattr(en, "light"):
                     en.light(e["f"], **data)
+
+            self.db.LastService(call)
         except Exception as ex:
             print("light fail", ex)
 

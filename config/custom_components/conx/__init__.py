@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, EVENT_STATE_CHANGED
 from homeassistant.components import websocket_api
 
+
 from .const import DOMAIN, LISTEN_DOMAINS
 from .db import DB
 from .net import UDP, TCP
@@ -84,7 +85,7 @@ SCHEMA_WEBSOCKET = websocket_api.BASE_COMMAND_MESSAGE_SCHEMA.extend(
     {
         "type": vol.In(WEBSOCKET_COMMAND),
         vol.Required("cmd"): cv.string,
-        vol.Optional("module", default="db"): cv.string,
+        vol.Optional("unq"): cv.string,
         vol.Optional("data", default={}): dict,
     }
 )
@@ -136,15 +137,18 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
         self.hass.services.async_register(DOMAIN, "patch", self.dmx.patch)
-        self.hass.services.async_register(DOMAIN, "light", self.fde.light)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
         self.hass.services.async_register(DOMAIN, "reload", self.db.Reload)
+
         self.hass.services.async_register(DOMAIN, "select", self.db.Select)
-        self.hass.services.async_register(DOMAIN, "cuename", self.db.CueName)
+        self.hass.services.async_register(DOMAIN, "name", self.db.Name)
         self.hass.services.async_register(DOMAIN, "transition", self.db.Transition)
+
+        self.hass.services.async_register(DOMAIN, "light", self.fde.light)
         self.hass.services.async_register(DOMAIN, "cuestore", self.cue.Store)
         self.hass.services.async_register(DOMAIN, "cueplay", self.cue.Play)
         self.hass.services.async_register(DOMAIN, "cuedelete", self.cue.Delete)
+
         self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
         self.hass.services.async_register(DOMAIN, "kincony_send", self.kincony.send)
 
@@ -174,25 +178,28 @@ class ConX(threading.Thread):
         await async_reproduce_state(self.hass, state)
 
     def websocket_handle(self, hass: HomeAssistant, connection, msg):
-        msg["payload"] = self.websocket_process(msg["module"], msg["cmd"], msg["data"])
-        del msg["data"]
-        connection.send_message(websocket_api.result_message(msg["id"], msg))
-
-    def websocket_process(self, module: str, cmd: str, data: dict):
-        print("websocket", module, cmd, data)
-        if False == hasattr(self, module):
-            return None
-        md = getattr(self, module)
-        if False == hasattr(md, cmd):
-            return None
-        fn = getattr(md, cmd)
-        if False == callable(fn):
-            return None
-
         try:
-            return fn(**data)
+            msg["payload"] = self.websocket_process(msg["unq"], msg["cmd"], msg["data"])
+            del msg["data"]
+            connection.send_message(websocket_api.result_message(msg["id"], msg))
         except Exception as ex:
-            print("websocket error", ex)
+            print(str(ex))
+            msg["error"] = str(ex)
+            connection.send_message(websocket_api.result_message(msg["id"], msg))
+
+    def websocket_process(self, unq: str, cmd: str, data: dict):
+        print("websocket", unq, cmd, data)
+        md = self
+        ids = cmd.split(".")
+        for id in ids:
+            if False == hasattr(md, id):
+                return None
+            md = getattr(md, id)
+
+        if False == callable(md):
+            return None
+
+        return md(**data)
 
     def onTick(self, elapse: float):
         self.db.onTick(elapse)

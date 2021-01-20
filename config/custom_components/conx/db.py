@@ -1,5 +1,6 @@
 import re
 import json
+import copy
 import asyncio
 import logging
 import threading
@@ -9,7 +10,7 @@ from typing import Any, Dict
 from attr import has
 from homeassistant.util.yaml import load_yaml, save_yaml
 
-from .const import DOMAIN, EVENT_DB_RELOAD
+from .const import DOMAIN, EVENT_DB_RELOAD, EVENT_DB_CHANGE
 from .fn import gFN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
@@ -29,10 +30,11 @@ class DB:
         self.hard = False
         self.saveDuration = 0
         self.selection = ""
-        self.cueName = ""
+        self.name = ""
+        self.lastCall: Any = None
         self.transition: float = 2
         self.hass.states.async_set("conx.selection", "")
-        self.hass.states.async_set("conx.cuename", "")
+        self.hass.states.async_set("conx.name", "")
         self.hass.states.async_set("conx.transition", 2)
 
         self.Reload(None)
@@ -75,12 +77,12 @@ class DB:
         self.selection = sel
         self.hass.states.async_set("conx.selection", self.selection)
 
-    def CueName(self, call):
-        self.setCueName(call.data.get("name"))
+    def Name(self, call):
+        self.setName(call.data.get("name"))
 
-    def setCueName(self, sel: str):
-        self.cueName = sel
-        self.hass.states.async_set("conx.cuename", self.cueName)
+    def setName(self, sel: str):
+        self.name = sel
+        self.hass.states.async_set("conx.name", self.name)
 
     def Transition(self, call):
         self.setTransition(call.data.get("value"))
@@ -89,32 +91,128 @@ class DB:
         self.transition = value
         self.hass.states.async_set("conx.transition", self.transition)
 
-    def setData(self, group: str, id: str, data, hard: bool = False):
-        if None == self.data.get(group):
-            self.data[group] = {}
-        self.data[group][id] = data
-        self.dataDirty = True
-        self.hard = self.hard or hard
-
-    def getData(self, group: str, id: str = None):
+    def Create(self, path: str):
+        parent = self.data
         data = None
-        g = self.data.get(group)
-        if None == id:
-            return g
-        if None != g:
-            data = g.get(id)
+        ids = path.split("/")
+        for id in ids:
+            data = parent.get(id)
+            if None == data:
+                data = {}
+                parent[id] = data
+            parent = data
+        self.dataDirty = True
         return data
 
-    def delData(self, group: str, id: str = None, hard: bool = False):
-        g = self.data.get(group)
-        if None == id:
-            del self.data[group]
-        elif None != g:
-            del g[id]
-        else:
-            return
+    def Get(self, path: str, create: bool = False):
+        data = self.data
+        ids = path.split("/")
+        for id in ids:
+            data = data.get(id)
+            if None == data:
+                if False == create:
+                    return None
+                return self.Create(path)
+        return data
+
+    def Set(self, path: str, value, hard: bool = False) -> bool:
+        data = self.data
+        ids = path.split("/")
+        key = ids[-1]
+        ids = ids[:-1]
+        for id in ids:
+            data = data.get(id)
+            if None == data:
+                return None
+        data[key] = value
+
         self.dataDirty = True
         self.hard = self.hard or hard
+        self.hass.states.async_set("conx." + EVENT_DB_CHANGE, path)
+        return True
+
+    def Del(self, path: str, hard: bool = False):
+        data = self.data
+        ids = path.split("/")
+        key = ids[-1]
+        ids = ids[:-1]
+        for id in ids:
+            data = data.get(id)
+            if None == data:
+                return None
+        del data[key]
+
+        self.dataDirty = True
+        self.hard = self.hard or hard
+        self.hass.states.async_set("conx." + EVENT_DB_CHANGE, path)
+
+    def LastService(self, call: any):
+        if True == hasattr(call, "soft"):
+            return
+        self.lastCall = call
+
+    def SaveSK(self, path: str, type: str, idx: int):
+        data: Any = None
+        sk = {"type": type, "idx": idx}
+        if "script" == type:
+            if None == self.name or len(self.name) <= 0:
+                raise Exception("There is no name")
+            if None == self.lastCall:
+                raise Exception("There is no script")
+            data = {
+                "domain": self.lastCall.domain,
+                "service": self.lastCall.service,
+                "data": dict(self.lastCall.data),
+            }
+            data["soft"] = True
+            sk["data"] = data
+            self.Set(path + "/" + self.name, sk)
+            return "OK"
+
+        if "group" == type:
+            if None == self.name or len(self.name) <= 0:
+                raise Exception("There is no name")
+            if None == self.selection or len(self.selection) <= 0:
+                raise Exception("There is no selection")
+            data = self.selection
+            sk["data"] = data
+            self.Set(path + "/" + self.name, sk)
+            return "OK"
+
+        if "folder" == type:
+            if None == self.name or len(self.name) <= 0:
+                raise Exception("There is no name")
+
+            sk["data"] = {}
+            self.Set(path + "/" + self.name, sk)
+            return "OK"
+
+        if "delete" == type:
+            self.Del(path)
+            return "OK"
+
+        raise Exception("There is no legal softkey type")
+
+    def PlaySK(self, path: str, idx: int):
+        sk = self.Get(path)
+        if None == sk:
+            raise Exception("There is no softkey")
+
+        type: str = sk["type"]
+        data: Any = sk["data"]
+        if "script" == type:
+            self.hass.async_create_task(
+                self.hass.services.async_call(
+                    data["domain"], data["service"], data["data"]
+                )
+            )
+            return "OK"
+
+        if "group" == type:
+            self.setSelection(data)
+            return "OK"
+
+        raise Exception("There is no legal softkey type")
 
     def getEntity(self, entity_id: str) -> Entity:
         if "$" == entity_id[0]:

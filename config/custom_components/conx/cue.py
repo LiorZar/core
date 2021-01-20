@@ -26,13 +26,13 @@ class cue:
         for s in states:
             self._states[s] = states[s]
 
-        self.db.setData("cues", self.name, self._states, True)
+        self.db.Set("cues/" + self.name, self._states, True)
 
     def delEntities(self, entities: list):
         for e in entities:
             Del(self._states, e["id"])
 
-        self.db.setData("cues", self.name, self._states, True)
+        self.db.Set("cues/" + self.name, self._states, True)
 
 
 class CUE:
@@ -46,7 +46,7 @@ class CUE:
 
     def loadCues(self, event=None):
         self.cues = {}
-        cues = self.db.getData("cues") or {}
+        cues = self.db.Get("cues") or {}
         for name in cues:
             c = cue(self.db, name, cues[name])
             self.cues[name] = c
@@ -60,7 +60,7 @@ class CUE:
     def Store(self, call):
         try:
             data = call.data
-            name = data.get("name") or self.db.cueName
+            name = data.get("name") or self.db.Name
             transition = data.get("transition") or self.db.transition
             entities = self.db.GetEntities(data.get("entity_id"))
             if None == name or len(name) <= 0 or None == entities:
@@ -86,7 +86,7 @@ class CUE:
     def Play(self, call):
         try:
             data = call.data
-            name = data.get("name") or self.db.cueName
+            name = data.get("name") or self.db.Name
             if None == name:
                 return False
 
@@ -97,14 +97,14 @@ class CUE:
             for entity_id in c.states:
                 entity: Entity = self.db.getEntity(entity_id)
                 self.fde.entity_set_state(entity, c.states[entity_id])
-
+            self.db.LastService(call)
         except Exception as ex:
             print("Play fail", ex)
 
     def Delete(self, call):
         try:
             data = call.data
-            name = data.get("name") or self.db.cueName
+            name = data.get("name") or self.db.Name
             if None == name:
                 return False
 
@@ -119,7 +119,7 @@ class CUE:
                     return
 
             del self.cues[name]
-            self.db.delData("cues", name, True)
+            self.db.Del("cues", name, True)
 
         except Exception as ex:
             print("Delete fail", ex)

@@ -37,12 +37,12 @@ selection:
 
         '
   mode: single
-cuename:
-  alias: CueName
+name:
+  alias: Name
   sequence:
-  - service: conx.cuename
+  - service: conx.name
     data:
-      name: '{{ states.input_text.cuename.state }}
+      name: '{{ states.input_text.name.state }}
 
         '
   mode: single

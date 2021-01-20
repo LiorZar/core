@@ -4,6 +4,7 @@ DOMAIN = "conx"
 LISTEN_DOMAINS = ["light", "switch", "sensor", "cover"]
 
 EVENT_DB_RELOAD = "db_reload"
+EVENT_DB_CHANGE = "db_change"
 EVENT_UNIVERSE_CHANGE = "universe_change_"
 EVENT_AUTOMATA_BOX_CHANGE = "automata_box_change_"
 EVENT_KINCONY_BOX_CHANGE = "kicony_box_change_"
