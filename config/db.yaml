@@ -127,57 +127,376 @@ cues:
       state: 'on'
       atts:
         transition: 4.0
-sk:
-  all:
-    type: group
-    idx: 12
-    data: $rgb;1>10
-  odds:
-    type: group
-    idx: 13
-    data: $rgb;1>10|2
-  isin:
-    type: script
-    idx: 8
-    data:
-      domain: conx
-      service: light
-      data:
-        transition: 10
-        intensity:
-          fn: sin
-          cycle: 4
-      soft: true
-  even:
-    type: group
-    idx: 10
-    data: $rgb;2>10|2
-  effs:
-    type: folder
-    idx: 0
-    data: {}
-  grs:
-    type: folder
-    idx: 1
-    data:
-      all:
-        type: group
-        idx: 13
-        data: $rgb;1>10
-      odds:
-        type: group
-        idx: 11
-        data: $rgb;1>10|2
-  rainbow:
-    type: script
-    idx: 20
-    data:
-      domain: conx
-      service: light
-      data:
-        transition: 0
+  c1: {}
+  asd:
+    light.rgb_1:
+      state: 'off'
+      atts:
+        brightness: 0
+        hs_color:
+        - 182.264
+        - 62.353
+        rgb_color:
+        - 96
+        - 249
+        - 255
         hue:
           fn: up
           cycle: 4
-          loop: 6
-      soft: true
+          loop: 0
+          offset: 1
+          index: 0.0
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.0
+        transition: 2
+    light.rgb_2:
+      state: 'off'
+      atts:
+        brightness: 0
+        hs_color:
+        - 222.264
+        - 62.353
+        rgb_color:
+        - 96
+        - 143
+        - 255
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.1111111111111111
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.1111111111111111
+        transition: 2
+    light.rgb_3:
+      state: 'off'
+      atts:
+        brightness: 0
+        hs_color:
+        - 261.887
+        - 62.353
+        rgb_color:
+        - 154
+        - 96
+        - 255
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.2222222222222222
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.2222222222222222
+        transition: 2
+    light.rgb_4:
+      state: 'off'
+      atts:
+        brightness: 0
+        hs_color:
+        - 300.377
+        - 62.353
+        rgb_color:
+        - 255
+        - 96
+        - 254
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.3333333333333333
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.3333333333333333
+        transition: 2
+    light.rgb_5:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 340.377
+        - 62.353
+        rgb_color:
+        - 255
+        - 96
+        - 148
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.4444444444444444
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.4444444444444444
+        transition: 2
+    light.rgb_6:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 20.0
+        - 62.353
+        rgb_color:
+        - 255
+        - 149
+        - 96
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.5555555555555556
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.5555555555555556
+        transition: 2
+    light.rgb_7:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 240.0
+        - 62.353
+        rgb_color:
+        - 96
+        - 96
+        - 255
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.6666666666666666
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.6666666666666666
+        transition: 2
+    light.rgb_8:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 279.623
+        - 62.353
+        rgb_color:
+        - 201
+        - 96
+        - 255
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.7777777777777778
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.7777777777777778
+        transition: 2
+    light.rgb_9:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 320.0
+        - 62.353
+        rgb_color:
+        - 255
+        - 96
+        - 202
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 0.8888888888888888
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 0.8888888888888888
+        transition: 2
+    light.rgb_10:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 62.353
+        rgb_color:
+        - 255
+        - 96
+        - 96
+        hue:
+          fn: up
+          cycle: 4
+          loop: 0
+          offset: 1
+          index: 1.0
+        saturation:
+          fn: sin
+          base: 0.25
+          size: 0.75
+          cycle: 3
+          loop: 0
+          index: 1.0
+        transition: 2
+  aaaaa:
+    light.rgb_1:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_2:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_3:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_4:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_5:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_6:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_7:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_8:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_9:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2
+    light.rgb_10:
+      state: 'on'
+      atts:
+        brightness: 228
+        hs_color:
+        - 138.443
+        - 95.686
+        rgb_color:
+        - 11
+        - 255
+        - 86
+        transition: 2

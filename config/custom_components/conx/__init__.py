@@ -183,7 +183,7 @@ class ConX(threading.Thread):
             del msg["data"]
             connection.send_message(websocket_api.result_message(msg["id"], msg))
         except Exception as ex:
-            print(str(ex))
+            self.db.Log(str(ex))
             msg["error"] = str(ex)
             connection.send_message(websocket_api.result_message(msg["id"], msg))
 

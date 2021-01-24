@@ -58,9 +58,10 @@ class CUE:
         pass
 
     def Store(self, call):
+        name = ""
         try:
             data = call.data
-            name = data.get("name") or self.db.Name
+            name = data.get("name") or self.db.name
             transition = data.get("transition") or self.db.transition
             entities = self.db.GetEntities(data.get("entity_id"))
             if None == name or len(name) <= 0 or None == entities:
@@ -79,14 +80,16 @@ class CUE:
                 c = cue(self.db, name)
                 self.cues[name] = c
             c.setStates(states)
-
+            self.db.Log(f"cue {name} stored")
         except Exception as ex:
             print("Store fail", ex)
+            self.db.Log(f"cue {name} store fail ({str(ex)})")
 
     def Play(self, call):
+        name = ""
         try:
             data = call.data
-            name = data.get("name") or self.db.Name
+            name = data.get("name") or self.db.name
             if None == name:
                 return False
 
@@ -94,17 +97,21 @@ class CUE:
             if None == c:
                 return False
 
+            data["name"] = name
             for entity_id in c.states:
                 entity: Entity = self.db.getEntity(entity_id)
                 self.fde.entity_set_state(entity, c.states[entity_id])
             self.db.LastService(call)
+            self.db.Log(f"cue {name} playing")
         except Exception as ex:
             print("Play fail", ex)
+            self.db.Log(f"cue {name} play fail ({str(ex)})")
 
     def Delete(self, call):
+        name = ""
         try:
             data = call.data
-            name = data.get("name") or self.db.Name
+            name = data.get("name") or self.db.name
             if None == name:
                 return False
 
@@ -120,6 +127,7 @@ class CUE:
 
             del self.cues[name]
             self.db.Del("cues", name, True)
-
+            self.db.Log(f"cue {name} deleted")
         except Exception as ex:
             print("Delete fail", ex)
+            self.db.Log(f"cue {name} delete fail ({str(ex)})")

@@ -52,12 +52,6 @@ light:
     transition:
       description: Duration in seconds it takes to fade in to this state (timein)
       example: 10
-    ease:
-      description: Optional. The fade method to control Linear, Quad, Cubic, Quart, Quint, Sine, Expo, Circ, Elastic, Back, Bounce, each one have In, Out and input, in out
-    delay:
-      description: Optional. The delay time before animation starts, by default it is 0
-    loop:
-      description: Optional. how many loops to repeat. default is 1, 0 is endless loop
     intensity:
       description: Optional. supply any parameter [intensity,hue,saturation,red,green,blue] and value/effect. all values are 0.0-1.0,
                    for effect you need to supply the parameters

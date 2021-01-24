@@ -11,6 +11,9 @@ var conx;
         static get time() {
             return (new Date).getTime();
         }
+        static up(val, delimeter = "/") {
+            return val.substr(0, val.lastIndexOf(delimeter));
+        }
         static getChild(_this, id) {
             let node = _this, ids = id.split("."), i, len = ids.length;
             for (i = 0; undefined !== node && i < len; ++i) {
@@ -764,6 +767,7 @@ var conx;
         class HACard extends HTMLElement {
             constructor() {
                 super(...arguments);
+                this.phass = {};
                 this.states = [];
                 this.entities = [];
                 this.connected = false;
@@ -783,6 +787,7 @@ var conx;
                 return true;
             }
             set hass(hass) {
+                this.phass = this._hass;
                 this._hass = hass;
                 for (let i = 0; i < this.entities.length; ++i)
                     this.states[i] = hass.states[this.entities[i]];
@@ -808,19 +813,17 @@ var conx;
                     this.html = JSON.parse(this.config.html);
                 this.entities = conx.glo.ParseSelection(config.entity);
                 this.states.length = this.entities.length;
+                if (undefined !== this.root)
+                    this.postCreate();
             }
             get state() {
                 if (this.states.length > 0)
                     return this.states[0];
                 return undefined;
             }
-            checkStateTime(state, delta) {
-                if (!state || !state.last_changed)
-                    return false;
-                let changed = Date.parse(state.last_changed);
-                if (conx.glo.time - changed > delta)
-                    return false;
-                return true;
+            hasStateChanged(entity) {
+                var _a, _b, _c, _d;
+                return ((_b = (_a = this.phass) === null || _a === void 0 ? void 0 : _a.states) === null || _b === void 0 ? void 0 : _b[entity]) !== ((_d = (_c = this._hass) === null || _c === void 0 ? void 0 : _c.states) === null || _d === void 0 ? void 0 : _d[entity]);
             }
             Get(unq, path, create = false) {
                 this.conx(unq, "db.Get", { path: path, create: create });
@@ -1168,13 +1171,13 @@ var conx;
                 return true;
             }
             checkSelection(state, checkTime = true) {
-                if (checkTime && false == this.checkStateTime(state, 1000))
+                if (checkTime && false == this.hasStateChanged(state.entity_id))
                     return;
                 conx.glo.trace(state);
                 this.root.sel.value = state.state;
             }
             checkName(state, checkTime = true) {
-                if (checkTime && false == this.checkStateTime(state, 1000))
+                if (checkTime && false == this.hasStateChanged(state.entity_id))
                     return;
                 conx.glo.trace(state);
                 this.root.name.value = state.state;
@@ -1214,120 +1217,6 @@ conx.glo.wnd.customCards.push({
     type: 'conx-numpad',
     name: 'conx-numpad',
     description: 'Editors numpad',
-});
-/// <reference path="conx/cards/title.ts" />
-/// <reference path="conx/cards/dimmer.ts" />
-/// <reference path="conx/cards/swatch.ts" />
-/// <reference path="conx/cards/light-rgb.ts" />
-/// <reference path="conx/cards/light-hsv.ts" />
-/// <reference path="conx/cards/numpad.ts" />
-/// <reference path="../controls/slider.ts" />
-/// <reference path="HACard.ts" />
-var conx;
-(function (conx) {
-    var cards;
-    (function (cards) {
-        class Light_CLR extends cards.HACard {
-            create() {
-                super.create();
-                let local = window.location.origin;
-                this.innerHTML = `
-            <div id="root">
-                <conx-slider id="intensity" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
-                <conx-slider id="saturation" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
-                <conx-slider id="hue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"bg":{"style":{"fill":"none"}}, "image":{"href":"${local}/local/images/gradH.png", "visibility":"visible"}}'></conx-slider>
-                <conx-slider id="red" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
-                <conx-slider id="green" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
-                <conx-slider id="blue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#0000FF"}}}'></conx-slider>
-            </div>
-            `;
-                this.root = conx.glo.findChild(this, "root");
-                this.root.intensity = conx.glo.findChild(this, "intensity");
-                this.root.intensity.onChange = this.onChange.bind(this);
-                if (false !== this.config.showTitle)
-                    this.root.intensity.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
-                else
-                    this.root.intensity.locals.title = "";
-                this.root = conx.glo.findChild(this, "root");
-                this.root.hue = conx.glo.findChild(this, "hue");
-                this.root.hue.onChange = this.onChange.bind(this);
-                this.root.hue.locals.title = "";
-                this.root.saturation = conx.glo.findChild(this, "saturation");
-                this.root.saturation.onChange = this.onChange.bind(this);
-                this.root.saturation.locals.title = "";
-                this.root.red = conx.glo.findChild(this, "red");
-                this.root.red.onChange = this.onChange.bind(this);
-                this.root.red.locals.title = "";
-                this.root.green = conx.glo.findChild(this, "green");
-                this.root.green.onChange = this.onChange.bind(this);
-                this.root.green.locals.title = "";
-                this.root.blue = conx.glo.findChild(this, "blue");
-                this.root.blue.onChange = this.onChange.bind(this);
-                this.root.blue.locals.title = "";
-            }
-            refreshColors(hsv) {
-                if (hsv) {
-                    let rgb = conx.glo.HSVtoRGB(this.root.hue._val, this.root.saturation._val, this.root.intensity._val);
-                    this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
-                    this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.rgbToHex(rgb[0], rgb[1], rgb[2]);
-                    this.root.red._val = rgb[0];
-                    this.root.green._val = rgb[1];
-                    this.root.blue._val = rgb[2];
-                    this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
-                    this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
-                    this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
-                    this.root.red.updateByValue();
-                    this.root.green.updateByValue();
-                    this.root.blue.updateByValue();
-                }
-                else {
-                    let hsv = conx.glo.RGBtoHSV(this.root.red._val, this.root.green._val, this.root.blue._val);
-                    this.root.intensity._val = hsv[2];
-                    this.root.hue._val = hsv[0];
-                    this.root.saturation._val = hsv[1];
-                    this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
-                    this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
-                    this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
-                    this.root.intensity.updateByValue();
-                    this.root.hue.updateByValue();
-                    this.root.saturation.updateByValue();
-                }
-            }
-            updateState() {
-                if (false === super.updateState() || !this.state)
-                    return false;
-                this.root.intensity._val = this.state.attributes.brightness / 255.0;
-                this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
-                this.root.saturation._val = this.state.attributes.hs_color[1] / 100.0;
-                this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
-                this.root.green._val = this.state.attributes.rgb_color[1] / 255.0;
-                this.root.blue._val = this.state.attributes.rgb_color[2] / 255.0;
-                this.refreshColors(true);
-                this.root.intensity.updateByValue();
-                this.root.hue.updateByValue();
-                this.root.saturation.updateByValue();
-                this.root.red.updateByValue();
-                this.root.green.updateByValue();
-                this.root.blue.updateByValue();
-                return true;
-            }
-            onChange(id, value, pvalue) {
-                this.updateTS = conx.glo.time;
-                let data = { entity_id: this.entities };
-                data[id] = value;
-                this._hass.callService("conx", "light", data);
-                this.refreshColors("intensity" == id || "hue" == id || "saturation" == id);
-            }
-        }
-        cards.Light_CLR = Light_CLR;
-    })(cards = conx.cards || (conx.cards = {}));
-})(conx || (conx = {}));
-customElements.define('conx-light-clr', conx.cards.Light_CLR);
-conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
-conx.glo.wnd.customCards.push({
-    type: 'conx-light-clr',
-    name: 'conx-light-clr',
-    description: 'Control a single light with hsv and rgb.',
 });
 /// <reference path="../glo.ts" />
 /// <reference path="utils.ts" />
@@ -1444,13 +1333,13 @@ var conx;
             updateState() {
                 if (!this.root || !this.connected)
                     return false;
+                if (false == this.hasStateChanged("conx.db_change"))
+                    return false;
                 let state = this._hass.states["conx.db_change"];
                 if (!state)
                     return false;
-                let path = state.state;
-                if (this.getPath() != path && this.getPath() != path.substr(0, path.lastIndexOf("/")))
-                    return false;
-                if (false == this.checkStateTime(state, 1000))
+                let path = conx.glo.up(state.state);
+                if (this.getPath() != path && this.getPath() != conx.glo.up(path))
                     return false;
                 this.readPath();
                 return true;
@@ -1575,6 +1464,189 @@ conx.glo.wnd.customCards.push({
     type: 'conx-softkeys',
     name: 'conx-softkeys',
     description: 'Softkeys',
+});
+/// <reference path="../controls/button.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards) {
+        class Log extends cards.HACard {
+            constructor() {
+                super(...arguments);
+                this.autoScroll = true;
+            }
+            create() {
+                super.create();
+                let html = ``;
+                html += `<button is="conx-button" id="autoScroll" class="cmd" style="width:100%; height:32px;"><ha-icon icon="mdi:arrow-vertical-lock"></ha-icon></button>`;
+                html += `<button is="conx-button" id="clear" class="cmd" style="width:100%; height:32px; grid-column:5/6"><ha-icon icon="mdi:delete-empty-outline"></ha-icon></button>`;
+                html += `<div id="log" class="log" style="width:100%; height:400px; overflow: scroll; grid-column:1/6">lala</div>`;
+                this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
+                this.root = conx.glo.findChild(this, "root");
+                let bt;
+                bt = conx.glo.findChild(this.root, 'autoScroll');
+                this.root['autoScroll'] = bt;
+                bt.onclick = this.onCommand.bind(this, 'autoScroll');
+                bt = conx.glo.findChild(this.root, 'clear');
+                this.root['clear'] = bt;
+                bt.onclick = this.onCommand.bind(this, 'clear');
+                this.root['log'] = conx.glo.findChild(this.root, 'log');
+            }
+            updateState() {
+                if (!this.root || !this.connected)
+                    return false;
+                if (false == this.hasStateChanged("conx.log"))
+                    return false;
+                let state = this._hass.states["conx.log"];
+                if (!state)
+                    return false;
+                this.root.log.innerHTML += state.state + "<br>";
+                if (this.root.autoScroll.state == "reg")
+                    this.root.log.scrollTop = this.root.log.scrollHeight;
+                return true;
+            }
+            onCommand(name) {
+                conx.glo.trace("cmd", name);
+                let bt;
+                switch (name) {
+                    case "autoScroll":
+                        if (this.root.autoScroll.state == "reg")
+                            this.root.autoScroll.state = "sel";
+                        else
+                            this.root.autoScroll.state = "reg";
+                        break;
+                    case "clear":
+                        this.root.log.innerHTML = "";
+                        break;
+                }
+            }
+        }
+        cards.Log = Log;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-log', conx.cards.Log);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-log',
+    name: 'conx-log',
+    description: 'Logs messages',
+});
+/// <reference path="conx/cards/title.ts" />
+/// <reference path="conx/cards/dimmer.ts" />
+/// <reference path="conx/cards/swatch.ts" />
+/// <reference path="conx/cards/light-rgb.ts" />
+/// <reference path="conx/cards/light-hsv.ts" />
+/// <reference path="conx/cards/numpad.ts" />
+/// <reference path="conx/cards/softkeys.ts" />
+/// <reference path="conx/cards/log.ts" />
+/// <reference path="../controls/slider.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards) {
+        class Light_CLR extends cards.HACard {
+            create() {
+                super.create();
+                let local = window.location.origin;
+                this.innerHTML = `
+            <div id="root">
+                <conx-slider id="intensity" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
+                <conx-slider id="saturation" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
+                <conx-slider id="hue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"bg":{"style":{"fill":"none"}}, "image":{"href":"${local}/local/images/gradH.png", "visibility":"visible"}}'></conx-slider>
+                <conx-slider id="red" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#FF0000"}}}'></conx-slider>
+                <conx-slider id="green" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#00FF00"}}}'></conx-slider>
+                <conx-slider id="blue" width="100%" height="40px" locals='{"align":0, "thumb":1}' params='{"progress":{"style":{"fill":"#0000FF"}}}'></conx-slider>
+            </div>
+            `;
+                this.root = conx.glo.findChild(this, "root");
+                this.root.intensity = conx.glo.findChild(this, "intensity");
+                this.root.intensity.onChange = this.onChange.bind(this);
+                if (false !== this.config.showTitle)
+                    this.root.intensity.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
+                else
+                    this.root.intensity.locals.title = "";
+                this.root = conx.glo.findChild(this, "root");
+                this.root.hue = conx.glo.findChild(this, "hue");
+                this.root.hue.onChange = this.onChange.bind(this);
+                this.root.hue.locals.title = "";
+                this.root.saturation = conx.glo.findChild(this, "saturation");
+                this.root.saturation.onChange = this.onChange.bind(this);
+                this.root.saturation.locals.title = "";
+                this.root.red = conx.glo.findChild(this, "red");
+                this.root.red.onChange = this.onChange.bind(this);
+                this.root.red.locals.title = "";
+                this.root.green = conx.glo.findChild(this, "green");
+                this.root.green.onChange = this.onChange.bind(this);
+                this.root.green.locals.title = "";
+                this.root.blue = conx.glo.findChild(this, "blue");
+                this.root.blue.onChange = this.onChange.bind(this);
+                this.root.blue.locals.title = "";
+            }
+            refreshColors(hsv) {
+                if (hsv) {
+                    let rgb = conx.glo.HSVtoRGB(this.root.hue._val, this.root.saturation._val, this.root.intensity._val);
+                    this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
+                    this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.rgbToHex(rgb[0], rgb[1], rgb[2]);
+                    this.root.red._val = rgb[0];
+                    this.root.green._val = rgb[1];
+                    this.root.blue._val = rgb[2];
+                    this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
+                    this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
+                    this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
+                    this.root.red.updateByValue();
+                    this.root.green.updateByValue();
+                    this.root.blue.updateByValue();
+                }
+                else {
+                    let hsv = conx.glo.RGBtoHSV(this.root.red._val, this.root.green._val, this.root.blue._val);
+                    this.root.intensity._val = hsv[2];
+                    this.root.hue._val = hsv[0];
+                    this.root.saturation._val = hsv[1];
+                    this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
+                    this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
+                    this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
+                    this.root.intensity.updateByValue();
+                    this.root.hue.updateByValue();
+                    this.root.saturation.updateByValue();
+                }
+            }
+            updateState() {
+                if (false === super.updateState() || !this.state)
+                    return false;
+                this.root.intensity._val = this.state.attributes.brightness / 255.0;
+                this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
+                this.root.saturation._val = this.state.attributes.hs_color[1] / 100.0;
+                this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
+                this.root.green._val = this.state.attributes.rgb_color[1] / 255.0;
+                this.root.blue._val = this.state.attributes.rgb_color[2] / 255.0;
+                this.refreshColors(true);
+                this.root.intensity.updateByValue();
+                this.root.hue.updateByValue();
+                this.root.saturation.updateByValue();
+                this.root.red.updateByValue();
+                this.root.green.updateByValue();
+                this.root.blue.updateByValue();
+                return true;
+            }
+            onChange(id, value, pvalue) {
+                this.updateTS = conx.glo.time;
+                let data = { entity_id: this.entities };
+                data[id] = value;
+                this._hass.callService("conx", "light", data);
+                this.refreshColors("intensity" == id || "hue" == id || "saturation" == id);
+            }
+        }
+        cards.Light_CLR = Light_CLR;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-light-clr', conx.cards.Light_CLR);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-light-clr',
+    name: 'conx-light-clr',
+    description: 'Control a single light with hsv and rgb.',
 });
 /// <reference path="svg.ts" />
 var conx;

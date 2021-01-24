@@ -4,7 +4,7 @@ import copy
 import asyncio
 import logging
 import threading
-
+from datetime import datetime
 from typing import Any, Dict
 
 from attr import has
@@ -22,6 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class DB:
     def __init__(self, hass: HomeAssistant, config: dict):
+        self.counter: int = 0
         self.hass = hass
         self.initStates = {}
         self.platforms: Dict[str, EntityPlatform] = {}
@@ -45,6 +46,8 @@ class DB:
             gFN.Parse(
                 load_yaml(self.hass.config.path("custom_components/conx/fn.yaml"))
             )
+            self.Get("cues", True)
+            self.Get("sk", True)
             self.hass.bus.async_fire(EVENT_DB_RELOAD)
         except Exception as e:
             print(e)
@@ -56,7 +59,7 @@ class DB:
 
     def onTick(self, elapse: float):
         self.saveDuration += elapse
-        if not self.hard and (not self.dataDirty or self.saveDuration < 60):
+        if not self.hard and (not self.dataDirty or self.saveDuration < 10):
             return False
         self.hard = False
         self.dataDirty = False
@@ -115,6 +118,14 @@ class DB:
                 return self.Create(path)
         return data
 
+    @property
+    def time(self) -> str:
+        now = datetime.now()
+        return now.strftime("%H:%M:%S.%f")[:-3]
+
+    def Log(self, data: str, event: str = "log"):
+        self.hass.states.async_set("conx." + event, data + "/" + self.time)
+
     def Set(self, path: str, value, hard: bool = False) -> bool:
         data = self.data
         ids = path.split("/")
@@ -128,7 +139,7 @@ class DB:
 
         self.dataDirty = True
         self.hard = self.hard or hard
-        self.hass.states.async_set("conx." + EVENT_DB_CHANGE, path)
+        self.Log(path, EVENT_DB_CHANGE)
         return True
 
     def Del(self, path: str, hard: bool = False):
@@ -144,7 +155,7 @@ class DB:
 
         self.dataDirty = True
         self.hard = self.hard or hard
-        self.hass.states.async_set("conx." + EVENT_DB_CHANGE, path)
+        self.Log(path, EVENT_DB_CHANGE)
 
     def LastService(self, call: any):
         if True == hasattr(call, "soft"):
@@ -167,6 +178,7 @@ class DB:
             data["soft"] = True
             sk["data"] = data
             self.Set(path + "/" + self.name, sk)
+            self.Log(f"soft key {self.name} saved ({type})")
             return "OK"
 
         if "group" == type:
@@ -177,6 +189,7 @@ class DB:
             data = self.selection
             sk["data"] = data
             self.Set(path + "/" + self.name, sk)
+            self.Log(f"soft key {self.name} saved ({type})")
             return "OK"
 
         if "folder" == type:
@@ -185,10 +198,12 @@ class DB:
 
             sk["data"] = {}
             self.Set(path + "/" + self.name, sk)
+            self.Log(f"soft key {self.name} saved ({type})")
             return "OK"
 
         if "delete" == type:
             self.Del(path)
+            self.Log(f"soft key {self.name} deleted ({type})")
             return "OK"
 
         raise Exception("There is no legal softkey type")
