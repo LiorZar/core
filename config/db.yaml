@@ -500,3 +500,22 @@ cues:
         - 255
         - 86
         transition: 2
+sk:
+  x:
+    type: script
+    idx: 4
+    data:
+      domain: conx
+      service: cueplay
+      data:
+        name: x
+        soft: true
+  y:
+    type: script
+    idx: 9
+    data:
+      domain: conx
+      service: cueplay
+      data:
+        name: y
+        soft: true

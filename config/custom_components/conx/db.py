@@ -157,10 +157,10 @@ class DB:
         self.hard = self.hard or hard
         self.Log(path, EVENT_DB_CHANGE)
 
-    def LastService(self, call: any):
-        if True == hasattr(call, "soft"):
+    def LastService(self, domain: str, service: str, data: any):
+        if True == data.get("soft"):
             return
-        self.lastCall = call
+        self.lastCall = {"domain": domain, "service": service, "data": data}
 
     def SaveSK(self, path: str, type: str, idx: int):
         data: Any = None
@@ -170,12 +170,8 @@ class DB:
                 raise Exception("There is no name")
             if None == self.lastCall:
                 raise Exception("There is no script")
-            data = {
-                "domain": self.lastCall.domain,
-                "service": self.lastCall.service,
-                "data": dict(self.lastCall.data),
-            }
-            data["soft"] = True
+            data = copy.deepcopy(self.lastCall)
+            data["data"]["soft"] = True
             sk["data"] = data
             self.Set(path + "/" + self.name, sk)
             self.Log(f"soft key {self.name} saved ({type})")

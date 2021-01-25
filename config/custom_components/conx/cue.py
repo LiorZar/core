@@ -88,7 +88,7 @@ class CUE:
     def Play(self, call):
         name = ""
         try:
-            data = call.data
+            data = dict(call.data)
             name = data.get("name") or self.db.name
             if None == name:
                 return False
@@ -101,7 +101,7 @@ class CUE:
             for entity_id in c.states:
                 entity: Entity = self.db.getEntity(entity_id)
                 self.fde.entity_set_state(entity, c.states[entity_id])
-            self.db.LastService(call)
+            self.db.LastService(call.domain, call.service, data)
             self.db.Log(f"cue {name} playing")
         except Exception as ex:
             print("Play fail", ex)
