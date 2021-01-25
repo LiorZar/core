@@ -1490,6 +1490,114 @@ var conx;
 (function (conx) {
     var cards;
     (function (cards) {
+        class Live extends cards.HACard {
+            constructor() {
+                super(...arguments);
+                this.selection = [];
+                this.skdata = {};
+                this.skbuttons = [];
+                this.buttonCount = 25;
+            }
+            create() {
+                var _a;
+                super.create();
+                this.buttonCount = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.count) || this.buttonCount;
+                let html = ``;
+                for (let i = 0; i < this.buttonCount; ++i)
+                    html += `<button id="ic${i}" class="bn" style="background-color: #000000; width:100%; height:64px;"><label class"txt" id="tx" style="color: #FFFFFF">x</label></button>`;
+                this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
+                this.root = conx.glo.findChild(this, "root");
+                let ic;
+                for (let i = 0; i < this.buttonCount; ++i) {
+                    ic = conx.glo.findChild(this.root, `ic${i}`);
+                    ic["tx"] = conx.glo.findChild(ic, "tx");
+                    this.root[`ic${i}`] = ic;
+                }
+                this.loadSelection();
+            }
+            loadSelection() {
+                this.sel = this._hass.states["conx.selection"].state;
+                this.conx("parse", "db.GetEntitiesNames", { selection: this.sel });
+            }
+            updateState() {
+                if (!this.root || !this.connected)
+                    return false;
+                if (this.hasStateChanged("conx.selection")) {
+                    this.loadSelection();
+                    return;
+                }
+                let id, i, len = this.selection.length;
+                for (i = 0; i < len && i < this.buttonCount; ++i) {
+                    id = this.selection[i];
+                    if (false == this.hasStateChanged(id))
+                        continue;
+                    this.refreshButton(i);
+                }
+                return true;
+            }
+            refreshSelection() {
+                let ic, i, len = this.selection.length;
+                for (i = 0; i < len && i < this.buttonCount; ++i) {
+                    ic = this.root[`ic${i}`];
+                    if (!ic)
+                        continue;
+                    ic.style.visibility = "visible";
+                    this.refreshButton(i, true);
+                }
+                for (; i < this.buttonCount; ++i) {
+                    ic = this.root[`ic${i}`];
+                    if (!ic)
+                        continue;
+                    ic.style.visibility = "hidden";
+                }
+            }
+            refreshButton(i, name = false) {
+                var _a;
+                let ic = this.root[`ic${i}`];
+                let id = this.selection[i];
+                if (!ic || !id)
+                    return;
+                let state = this._hass.states[id];
+                if (!state)
+                    return;
+                let A = state.attributes.brightness / 255.0;
+                let R = state.attributes.rgb_color[0] / 255.0;
+                let G = state.attributes.rgb_color[1] / 255.0;
+                let B = state.attributes.rgb_color[2] / 255.0;
+                if (name)
+                    ic.tx.textContent = (_a = state === null || state === void 0 ? void 0 : state.attributes) === null || _a === void 0 ? void 0 : _a.friendly_name;
+                ic.tx.style.color = A > 0.5 ? "#000000" : "#FFFFFF";
+                ic.style.backgroundColor = conx.glo.RGBAtoHEX(R, G, B, A);
+            }
+            onConxMsg(cmd, unq, payload, success) {
+                conx.glo.trace(cmd, unq, payload, success);
+                switch (unq) {
+                    case "parse":
+                        if (false === success)
+                            this.selection = [];
+                        else
+                            this.selection = payload;
+                        this.refreshSelection();
+                        break;
+                }
+            }
+        }
+        cards.Live = Live;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-live', conx.cards.Live);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-live',
+    name: 'conx-live',
+    description: 'Live',
+});
+/// <reference path="../controls/button.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards) {
         class Log extends cards.HACard {
             constructor() {
                 super(...arguments);
@@ -1558,6 +1666,7 @@ conx.glo.wnd.customCards.push({
 /// <reference path="conx/cards/light-hsv.ts" />
 /// <reference path="conx/cards/numpad.ts" />
 /// <reference path="conx/cards/softkeys.ts" />
+/// <reference path="conx/cards/live.ts" />
 /// <reference path="conx/cards/log.ts" />
 /// <reference path="../controls/slider.ts" />
 /// <reference path="HACard.ts" />

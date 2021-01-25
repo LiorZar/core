@@ -324,3 +324,10 @@ class DB:
             )
             idx = idx + 1
         return entities
+
+    def GetEntitiesNames(self, selection: str) -> list:
+        entities = self.GetEntities(selection)
+        names = []
+        for e in entities:
+            names.append(e.get("id"))
+        return names
