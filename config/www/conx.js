@@ -1125,9 +1125,9 @@ var conx;
                 this.names = [
                     "$fix", "$rgb", "$sw", "C", "CE",
                     "7", "8", "9", "+", "Store",
-                    "4", "5", "6", "-", "Delete",
-                    "1", "2", "3", "|", "Name",
-                    ">", "0", ",", ";", "Enter"
+                    "4", "5", "6", "-", "Play",
+                    "1", "2", "3", "|", "Delete",
+                    ">", "0", ",", ";", ""
                 ];
             }
             create() {
@@ -1143,22 +1143,28 @@ var conx;
                 html += `<label>selection:</label>`;
                 html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
                 html += `<label>name:</label>`;
-                html += `<input type="text" id="name" style="grid-column: 2/6;">`;
+                html += `<input type="text" id="name" style="grid-column: 2/5;">`;
+                html += `<input type="number" id="tran" style1="grid-column: 4/6;">`;
                 for (let i = 0; i < 25; ++i)
                     html += `<button id="bn${i}" class="bn" style="width:100%; height:64px; background-color:#CCCCCC;"></button>`;
                 this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let bt;
                 this.root.sel = conx.glo.findChild(this.root, "selection");
+                this.root.sel.onchange = this.onChange.bind(this, "sel");
                 this.root.name = conx.glo.findChild(this.root, "name");
+                this.root.name.onchange = this.onChange.bind(this, "name");
+                this.root.tran = conx.glo.findChild(this.root, "tran");
+                this.root.tran.onchange = this.onChange.bind(this, "tran");
                 for (let i = 0; i < 25; ++i) {
                     bt = conx.glo.findChild(this.root, `bn${i}`);
                     this.root[`bn${i}`] = bt;
                     bt.textContent = this.names[i];
                     bt.onclick = this.onButton.bind(this, i, this.names[i]);
                 }
-                this.checkSelection(this._hass.states["conx.selection"], false);
-                this.checkName(this._hass.states["conx.name"], false);
+                this.checkState("conx.selection", this.root.sel, false);
+                this.checkState("conx.name", this.root.name, false);
+                this.checkState("conx.transition", this.root.tran, false);
             }
             postCreate() {
                 super.postCreate();
@@ -1166,27 +1172,37 @@ var conx;
             updateState() {
                 if (!this.root || !this.connected)
                     return false;
-                this.checkSelection(this._hass.states["conx.selection"]);
-                this.checkName(this._hass.states["conx.name"]);
+                this.checkState("conx.selection", this.root.sel);
+                this.checkState("conx.name", this.root.name);
+                this.checkState("conx.transition", this.root.tran);
                 return true;
             }
-            checkSelection(state, checkTime = true) {
-                if (checkTime && false == this.hasStateChanged(state.entity_id))
+            checkState(entity, elm, checkTime = true) {
+                if (checkTime && false == this.hasStateChanged(entity))
                     return;
-                conx.glo.trace(state);
-                this.root.sel.value = state.state;
+                elm.value = this._hass.states[entity].state;
             }
-            checkName(state, checkTime = true) {
-                if (checkTime && false == this.hasStateChanged(state.entity_id))
-                    return;
-                conx.glo.trace(state);
-                this.root.name.value = state.state;
+            onChange(type) {
+                switch (type) {
+                    case "sel":
+                        this._hass.callService("conx", "select", { id: this.root.sel.value });
+                        break;
+                    case "name":
+                        this._hass.callService("conx", "name", { name: this.root.name.value });
+                        break;
+                    case "tran":
+                        this._hass.callService("conx", "transition", { value: this.root.tran.value });
+                        break;
+                }
             }
             onButton(i, name) {
                 let sel = this.root.sel.value;
                 switch (name) {
                     case 'Store':
                         this._hass.callService("conx", "cuestore", {});
+                        break;
+                    case 'Play':
+                        this._hass.callService("conx", "cueplay", {});
                         break;
                     case 'Delete':
                         this._hass.callService("conx", "cuedelete", {});
@@ -1199,12 +1215,15 @@ var conx;
                         break;
                     case 'C':
                         this.root.sel.value = sel.substr(0, sel.length - 1);
+                        this.onChange("sel");
                         break;
                     case 'CE':
                         this.root.sel.value = "";
+                        this.onChange("sel");
                         break;
                     default:
                         this.root.sel.value = sel + name;
+                        this.onChange("sel");
                 }
             }
         }
@@ -1481,7 +1500,7 @@ var conx;
                 let html = ``;
                 html += `<button is="conx-button" id="autoScroll" class="cmd" style="width:100%; height:32px;"><ha-icon icon="mdi:arrow-vertical-lock"></ha-icon></button>`;
                 html += `<button is="conx-button" id="clear" class="cmd" style="width:100%; height:32px; grid-column:5/6"><ha-icon icon="mdi:delete-empty-outline"></ha-icon></button>`;
-                html += `<div id="log" class="log" style="width:100%; height:400px; overflow: scroll; grid-column:1/6">lala</div>`;
+                html += `<div id="log" class="log" style="width:100%; height:400px; overflow: scroll; grid-column:1/6"></div>`;
                 this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let bt;
