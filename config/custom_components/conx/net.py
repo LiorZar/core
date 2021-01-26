@@ -19,7 +19,11 @@ _LOGGER = logging.getLogger(__name__)
 
 class Connection:
     def __init__(
-        self, id: str, addr, onNetworkMessage: Callable[[str, bytearray], None]
+        self,
+        id: str,
+        addr,
+        onNetworkMessage: Callable[[str, bytearray], None],
+        timeout: float = 10,
     ):
         self.id = id
         self.addr = addr
@@ -27,6 +31,8 @@ class Connection:
         self.rbuff: bytearray = bytearray(b"")
         self.wbuff: bytearray = bytearray(b"")
         self.sock: socket = None
+        self.timeout = timeout
+        self.ts = timer()
         print("create connection", id, addr)
 
     def clear(self):
@@ -107,6 +113,7 @@ class TCP(threading.Thread):
                         if s != None:
                             s.setblocking(0)
                             c.sock = s
+                            c.ts = timer()
                             self._onConnected(c)
                     except:
                         pass
@@ -145,6 +152,13 @@ class TCP(threading.Thread):
                 es = timer() - ts
                 if es < 0.1:
                     time.sleep(0.1 - es)
+
+                ts = timer()
+                for cid in connections:
+                    c: Connection = connections[cid]
+                    if None != c.sock and ts - c.ts > c.timeout:
+                        c.sock.close()
+                        c.sock = None
 
             except Exception as ex:
                 _LOGGER.error("Conx Responder socket exception occurred: %s", ex)
@@ -190,6 +204,7 @@ class TCP(threading.Thread):
             self._onExp(s)
             return
 
+        c.ts = timer()
         self.callNetworkMessage(c, "read")
 
     def _onWrite(self, s: socket):
