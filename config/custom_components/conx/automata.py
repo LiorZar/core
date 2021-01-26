@@ -194,6 +194,7 @@ class AutomataLight(LightEntity, RestoreEntity):
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
         self._fixture: str = config.get("fixture")
+        self._invert: bool = config.get("invert")
 
         self._on = None
         self._features = 0
@@ -231,13 +232,19 @@ class AutomataLight(LightEntity, RestoreEntity):
     async def async_turn_on(self, **kwargs):
         self._on = True
         if self._box is not None:
-            self._box.SendON(self._channel)
+            if False == self._invert:
+                self._box.SendON(self._channel)
+            else:
+                self._box.SendOFF(self._channel)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
         if self._box is not None:
-            self._box.SendOFF(self._channel)
+            if False == self._invert:
+                self._box.SendOFF(self._channel)
+            else:
+                self._box.SendON(self._channel)
         self.async_write_ha_state()
 
     def async_update(self):

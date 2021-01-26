@@ -1,5 +1,6 @@
 import copy
 import logging
+from typing import Optional
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant
@@ -50,6 +51,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                     ),
                     vol.Required(CONF_NAME): cv.string,
                     vol.Optional("fixture"): cv.string,
+                    vol.Optional("invert", default=False): cv.boolean,
                 }
             ],
         ),
