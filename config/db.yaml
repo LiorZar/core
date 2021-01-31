@@ -1,5 +1,55 @@
 cues:
-  x:
+  BO:
+    light.dim_1:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_2:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_3:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_4:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_5:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_6:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_7:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_8:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_9:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
+    light.dim_10:
+      state: 'off'
+      atts:
+        brightness: 0
+        transition: 2
     light.rgb_1:
       state: 'off'
       atts:
@@ -17,11 +67,11 @@ cues:
           cycle: 2
           loop: 2
           index: 0.0
-        transition: 4.0
+        transition: 2
     light.rgb_2:
-      state: 'on'
+      state: 'off'
       atts:
-        brightness: 255
+        brightness: 0
         hs_color:
         - 0.0
         - 0.0
@@ -35,11 +85,11 @@ cues:
           cycle: 2
           loop: 2
           index: 0.3333333333333333
-        transition: 4.0
+        transition: 2
     light.rgb_3:
-      state: 'on'
+      state: 'off'
       atts:
-        brightness: 255
+        brightness: 0
         hs_color:
         - 0.0
         - 0.0
@@ -53,7 +103,7 @@ cues:
           cycle: 2
           loop: 2
           index: 0.6666666666666666
-        transition: 4.0
+        transition: 2
     light.rgb_4:
       state: 'off'
       atts:
@@ -71,7 +121,7 @@ cues:
           cycle: 2
           loop: 2
           index: 1.0
-        transition: 4.0
+        transition: 2
     light.rgb_5:
       state: 'off'
       atts:
@@ -83,367 +133,11 @@ cues:
         - 255
         - 0
         - 0
-        transition: 4.0
-    switch.sw1:
-      state: 'off'
-      atts:
-        transition: 4.0
-    switch.sw2:
-      state: 'off'
-      atts:
-        transition: 4.0
-    switch.sw3:
-      state: 'off'
-      atts:
-        transition: 4.0
-  y:
-    light.rgb_1:
-      state: 'on'
-      atts:
-        brightness: 255
-        hs_color:
-        - 0.0
-        - 0.0
-        rgb_color:
-        - 255
-        - 255
-        - 255
-        hue:
-          fn: sin
-          offset: 1
-          cycle: 2
-          loop: 2
-          index: 0.0
-        transition: 4.0
-    switch.sw1:
-      state: 'on'
-      atts:
-        transition: 4.0
-    switch.sw2:
-      state: 'on'
-      atts:
-        transition: 4.0
-    switch.sw3:
-      state: 'on'
-      atts:
-        transition: 4.0
-  c1: {}
-  asd:
-    light.rgb_1:
-      state: 'off'
-      atts:
-        brightness: 0
-        hs_color:
-        - 182.264
-        - 62.353
-        rgb_color:
-        - 96
-        - 249
-        - 255
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.0
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.0
-        transition: 2
-    light.rgb_2:
-      state: 'off'
-      atts:
-        brightness: 0
-        hs_color:
-        - 222.264
-        - 62.353
-        rgb_color:
-        - 96
-        - 143
-        - 255
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.1111111111111111
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.1111111111111111
-        transition: 2
-    light.rgb_3:
-      state: 'off'
-      atts:
-        brightness: 0
-        hs_color:
-        - 261.887
-        - 62.353
-        rgb_color:
-        - 154
-        - 96
-        - 255
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.2222222222222222
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.2222222222222222
-        transition: 2
-    light.rgb_4:
-      state: 'off'
-      atts:
-        brightness: 0
-        hs_color:
-        - 300.377
-        - 62.353
-        rgb_color:
-        - 255
-        - 96
-        - 254
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.3333333333333333
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.3333333333333333
-        transition: 2
-    light.rgb_5:
-      state: 'on'
-      atts:
-        brightness: 255
-        hs_color:
-        - 340.377
-        - 62.353
-        rgb_color:
-        - 255
-        - 96
-        - 148
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.4444444444444444
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.4444444444444444
         transition: 2
     light.rgb_6:
-      state: 'on'
+      state: 'off'
       atts:
-        brightness: 255
-        hs_color:
-        - 20.0
-        - 62.353
-        rgb_color:
-        - 255
-        - 149
-        - 96
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.5555555555555556
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.5555555555555556
-        transition: 2
-    light.rgb_7:
-      state: 'on'
-      atts:
-        brightness: 255
-        hs_color:
-        - 240.0
-        - 62.353
-        rgb_color:
-        - 96
-        - 96
-        - 255
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.6666666666666666
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.6666666666666666
-        transition: 2
-    light.rgb_8:
-      state: 'on'
-      atts:
-        brightness: 255
-        hs_color:
-        - 279.623
-        - 62.353
-        rgb_color:
-        - 201
-        - 96
-        - 255
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.7777777777777778
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.7777777777777778
-        transition: 2
-    light.rgb_9:
-      state: 'on'
-      atts:
-        brightness: 255
-        hs_color:
-        - 320.0
-        - 62.353
-        rgb_color:
-        - 255
-        - 96
-        - 202
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 0.8888888888888888
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 0.8888888888888888
-        transition: 2
-    light.rgb_10:
-      state: 'on'
-      atts:
-        brightness: 255
-        hs_color:
-        - 0.0
-        - 62.353
-        rgb_color:
-        - 255
-        - 96
-        - 96
-        hue:
-          fn: up
-          cycle: 4
-          loop: 0
-          offset: 1
-          index: 1.0
-        saturation:
-          fn: sin
-          base: 0.25
-          size: 0.75
-          cycle: 3
-          loop: 0
-          index: 1.0
-        transition: 2
-  aaaaa:
-    light.rgb_1:
-      state: 'on'
-      atts:
-        brightness: 228
-        hs_color:
-        - 138.443
-        - 95.686
-        rgb_color:
-        - 11
-        - 255
-        - 86
-        transition: 2
-    light.rgb_2:
-      state: 'on'
-      atts:
-        brightness: 228
-        hs_color:
-        - 138.443
-        - 95.686
-        rgb_color:
-        - 11
-        - 255
-        - 86
-        transition: 2
-    light.rgb_3:
-      state: 'on'
-      atts:
-        brightness: 228
-        hs_color:
-        - 138.443
-        - 95.686
-        rgb_color:
-        - 11
-        - 255
-        - 86
-        transition: 2
-    light.rgb_4:
-      state: 'on'
-      atts:
-        brightness: 228
-        hs_color:
-        - 138.443
-        - 95.686
-        rgb_color:
-        - 11
-        - 255
-        - 86
-        transition: 2
-    light.rgb_5:
-      state: 'on'
-      atts:
-        brightness: 228
-        hs_color:
-        - 138.443
-        - 95.686
-        rgb_color:
-        - 11
-        - 255
-        - 86
-        transition: 2
-    light.rgb_6:
-      state: 'on'
-      atts:
-        brightness: 228
+        brightness: 0
         hs_color:
         - 138.443
         - 95.686
@@ -453,9 +147,9 @@ cues:
         - 86
         transition: 2
     light.rgb_7:
-      state: 'on'
+      state: 'off'
       atts:
-        brightness: 228
+        brightness: 0
         hs_color:
         - 138.443
         - 95.686
@@ -465,9 +159,9 @@ cues:
         - 86
         transition: 2
     light.rgb_8:
-      state: 'on'
+      state: 'off'
       atts:
-        brightness: 228
+        brightness: 0
         hs_color:
         - 138.443
         - 95.686
@@ -477,9 +171,9 @@ cues:
         - 86
         transition: 2
     light.rgb_9:
-      state: 'on'
+      state: 'off'
       atts:
-        brightness: 228
+        brightness: 0
         hs_color:
         - 138.443
         - 95.686
@@ -489,9 +183,9 @@ cues:
         - 86
         transition: 2
     light.rgb_10:
-      state: 'on'
+      state: 'off'
       atts:
-        brightness: 228
+        brightness: 0
         hs_color:
         - 138.443
         - 95.686
@@ -499,23 +193,443 @@ cues:
         - 11
         - 255
         - 86
+        transition: 2
+  FL:
+    light.dim_1:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_2:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_3:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_4:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_5:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_6:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_7:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_8:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_9:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.dim_10:
+      state: 'on'
+      atts:
+        brightness: 255
+        transition: 2
+    light.rgb_1:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_2:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_3:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_4:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_5:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_6:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_7:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_8:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_9:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+    light.rgb_10:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 0.0
+        - 0.0
+        rgb_color:
+        - 255
+        - 255
+        - 255
+        transition: 2
+  cue1:
+    light.dim_1:
+      state: 'on'
+      atts:
+        brightness: 190
+        transition: 2
+    light.dim_2:
+      state: 'on'
+      atts:
+        brightness: 128
+        transition: 2
+    light.dim_3:
+      state: 'on'
+      atts:
+        brightness: 190
+        transition: 2
+    light.dim_4:
+      state: 'on'
+      atts:
+        brightness: 128
+        transition: 2
+    light.dim_5:
+      state: 'on'
+      atts:
+        brightness: 190
+        transition: 2
+    light.dim_6:
+      state: 'on'
+      atts:
+        brightness: 128
+        transition: 2
+    light.dim_7:
+      state: 'on'
+      atts:
+        brightness: 190
+        transition: 2
+    light.dim_8:
+      state: 'on'
+      atts:
+        brightness: 128
+        transition: 2
+    light.dim_9:
+      state: 'on'
+      atts:
+        brightness: 190
+        transition: 2
+    light.dim_10:
+      state: 'on'
+      atts:
+        brightness: 128
+        transition: 2
+  dcue1: {}
+  cue2:
+    light.rgb_1:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 3.294
+        - 100.0
+        rgb_color:
+        - 255
+        - 14
+        - 0
+        transition: 2
+    light.rgb_2:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 120.0
+        - 100.0
+        rgb_color:
+        - 0
+        - 255
+        - 0
+        transition: 2
+    light.rgb_3:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 3.294
+        - 100.0
+        rgb_color:
+        - 255
+        - 14
+        - 0
+        transition: 2
+    light.rgb_4:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 120.0
+        - 100.0
+        rgb_color:
+        - 0
+        - 255
+        - 0
+        transition: 2
+    light.rgb_5:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 3.294
+        - 100.0
+        rgb_color:
+        - 255
+        - 14
+        - 0
+        transition: 2
+    light.rgb_6:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 120.0
+        - 100.0
+        rgb_color:
+        - 0
+        - 255
+        - 0
+        transition: 2
+    light.rgb_7:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 3.294
+        - 100.0
+        rgb_color:
+        - 255
+        - 14
+        - 0
+        transition: 2
+    light.rgb_8:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 120.0
+        - 100.0
+        rgb_color:
+        - 0
+        - 255
+        - 0
+        transition: 2
+    light.rgb_9:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 3.294
+        - 100.0
+        rgb_color:
+        - 255
+        - 14
+        - 0
+        transition: 2
+    light.rgb_10:
+      state: 'on'
+      atts:
+        brightness: 255
+        hs_color:
+        - 120.0
+        - 100.0
+        rgb_color:
+        - 0
+        - 255
+        - 0
         transition: 2
 sk:
-  x:
+  all:
+    type: group
+    idx: 0
+    data: $rgb;1>10
+  odd:
+    type: group
+    idx: 1
+    data: $rgb;1>10|2
+  even:
+    type: group
+    idx: 2
+    data: $rgb;2>10|2
+  dall:
+    type: group
+    idx: 5
+    data: $dim;1>10
+  dodd:
+    type: group
+    idx: 6
+    data: $dim;1>10|2
+  deven:
+    type: group
+    idx: 7
+    data: $dim;2>10|2
+  total:
+    type: group
+    idx: 10
+    data: $dim;1>10,$rgb;1>10
+  BO:
     type: script
     idx: 4
     data:
       domain: conx
       service: cueplay
       data:
-        name: x
+        name: BO
         soft: true
-  y:
+  FL:
     type: script
     idx: 9
     data:
       domain: conx
       service: cueplay
       data:
-        name: y
+        name: FL
+        soft: true
+  rainbow:
+    type: script
+    idx: 18
+    data:
+      domain: conx
+      service: light
+      data:
+        hue:
+          fn: up
+          offset: 1
+          cycle: 4
+          loop: 0
+        soft: true
+  sin:
+    type: script
+    idx: 19
+    data:
+      domain: conx
+      service: light
+      data:
+        intensity:
+          fn: sin
+          offset: 1
+          cycle: 4
+          loop: 0
+        soft: true
+  alll:
+    type: group
+    idx: 14
+    data: $dim;1>10,$rgb;1>10
+  cue1:
+    type: script
+    idx: 20
+    data:
+      domain: conx
+      service: cueplay
+      data:
+        name: cue1
+        soft: true
+  cue2:
+    type: script
+    idx: 21
+    data:
+      domain: conx
+      service: cueplay
+      data:
+        name: cue2
         soft: true

@@ -18,6 +18,7 @@ class FDE:
         self.db: DB = conx.db
         self.tweens: Dict[str, Tween] = {}
         self.services: Dict[str, Callable[[Entity, Any], None]] = {}
+        self.services["async_turn"] = self.async_turn
         self.services["light.turn_on"] = self.light_turn_on
         self.services["switch.turn_on"] = self.switch_turn_on
 
@@ -110,6 +111,21 @@ class FDE:
                     tw.Start()
         except Exception as ex:
             print("fade fail", ex)
+
+    def async_turn(self, entity: Entity, on: bool):
+        try:
+            if on:
+                if hasattr(entity, "async_turn_on"):
+                    return asyncio.run_coroutine_threadsafe(
+                        entity.async_turn_on(), self.hass.loop
+                    )
+            else:
+                if hasattr(entity, "async_turn_off"):
+                    return asyncio.run_coroutine_threadsafe(
+                        entity.async_turn_off(), self.hass.loop
+                    )
+        except Exception as e:
+            print("async_turn failed", e, on)
 
     def light_turn_on(self, entity: Entity, props):
         try:

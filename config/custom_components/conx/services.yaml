@@ -12,7 +12,7 @@ test:
       example: "{brightness: 255, hs_color: [300,100]}"
 
 reload:
-  description: reloads db.yaml
+  description: reloads db.yaml no parameter needed
 
 channel:
   description: set a channel(s) value
@@ -95,7 +95,7 @@ fade:
       description: Optional. how many loops to repeat. default is 1, 0 is endless loop
 
 
-cue-store:
+cuestore:
   description: store entities into a cue
   fields:
     name:
@@ -109,7 +109,7 @@ cue-store:
       example: light.kitchen_main_lamp
 
 
-cue-play:
+cueplay:
   description: store entities into a cue
   fields:
     name:
@@ -119,7 +119,7 @@ cue-play:
       description: the fade time in seconds
       example: 2.5
 
-cue-delete:
+cuedelete:
   description: store entities into a cue
   fields:
     name:

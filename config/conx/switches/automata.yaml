@@ -1,14 +1,24 @@
 - platform: conx
   automata:
-    - boxName: autoBox3
+    - boxName: autoBox1
       channel: 1
       name: sw1
 
-    - boxName: autoBox3
+    - boxName: autoBox1
       channel: 2
       name: sw2
+      match: light.dim;21>23
 
-    - boxName: autoBox3
+    - boxName: autoBox1
       channel: 3
       name: sw3
+      match: $dim25
+
+    - boxName: autoBox1
+      channel: 4
+      name: sw4
+
+    - boxName: autoBox1
+      channel: 5
+      name: sw5
 

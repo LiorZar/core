@@ -11,6 +11,12 @@ var conx;
         static get time() {
             return (new Date).getTime();
         }
+        static isNull(v, d) {
+            return undefined !== v && null !== v ? v : d;
+        }
+        static isNaN(v, d) {
+            return isNaN(v) ? d : v;
+        }
         static up(val, delimeter = "/") {
             return val.substr(0, val.lastIndexOf(delimeter));
         }
@@ -1499,13 +1505,17 @@ var conx;
                 this.buttonCount = 25;
             }
             create() {
-                var _a;
+                var _a, _b;
                 super.create();
                 this.buttonCount = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.count) || this.buttonCount;
+                let cols = ((_b = this.config) === null || _b === void 0 ? void 0 : _b.cols) || 5;
+                let gcols = "";
+                for (let i = 0; i < cols; ++i)
+                    gcols += " auto";
                 let html = ``;
                 for (let i = 0; i < this.buttonCount; ++i)
                     html += `<button id="ic${i}" class="bn" style="background-color: #000000; width:100%; height:64px;"><label class"txt" id="tx" style="color: #FFFFFF">x</label></button>`;
-                this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
+                this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns:${gcols};">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let ic;
                 for (let i = 0; i < this.buttonCount; ++i) {
@@ -1541,18 +1551,20 @@ var conx;
                     ic = this.root[`ic${i}`];
                     if (!ic)
                         continue;
-                    ic.style.visibility = "visible";
+                    //ic.style.visibility = "visible";
+                    ic.style.display = "initial";
                     this.refreshButton(i, true);
                 }
                 for (; i < this.buttonCount; ++i) {
                     ic = this.root[`ic${i}`];
                     if (!ic)
                         continue;
-                    ic.style.visibility = "hidden";
+                    //ic.style.visibility = "hidden";
+                    ic.style.display = "none";
                 }
             }
             refreshButton(i, name = false) {
-                var _a;
+                var _a, _b, _c, _d, _e, _f, _g, _h;
                 let ic = this.root[`ic${i}`];
                 let id = this.selection[i];
                 if (!ic || !id)
@@ -1560,12 +1572,18 @@ var conx;
                 let state = this._hass.states[id];
                 if (!state)
                     return;
-                let A = state.attributes.brightness / 255.0;
-                let R = state.attributes.rgb_color[0] / 255.0;
-                let G = state.attributes.rgb_color[1] / 255.0;
-                let B = state.attributes.rgb_color[2] / 255.0;
+                let A = conx.glo.isNaN(((_a = state.attributes) === null || _a === void 0 ? void 0 : _a.brightness) / 255.0, 1.0);
+                let R = conx.glo.isNaN(((_c = (_b = state.attributes) === null || _b === void 0 ? void 0 : _b.rgb_color) === null || _c === void 0 ? void 0 : _c[0]) / 255.0, 1.0);
+                let G = conx.glo.isNaN(((_e = (_d = state.attributes) === null || _d === void 0 ? void 0 : _d.rgb_color) === null || _e === void 0 ? void 0 : _e[1]) / 255.0, 1.0);
+                let B = conx.glo.isNaN(((_g = (_f = state.attributes) === null || _f === void 0 ? void 0 : _f.rgb_color) === null || _g === void 0 ? void 0 : _g[2]) / 255.0, 1.0);
+                if ("on" !== (state === null || state === void 0 ? void 0 : state.state)) {
+                    A = 0;
+                    R = 0;
+                    G = 0;
+                    B = 0;
+                }
                 if (name)
-                    ic.tx.textContent = (_a = state === null || state === void 0 ? void 0 : state.attributes) === null || _a === void 0 ? void 0 : _a.friendly_name;
+                    ic.tx.textContent = (_h = state === null || state === void 0 ? void 0 : state.attributes) === null || _h === void 0 ? void 0 : _h.friendly_name;
                 ic.tx.style.color = A > 0.5 ? "#000000" : "#FFFFFF";
                 ic.style.backgroundColor = conx.glo.RGBAtoHEX(R, G, B, A);
             }
@@ -1608,7 +1626,7 @@ var conx;
                 let html = ``;
                 html += `<button is="conx-button" id="autoScroll" class="cmd" style="width:100%; height:32px;"><ha-icon icon="mdi:arrow-vertical-lock"></ha-icon></button>`;
                 html += `<button is="conx-button" id="clear" class="cmd" style="width:100%; height:32px; grid-column:5/6"><ha-icon icon="mdi:delete-empty-outline"></ha-icon></button>`;
-                html += `<div id="log" class="log" style="width:100%; height:400px; overflow: scroll; grid-column:1/6"></div>`;
+                html += `<div id="log" class="log" style="width:100%; height:300px; overflow: scroll; grid-column:1/6"></div>`;
                 this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let bt;
@@ -1759,6 +1777,7 @@ var conx;
                 return true;
             }
             onChange(id, value, pvalue) {
+                conx.glo.trace(id, value, pvalue);
                 this.updateTS = conx.glo.time;
                 let data = { entity_id: this.entities };
                 data[id] = value;

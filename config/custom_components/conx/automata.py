@@ -7,6 +7,7 @@ from timeit import default_timer as timer
 from .const import DOMAIN, EVENT_AUTOMATA_BOX_CHANGE
 from .db import DB
 from .net import TCP
+from .fde import FDE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.entity import Entity
@@ -41,7 +42,9 @@ class AutomataBox:
         self.port = config["port"]
         self.type = config["type"]
 
-        self.tcp.Connect(self.name, self.ip, self.port, self.onNetworkMessage)
+        self.tcp.Connect(
+            self.name, self.ip, self.port, self.onNetworkMessage, 12, 6, b"[STATUS]"
+        )
 
     def onNetworkMessage(self, cmd: str, data: bytearray):
         print(self.name, cmd, data)
@@ -130,6 +133,7 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
     def __init__(self, conx, config):
         self._conx = conx
         self._db: DB = conx.db
+        self._fde: FDE = conx.fde
         self._automata: Automata = conx.automata
 
         self._boxName = config.get("boxName")
@@ -137,6 +141,8 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
         self._on = None
+        self._invert: bool = config.get("invert")
+        self._match: str = config.get("match")
 
         conx.hass.bus.async_listen(
             EVENT_AUTOMATA_BOX_CHANGE + self._boxName, self.on_box_change
@@ -170,13 +176,29 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
 
     async def async_turn_on(self, **kwargs):
         self._on = True
-        self._box.SendON(self._channel)
+        if False == self._invert:
+            self._box.SendON(self._channel)
+        else:
+            self._box.SendOFF(self._channel)
         self.async_write_ha_state()
+        self.match()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
-        self._box.SendOFF(self._channel)
+        if False == self._invert:
+            self._box.SendOFF(self._channel)
+        else:
+            self._box.SendON(self._channel)
         self.async_write_ha_state()
+        self.match()
+
+    def match(self):
+        if None == self._match or len(self._match) <= 0:
+            return
+
+        entities: list = self._db.GetEntities(self._match)
+        for e in entities:
+            self._fde.async_turn(e["entity"], self._on)
 
     def async_update(self):
         pass

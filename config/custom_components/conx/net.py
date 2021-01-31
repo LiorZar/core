@@ -23,7 +23,9 @@ class Connection:
         id: str,
         addr,
         onNetworkMessage: Callable[[str, bytearray], None],
-        timeout: float = 10,
+        timeout: float,
+        keeptime: float,
+        ping: bytearray,
     ):
         self.id = id
         self.addr = addr
@@ -32,7 +34,10 @@ class Connection:
         self.wbuff: bytearray = bytearray(b"")
         self.sock: socket = None
         self.timeout = timeout
-        self.ts = timer()
+        self.keeptime = keeptime
+        self.readTS = timer()
+        self.writeTS = timer()
+        self.ping = ping
         print("create connection", id, addr)
 
     def clear(self):
@@ -53,6 +58,7 @@ class Connection:
         data = self.sock.recv(size)
         if len(data) > 0:
             self.rbuff += data
+            self.readTS = timer()
         else:
             rv = False
 
@@ -62,6 +68,25 @@ class Connection:
         if len(self.wbuff) > 0:
             self.sock.send(self.wbuff)
             self.wbuff = b""
+            self.writeTS = timer()
+
+    def keepAlive(self):
+        if None == self.sock:
+            return
+
+        ts = timer()
+        rt = ts - self.readTS
+        if rt > self.timeout:
+            self.sock.close()
+            self.sock = None
+            self.readTS = ts
+            self.writeTS = ts
+            return
+
+        wt = ts - self.writeTS
+        if wt > self.keeptime:
+            self.Send(self.ping)
+            wt = ts
 
 
 class TCPConnThread(threading.Thread):
@@ -90,9 +115,14 @@ class TCP(threading.Thread):
         ip: str,
         port: int,
         onNetworkMessage: Callable[[str, bytearray], None],
+        timeout: float,
+        keeptime: float,
+        ping: bytearray,
     ):
         if id not in self.connections:
-            self.connections[id] = Connection(id, (ip, port), onNetworkMessage)
+            self.connections[id] = Connection(
+                id, (ip, port), onNetworkMessage, timeout, keeptime, ping
+            )
 
     def Send(self, id: str, data: bytearray):
         c: Connection = self._getConnByID(id)
@@ -113,7 +143,8 @@ class TCP(threading.Thread):
                         if s != None:
                             s.setblocking(0)
                             c.sock = s
-                            c.ts = timer()
+                            c.readTS = timer()
+                            c.writeTS = timer()
                             self._onConnected(c)
                     except:
                         pass
@@ -153,12 +184,8 @@ class TCP(threading.Thread):
                 if es < 0.1:
                     time.sleep(0.1 - es)
 
-                ts = timer()
                 for cid in connections:
-                    c: Connection = connections[cid]
-                    if None != c.sock and ts - c.ts > c.timeout:
-                        c.sock.close()
-                        c.sock = None
+                    connections[cid].keepAlive()
 
             except Exception as ex:
                 _LOGGER.error("Conx Responder socket exception occurred: %s", ex)
@@ -204,7 +231,6 @@ class TCP(threading.Thread):
             self._onExp(s)
             return
 
-        c.ts = timer()
         self.callNetworkMessage(c, "read")
 
     def _onWrite(self, s: socket):

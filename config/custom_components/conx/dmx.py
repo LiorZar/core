@@ -246,11 +246,14 @@ class DMX:
         # Copy the base packet then add the channel array
         channels = unv.channels[:]
         packet = self._base_packet[:]
-        packet.extend(bytes([unv.seq, unv.universe]))  # Sequence, Physical
+        packet.extend(bytes([unv.seq, unv.universe % 255]))  # Sequence, Physical
         packet.extend([unv.universe, unv.subnet])  # Universe
         packet.extend(pack(">h", unv.channelCount))
         packet.extend(channels)
         self._socket.sendto(packet, (unv.ip, unv.port))
+        unv.seq = unv.seq + 1
+        if unv.seq > 255:
+            unv.seq = 1
 
     def keep(self, unv: Universe):
         # state = "".join("{:02x}".format(x) for x in unv.channels)

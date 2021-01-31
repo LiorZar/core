@@ -24,6 +24,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                         vol.Coerce(int), vol.Range(min=1, max=20)
                     ),
                     vol.Required(CONF_NAME): cv.string,
+                    vol.Optional("match"): cv.string,
+                    vol.Optional("invert", default=False): cv.boolean,
                 }
             ],
         ),

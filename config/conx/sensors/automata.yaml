@@ -1,18 +1,14 @@
 - platform: conx
   automata:
     - boxName: autoBox1
-      channel: 1
+      channel: 11
       name: conxSensor1
 
     - boxName: autoBox1
-      channel: 2
+      channel: 12
       name: conxSensor2
 
     - boxName: autoBox1
-      channel: 3
+      channel: 13
       name: conxSensor3
 
-  automata_wglan:
-    - name: autoWG
-      ip: "192.168.1.36"
-      port: 1006
