@@ -633,3 +633,15 @@ sk:
       data:
         name: cue2
         soft: true
+  d1:
+    type: folder
+    idx: 16
+    data:
+      d2:
+        type: folder
+        idx: 12
+        data: {}
+  i was there before:
+    type: folder
+    idx: 13
+    data: {}
