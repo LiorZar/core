@@ -91,7 +91,7 @@ class DB:
         self.setTransition(call.data.get("value"))
 
     def setTransition(self, value: float):
-        self.transition = value
+        self.transition = float(value)
         self.hass.states.async_set("conx.transition", self.transition)
 
     def Create(self, path: str):

@@ -62,7 +62,7 @@ class CUE:
         try:
             data = call.data
             name = data.get("name") or self.db.name
-            transition = data.get("transition") or self.db.transition
+            transition = float(data.get("transition") or self.db.transition)
             entities = self.db.GetEntities(data.get("entity_id"))
             if None == name or len(name) <= 0 or None == entities:
                 return False

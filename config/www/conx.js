@@ -1310,7 +1310,7 @@ var conx;
                         this._hass.callService("conx", "name", { name: this.root.name.value });
                         break;
                     case "tran":
-                        this._hass.callService("conx", "transition", { value: this.root.tran.value });
+                        this._hass.callService("conx", "transition", { value: Number(this.root.tran.value) });
                         break;
                 }
             }
