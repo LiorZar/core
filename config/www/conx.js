@@ -1246,7 +1246,7 @@ var conx;
                     "7", "8", "9", "+", "Store",
                     "4", "5", "6", "-", "Play",
                     "1", "2", "3", "|", "Delete",
-                    ">", "0", ",", ";", ""
+                    ">", "0", ",", ";", "Reload"
                 ];
             }
             create() {
@@ -1263,7 +1263,11 @@ var conx;
                 html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
                 html += `<label>name:</label>`;
                 html += `<input type="text" id="name" style="grid-column: 2/5;">`;
-                html += `<input type="number" id="tran" style1="grid-column: 4/6;">`;
+                html += `<input type="number" id="tran" min="0">`;
+                html += `<label>cycle:</label>`;
+                html += `<input type="number" id="cycle"  min="0" step="0.5" value="4">`;
+                html += `<label style="grid-column: 4;">offset:</label>`;
+                html += `<input type="number" id="offset" min="0" max="1" step="0.1" value="0">`;
                 for (let i = 0; i < 25; ++i)
                     html += `<button id="bn${i}" class="bn" style="width:100%; height:64px; background-color:#CCCCCC;"></button>`;
                 this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
@@ -1275,6 +1279,10 @@ var conx;
                 this.root.name.onchange = this.onChange.bind(this, "name");
                 this.root.tran = conx.glo.findChild(this.root, "tran");
                 this.root.tran.onchange = this.onChange.bind(this, "tran");
+                this.root.cycle = conx.glo.findChild(this.root, "cycle");
+                this.root.cycle.onchange = this.onChange.bind(this, "cycle");
+                this.root.offset = conx.glo.findChild(this.root, "offset");
+                this.root.offset.onchange = this.onChange.bind(this, "offset");
                 for (let i = 0; i < 25; ++i) {
                     bt = conx.glo.findChild(this.root, `bn${i}`);
                     this.root[`bn${i}`] = bt;
@@ -1312,6 +1320,12 @@ var conx;
                     case "tran":
                         this._hass.callService("conx", "transition", { value: Number(this.root.tran.value) });
                         break;
+                    case "cycle":
+                        this.conx("lightParams", "fde.lightParams", { cycle: Number(this.root.cycle.value) });
+                        break;
+                    case "offset":
+                        this.conx("lightParams", "fde.lightParams", { offset: Number(this.root.offset.value) });
+                        break;
                 }
             }
             onButton(i, name) {
@@ -1329,8 +1343,8 @@ var conx;
                     case 'Name':
                         this._hass.callService("conx", "name", { name: this.root.name.value });
                         break;
-                    case 'Enter':
-                        this._hass.callService("conx", "select", { id: sel });
+                    case 'Reload':
+                        this._hass.callService("conx", "reload", {});
                         break;
                     case 'C':
                         this.root.sel.value = sel.substr(0, sel.length - 1);

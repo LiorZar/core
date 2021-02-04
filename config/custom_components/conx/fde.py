@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from typing import Any, Dict, Callable
 
-from .const import DOMAIN
+from .const import DOMAIN, Del
 from .db import DB
 from .tween import Tween
 
@@ -21,6 +21,7 @@ class FDE:
         self.services["async_turn"] = self.async_turn
         self.services["light.turn_on"] = self.light_turn_on
         self.services["switch.turn_on"] = self.switch_turn_on
+        self.last = None
 
     def onStop(self):
         pass
@@ -37,11 +38,29 @@ class FDE:
         for entity_id in remove:
             del self.tweens[entity_id]
 
-    def light(self, call):
-        data = None
+    def lightParams(self, cycle: float = None, offset: float = None):
+        print("lightParams", cycle, offset)
+        if None == self.last:
+            return
+
+        changed: bool = False
+        for p in self.last:
+            param = self.last.get(p)
+            if True == isinstance(param, dict):
+                changed = True
+                if None != cycle:
+                    param["cycle"] = cycle
+                if None != offset:
+                    param["offset"] = offset
+
+        if False == changed:
+            return
+        Del(self.last, "soft")
+        self._light(self.last)
+
+    def _light(self, data: dict):
         entities = None
         try:
-            data = call.data
             print("light", data)
             entities = self.db.GetEntities(data.get("entity_id"))
             if None == entities:
@@ -59,9 +78,13 @@ class FDE:
                 if hasattr(en, "light"):
                     en.light(e["f"], **data)
 
-            self.db.LastService(call.domain, call.service, dict(data))
+            self.last = data
+            self.db.LastService("conx", "light", data)
         except Exception as ex:
             print("light fail", ex)
+
+    def light(self, call):
+        self._light(dict(call.data))
 
     def fade(self, call):
         data = None
