@@ -226,9 +226,9 @@ var conx;
         }
         static HEXtoRGBv(hex) {
             let rgb = this.HEXtoRGB(hex);
-            rgb[0] = Math.round(rgb[0] / 255.0);
-            rgb[1] = Math.round(rgb[1] / 255.0);
-            rgb[2] = Math.round(rgb[2] / 255.0);
+            rgb[0] = this.clamp(rgb[0] / 255.0, 0, 1);
+            rgb[1] = this.clamp(rgb[1] / 255.0, 0, 1);
+            rgb[2] = this.clamp(rgb[2] / 255.0, 0, 1);
             return rgb;
         }
         static HSVtoHEX(h, s, v) {
