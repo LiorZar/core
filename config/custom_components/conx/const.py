@@ -10,6 +10,7 @@ EVENT_AUTOMATA_BOX_CHANGE = "automata_box_change_"
 EVENT_KINCONY_BOX_CHANGE = "kicony_box_change_"
 
 EPS: float = 0.0001
+WRITE_STATE_TS: float = 0.333
 
 from voluptuous import Invalid
 

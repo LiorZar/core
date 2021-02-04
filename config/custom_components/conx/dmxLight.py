@@ -40,7 +40,16 @@ from .dmx import (
 )
 from .tween import FX, Twe
 from .fn import Fn, gFN
-from .const import DOMAIN, EVENT_UNIVERSE_CHANGE, EPS, clamp, zclamp, mix, Del
+from .const import (
+    DOMAIN,
+    EVENT_UNIVERSE_CHANGE,
+    EPS,
+    WRITE_STATE_TS,
+    clamp,
+    zclamp,
+    mix,
+    Del,
+)
 
 CONF_LIGHT_TYPES = [
     CONF_LIGHT_TYPE_DIMMER,
@@ -431,9 +440,12 @@ class DMXLight(LightEntity, RestoreEntity):
 
     def writeState(self, includeTS: bool = True):
         ts = timer()
-        if True == includeTS and ts - self.haTS < 0.125:
+        if True == includeTS and ts - self.haTS < WRITE_STATE_TS:
             self._ext.callLater(
-                0.125 - (ts - self.haTS), self.writeState, self, {"includeTS": False}
+                WRITE_STATE_TS - (ts - self.haTS),
+                self.writeState,
+                self,
+                {"includeTS": False},
             )
             return
 
