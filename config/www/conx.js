@@ -778,7 +778,6 @@ var conx;
                 this.states = [];
                 this.entities = [];
                 this.connected = false;
-                this.updateTS = 0;
             }
             create() {
             }
@@ -788,8 +787,10 @@ var conx;
                 if (undefined !== this.html)
                     conx.glo.update(this.root, this.html);
             }
-            updateState() {
-                if (!this.root || !this.connected || this.entities.length > 1 || this.entities.length <= 0 || false == this.checkStateChanged(0) || !this.state)
+            updateState(check) {
+                if (!this.root || !this.connected || this.entities.length > 1 || this.entities.length <= 0 || !this.state)
+                    return false;
+                if (check && false == this.checkStateChanged(0))
                     return false;
                 return true;
             }
@@ -804,11 +805,11 @@ var conx;
                     this.create();
                     this.postCreate();
                 }
-                this.updateState();
+                this.updateState(true);
             }
             connectedCallback() {
                 this.connected = true;
-                this.updateState();
+                this.updateState(false);
             }
             disconnectedCallback() {
                 this.connected = false;
@@ -830,6 +831,22 @@ var conx;
                 if (this.states.length > 0)
                     return this.states[0];
                 return undefined;
+            }
+            stateToColor(state) {
+                var _a, _b, _c, _d, _e, _f, _g;
+                if (!state)
+                    return null;
+                let A = conx.glo.isNaN(((_a = state.attributes) === null || _a === void 0 ? void 0 : _a.brightness) / 255.0, 1.0);
+                let R = conx.glo.isNaN(((_c = (_b = state.attributes) === null || _b === void 0 ? void 0 : _b.rgb_color) === null || _c === void 0 ? void 0 : _c[0]) / 255.0, 1.0);
+                let G = conx.glo.isNaN(((_e = (_d = state.attributes) === null || _d === void 0 ? void 0 : _d.rgb_color) === null || _e === void 0 ? void 0 : _e[1]) / 255.0, 1.0);
+                let B = conx.glo.isNaN(((_g = (_f = state.attributes) === null || _f === void 0 ? void 0 : _f.rgb_color) === null || _g === void 0 ? void 0 : _g[2]) / 255.0, 1.0);
+                if ("on" !== (state === null || state === void 0 ? void 0 : state.state)) {
+                    A = 0;
+                    R = 0;
+                    G = 0;
+                    B = 0;
+                }
+                return [R, G, B, A];
             }
             checkStateChanged(idx) {
                 var _a, _b;
@@ -905,21 +922,57 @@ var conx;
     (function (cards) {
         class Dimmer extends cards.HACard {
             create() {
+                var _a, _b, _c;
                 super.create();
-                this.innerHTML = `<conx-slider id="root" width="100%" height="40px" locals='{"align":0}'/>`;
+                let icon = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.icon) || "mdi:lightbulb";
+                this.css = this.css || {};
+                this.css.bn = ((_b = this.css) === null || _b === void 0 ? void 0 : _b.bn) || { color: "#FFFFFF", backgroundColor: "#CCCCCC", backgroundImage: "linear-gradient( 0deg, #808080 10%, #000000 100%)" };
+                this.css["bn-down"] = ((_c = this.css) === null || _c === void 0 ? void 0 : _c["bn-down"]) || { color: "#FFFFFF", backgroundColor: "#CCCCCC", backgroundImage: "linear-gradient( 0deg, #000000 0%, #808080 90%)" };
+                this.innerHTML = `
+            <div id="root" style="display: grid; grid-gap: 1px; grid-template-columns:40px auto;">
+                <button is="conx-button" id="toggle" class="bn" style="width:40px; height:32px;"><ha-icon id="ic" icon="${icon}" style="color: #FF0000;"></ha-icon></button>
+                <conx-slider id="intensity" width="100%" height="32px" locals='{"align":0, "thumb":4}'/>
+            </div>
+            `;
                 this.root = conx.glo.findChild(this, "root");
-                this.root.onChange = this.onChange.bind(this);
-                this.root.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
+                this.root.intensity = conx.glo.findChild(this, "intensity");
+                this.root.intensity.onChange = this.onChange.bind(this);
+                this.root.intensity.locals.title = this.config.name || (this.state && this.state.attributes.friendly_name);
+                this.root.toggle = conx.glo.findChild(this.root, 'toggle');
+                this.root.toggle.onclick = this.onCommand.bind(this, 'toggle');
+                this.root.ic = conx.glo.findChild(this.root.toggle, 'ic');
             }
-            updateState() {
-                if (false === super.updateState())
+            refreshColors() {
+                if (!this.rgba)
                     return false;
-                this.root._val = this.state.attributes.brightness / 255.0;
-                this.root.updateByValue();
+                this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = this.root.ic.style.color = conx.glo.RGBAtoHEX(this.rgba[0], this.rgba[1], this.rgba[2], this.rgba[3]);
+                return true;
+            }
+            updateState(check) {
+                if (false === super.updateState(check))
+                    return false;
+                this.rgba = this.stateToColor(this.state);
+                if (!this.refreshColors())
+                    return false;
+                this.root.intensity._val = this.rgba[3];
+                this.root.intensity.updateByValue();
                 return true;
             }
             onChange(id, value, pvalue) {
                 this.ConxLight({ entity_id: this.entities, intensity: value });
+                if (!this.rgba)
+                    return;
+                this.rgba[3] = value;
+                this.refreshColors();
+            }
+            onCommand(name) {
+                conx.glo.trace("cmd", name);
+                let bt;
+                switch (name) {
+                    case "toggle":
+                        this.ConxLight({ entity_id: this.entities, intensity: this.root.intensity._val > 0 ? 0.0 : 1.0 });
+                        break;
+                }
             }
         }
         cards.Dimmer = Dimmer;
@@ -966,7 +1019,6 @@ var conx;
             }
             onColor(i) {
                 let rgb = conx.glo.HEXtoRGBv(this.config.colors[i]);
-                this.updateTS = conx.glo.time;
                 this.ConxLight({
                     entity_id: this.entities,
                     red: rgb[0],
@@ -1026,8 +1078,8 @@ var conx;
                 this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
                 this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
             }
-            updateState() {
-                if (false === super.updateState())
+            updateState(check) {
+                if (false === super.updateState(check))
                     return false;
                 this.root.intensity._val = this.state.attributes.brightness / 255.0;
                 this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
@@ -1041,7 +1093,6 @@ var conx;
                 return true;
             }
             onChange(id, value, pvalue) {
-                this.updateTS = conx.glo.time;
                 let data = { entity_id: this.entities };
                 data[id] = value;
                 this.ConxLight(data);
@@ -1093,8 +1144,8 @@ var conx;
                 this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
                 this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, this.root.intensity._val);
             }
-            updateState() {
-                if (false === super.updateState())
+            updateState(check) {
+                if (false === super.updateState(check))
                     return false;
                 this.root.intensity._val = this.state.attributes.brightness / 255.0;
                 this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
@@ -1107,7 +1158,6 @@ var conx;
                 return true;
             }
             onChange(id, value, pvalue) {
-                this.updateTS = conx.glo.time;
                 let data = { entity_id: this.entities };
                 data[id] = value;
                 this.ConxLight(data);
@@ -1196,8 +1246,8 @@ var conx;
                     this.root.saturation.updateByValue();
                 }
             }
-            updateState() {
-                if (false === super.updateState())
+            updateState(check) {
+                if (false === super.updateState(check))
                     return false;
                 this.root.intensity._val = this.state.attributes.brightness / 255.0;
                 this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
@@ -1215,7 +1265,6 @@ var conx;
                 return true;
             }
             onChange(id, value, pvalue) {
-                this.updateTS = conx.glo.time;
                 let data = { entity_id: this.entities };
                 data[id] = value;
                 this.ConxLight(data);
@@ -1250,7 +1299,7 @@ var conx;
                 ];
             }
             create() {
-                var _a, _b, _c, _d, _e, _f;
+                var _a, _b, _c, _d, _e, _f, _g, _h;
                 super.create();
                 let html = ``;
                 if ((_a = this.config) === null || _a === void 0 ? void 0 : _a.fix1)
@@ -1259,6 +1308,9 @@ var conx;
                     this.names[1] = (_d = this.config) === null || _d === void 0 ? void 0 : _d.fix2;
                 if ((_e = this.config) === null || _e === void 0 ? void 0 : _e.fix3)
                     this.names[2] = (_f = this.config) === null || _f === void 0 ? void 0 : _f.fix3;
+                this.css = this.css || {};
+                this.css.bn = ((_g = this.css) === null || _g === void 0 ? void 0 : _g.bn) || { color: "#FFFFFF", backgroundColor: "#CCCCCC", backgroundImage: "linear-gradient( 0deg, #000000 70%, #FFFFFF 100%)" };
+                this.css["bn-down"] = ((_h = this.css) === null || _h === void 0 ? void 0 : _h["bn-down"]) || { color: "#FFFFFF", backgroundColor: "#CCCCCC", backgroundImage: "linear-gradient( 0deg, #808080 0%, #000000 50%)" };
                 html += `<label>selection:</label>`;
                 html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
                 html += `<label>name:</label>`;
@@ -1269,7 +1321,7 @@ var conx;
                 html += `<label style="grid-column: 4;">offset:</label>`;
                 html += `<input type="number" id="offset" min="0" max="1" step="0.1" value="0">`;
                 for (let i = 0; i < 25; ++i)
-                    html += `<button id="bn${i}" class="bn" style="width:100%; height:64px; background-color:#CCCCCC;"></button>`;
+                    html += `<button id="bn${i}" is="conx-button" class="bn" style="width:100%; height:64px;"></button>`;
                 this.innerHTML = `<div id="root" style="display: grid; grid-gap: 1px; grid-template-columns: 20% 20% 20% 20% 20%;">${html}</div>`;
                 this.root = conx.glo.findChild(this, "root");
                 let bt;
@@ -1296,7 +1348,7 @@ var conx;
             postCreate() {
                 super.postCreate();
             }
-            updateState() {
+            updateState(check) {
                 if (!this.root || !this.connected)
                     return false;
                 this.checkState("conx.selection", this.root.sel);
@@ -1491,7 +1543,7 @@ var conx;
             postCreate() {
                 super.postCreate();
             }
-            updateState() {
+            updateState(check) {
                 if (!this.root || !this.connected)
                     return false;
                 if (false == this.hasStateChanged("conx.db_change"))
@@ -1666,7 +1718,7 @@ var conx;
                 this.sel = this._hass.states["conx.selection"].state;
                 this.conx("parse", "db.GetEntitiesNames", { selection: this.sel });
             }
-            updateState() {
+            updateState(check) {
                 if (!this.root || !this.connected)
                     return false;
                 if (this.hasStateChanged("conx.selection")) {
@@ -1701,28 +1753,19 @@ var conx;
                 }
             }
             refreshButton(i, name = false) {
-                var _a, _b, _c, _d, _e, _f, _g, _h;
+                var _a;
                 let ic = this.root[`ic${i}`];
                 let id = this.selection[i];
                 if (!ic || !id)
                     return;
                 let state = this._hass.states[id];
-                if (!state)
+                let rgba = this.stateToColor(state);
+                if (!rgba)
                     return;
-                let A = conx.glo.isNaN(((_a = state.attributes) === null || _a === void 0 ? void 0 : _a.brightness) / 255.0, 1.0);
-                let R = conx.glo.isNaN(((_c = (_b = state.attributes) === null || _b === void 0 ? void 0 : _b.rgb_color) === null || _c === void 0 ? void 0 : _c[0]) / 255.0, 1.0);
-                let G = conx.glo.isNaN(((_e = (_d = state.attributes) === null || _d === void 0 ? void 0 : _d.rgb_color) === null || _e === void 0 ? void 0 : _e[1]) / 255.0, 1.0);
-                let B = conx.glo.isNaN(((_g = (_f = state.attributes) === null || _f === void 0 ? void 0 : _f.rgb_color) === null || _g === void 0 ? void 0 : _g[2]) / 255.0, 1.0);
-                if ("on" !== (state === null || state === void 0 ? void 0 : state.state)) {
-                    A = 0;
-                    R = 0;
-                    G = 0;
-                    B = 0;
-                }
                 if (name)
-                    ic.tx.textContent = (_h = state === null || state === void 0 ? void 0 : state.attributes) === null || _h === void 0 ? void 0 : _h.friendly_name;
-                ic.tx.style.color = A > 0.5 ? "#000000" : "#FFFFFF";
-                ic.style.backgroundColor = conx.glo.RGBAtoHEX(R, G, B, A);
+                    ic.tx.textContent = (_a = state === null || state === void 0 ? void 0 : state.attributes) === null || _a === void 0 ? void 0 : _a.friendly_name;
+                ic.tx.style.color = rgba[3] > 0.5 ? "#000000" : "#FFFFFF";
+                ic.style.backgroundColor = conx.glo.RGBAtoHEX(rgba[0], rgba[1], rgba[2], rgba[3]);
             }
             onConxMsg(cmd, unq, payload, success) {
                 conx.glo.trace(cmd, unq, payload, success);
@@ -1775,7 +1818,7 @@ var conx;
                 bt.onclick = this.onCommand.bind(this, 'clear');
                 this.root['log'] = conx.glo.findChild(this.root, 'log');
             }
-            updateState() {
+            updateState(check) {
                 if (!this.root || !this.connected)
                     return false;
                 if (false == this.hasStateChanged("conx.log"))
