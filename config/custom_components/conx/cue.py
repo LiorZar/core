@@ -80,6 +80,7 @@ class CUE:
                 c = cue(self.db, name)
                 self.cues[name] = c
             c.setStates(states)
+            self.db.LastService("conx", "cueplay", {"name": name})
             self.db.Log(f"cue {name} stored")
         except Exception as ex:
             print("Store fail", ex)

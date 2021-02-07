@@ -680,7 +680,7 @@ var conx;
                 super.postConnected();
                 this.updateByAlign(false);
                 this.updateByValue(false);
-                let s = Math.min(this.clientRect.width, this.clientRect.height) / 2.5;
+                let s = Math.min(this.clientRect.width, this.clientRect.height) / 1.6;
                 this.params.text.style.fontSize = `${s}px`;
                 conx.glo.update(this);
             }
@@ -833,13 +833,15 @@ var conx;
                 return undefined;
             }
             stateToColor(state) {
-                var _a, _b, _c, _d, _e, _f, _g;
+                var _a, _b, _c, _d, _e, _f, _g, _h;
                 if (!state)
                     return null;
-                let A = conx.glo.isNaN(((_a = state.attributes) === null || _a === void 0 ? void 0 : _a.brightness) / 255.0, 1.0);
-                let R = conx.glo.isNaN(((_c = (_b = state.attributes) === null || _b === void 0 ? void 0 : _b.rgb_color) === null || _c === void 0 ? void 0 : _c[0]) / 255.0, 1.0);
-                let G = conx.glo.isNaN(((_e = (_d = state.attributes) === null || _d === void 0 ? void 0 : _d.rgb_color) === null || _e === void 0 ? void 0 : _e[1]) / 255.0, 1.0);
-                let B = conx.glo.isNaN(((_g = (_f = state.attributes) === null || _f === void 0 ? void 0 : _f.rgb_color) === null || _g === void 0 ? void 0 : _g[2]) / 255.0, 1.0);
+                let A = conx.glo.isNaN(((_a = state.attributes) === null || _a === void 0 ? void 0 : _a.brightness) / 255.0, 1.0), R = 1, G = 1, B = 0;
+                if (!!((_b = state.attributes) === null || _b === void 0 ? void 0 : _b.rgb_color)) {
+                    R = conx.glo.isNaN(((_d = (_c = state.attributes) === null || _c === void 0 ? void 0 : _c.rgb_color) === null || _d === void 0 ? void 0 : _d[0]) / 255.0, 1.0);
+                    G = conx.glo.isNaN(((_f = (_e = state.attributes) === null || _e === void 0 ? void 0 : _e.rgb_color) === null || _f === void 0 ? void 0 : _f[1]) / 255.0, 1.0);
+                    B = conx.glo.isNaN(((_h = (_g = state.attributes) === null || _g === void 0 ? void 0 : _g.rgb_color) === null || _h === void 0 ? void 0 : _h[2]) / 255.0, 1.0);
+                }
                 if ("on" !== (state === null || state === void 0 ? void 0 : state.state)) {
                     A = 0;
                     R = 0;
@@ -1557,13 +1559,21 @@ var conx;
                 this.readPath();
                 return true;
             }
-            getIcon(type) {
+            getIcon(type, data = undefined) {
                 switch (type) {
                     case "up": return "mdi:arrow-up-bold";
                     case "folder": return "mdi:folder";
                     case "delete": return "mdi:delete";
                     case "group": return "mdi:lightbulb-group";
-                    case "script": return "mdi:script-outline";
+                    case "script":
+                        if (!data || !(data === null || data === void 0 ? void 0 : data.domain) || !(data === null || data === void 0 ? void 0 : data.service))
+                            return "mdi:script-outline";
+                        let scr = data.domain + "." + data.service;
+                        switch (scr) {
+                            case "conx.light": return "mdi:lightning-bolt";
+                            case "conx.cueplay": return "mdi:play-box";
+                            default: return "mdi:map-marker-question";
+                        }
                 }
                 return "";
             }
@@ -1577,6 +1587,7 @@ var conx;
                 let sk = (_a = this.skbuttons) === null || _a === void 0 ? void 0 : _a[i];
                 if (undefined === sk) {
                     this.conx("sk-save", "db.SaveSK", { path: this.getPath(), type: this.activeState, idx: i });
+                    this.setActiveState("");
                     return;
                 }
                 switch (this.activeState) {
@@ -1592,6 +1603,7 @@ var conx;
                         }
                         break;
                 }
+                this.setActiveState("");
             }
             onCommand(name) {
                 conx.glo.trace("cmd", name);
@@ -1649,7 +1661,7 @@ var conx;
                 }
             }
             refreshButtons() {
-                var _a;
+                var _a, _b;
                 this.refreshData();
                 let bt, sk;
                 for (let i = 0; i < this.buttonCount; ++i) {
@@ -1662,7 +1674,7 @@ var conx;
                         bt.tx.textContent = "";
                     }
                     else {
-                        bt.ic.icon = this.getIcon((_a = sk === null || sk === void 0 ? void 0 : sk.data) === null || _a === void 0 ? void 0 : _a.type);
+                        bt.ic.icon = this.getIcon((_a = sk === null || sk === void 0 ? void 0 : sk.data) === null || _a === void 0 ? void 0 : _a.type, (_b = sk === null || sk === void 0 ? void 0 : sk.data) === null || _b === void 0 ? void 0 : _b.data);
                         bt.tx.textContent = sk === null || sk === void 0 ? void 0 : sk.name;
                     }
                 }
