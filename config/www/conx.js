@@ -665,7 +665,7 @@ var conx;
                 let r_frame = controls.utils.SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "none", stroke: "black", strokeWidth: "5px" }, id: `frame` });
                 let r_barTotal = controls.utils.SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "#919191" }, id: `bg` });
                 let r_barProgress = controls.utils.SVGRect({ x: "0", y: "0", width: "100%", height: "100%", style: { fill: "red" }, id: `progress` });
-                let r_thumb = controls.utils.SVGRect({ x: "0", y: "0", width: "1px", height: "100%", style: { fill: "black" }, id: `thumb` });
+                let r_thumb = controls.utils.SVGRect({ x: "0", y: "0", width: "3px", height: "100%", style: { fill: "#FFBF00", stroke: "black", strokeWidth: "1px" }, id: `thumb` });
                 let t_title = controls.utils.SVGText({ x: "50%", y: "50%", style: { fill: "white", textAnchor: "middle", fontSize: "20px", textShadow: "1px 1px #000000" }, id: `text` });
                 // Grouping
                 g_group.appendChild(r_barTotal);
@@ -933,7 +933,7 @@ var conx;
                 this.innerHTML = `
             <div id="root" style="display: grid; grid-gap: 1px; grid-template-columns:40px auto;">
                 <button is="conx-button" id="toggle" class="bn" style="width:40px; height:32px;"><ha-icon id="ic" icon="${icon}" style="color: #FF0000;"></ha-icon></button>
-                <conx-slider id="intensity" width="100%" height="32px" locals='{"align":0, "thumb":4}'/>
+                <conx-slider id="intensity" width="100%" height="32px" locals='{"align":0, "thumb":3}'/>
             </div>
             `;
                 this.root = conx.glo.findChild(this, "root");
