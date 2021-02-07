@@ -833,7 +833,7 @@ var conx;
                 return undefined;
             }
             stateToColor(state) {
-                var _a, _b, _c, _d, _e, _f, _g, _h;
+                var _a, _b, _c, _d, _e, _f, _g, _h, _j;
                 if (!state)
                     return null;
                 let A = conx.glo.isNaN(((_a = state.attributes) === null || _a === void 0 ? void 0 : _a.brightness) / 255.0, 1.0), R = 1, G = 1, B = 0;
@@ -843,7 +843,7 @@ var conx;
                     B = conx.glo.isNaN(((_h = (_g = state.attributes) === null || _g === void 0 ? void 0 : _g.rgb_color) === null || _h === void 0 ? void 0 : _h[2]) / 255.0, 1.0);
                 }
                 if ("on" !== (state === null || state === void 0 ? void 0 : state.state)) {
-                    A = 0;
+                    A = conx.glo.isNaN(((_j = state.attributes) === null || _j === void 0 ? void 0 : _j.brightness) / 255.0, 0.0);
                     R = 0;
                     G = 0;
                     B = 0;
