@@ -55,6 +55,11 @@ var conx;
             }
             return null;
         }
+        static removeChildren(node) {
+            while (node.firstChild) {
+                node.removeChild(node.lastChild);
+            }
+        }
         static findCSS(node, css, res = undefined) {
             if (undefined === res)
                 res = [];
@@ -794,6 +799,7 @@ var conx;
                     return false;
                 return true;
             }
+            get hass() { return this._hass; }
             set hass(hass) {
                 this.phass = this._hass;
                 this._hass = hass;
@@ -1869,6 +1875,94 @@ conx.glo.wnd.customCards.push({
     name: 'conx-log',
     description: 'Logs messages',
 });
+/// <reference path="../controls/slider.ts" />
+/// <reference path="HACard.ts" />
+var conx;
+(function (conx) {
+    var cards;
+    (function (cards_1) {
+        class View extends cards_1.HACard {
+            create() {
+                var _a, _b, _c, _d, _e, _f;
+                if (!this._cards)
+                    return;
+                super.create();
+                let gap = ((_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.layout) === null || _b === void 0 ? void 0 : _b.gap) || "2px";
+                let cols = ((_d = (_c = this.config) === null || _c === void 0 ? void 0 : _c.layout) === null || _d === void 0 ? void 0 : _d.cols) || "auto auto";
+                let divs = (((_f = (_e = this.config) === null || _e === void 0 ? void 0 : _e.layout) === null || _f === void 0 ? void 0 : _f.items) || "").split(",");
+                let html = ``, d;
+                for (let c in this._cards) {
+                    d = divs === null || divs === void 0 ? void 0 : divs[c];
+                    d = d ? `style="grid-column: ${d};"` : "";
+                    html += `<div id="c${c}" ${d}> </div>`;
+                }
+                this.innerHTML = `<div id="root" style="display: grid; grid-gap: ${gap}; grid-template-columns: ${cols};">${html}</div>`;
+                this.root = conx.glo.findChild(this, "root");
+                this.root.divs = [];
+                for (let c in this._cards)
+                    this.root.divs.push(conx.glo.findChild(this, `c${c}`));
+            }
+            refreshCards() {
+                var _a;
+                if (!this._cards)
+                    return;
+                if (!this.root) {
+                    this.create();
+                }
+                let div, card, editMode = !!((_a = this._lovelace) === null || _a === void 0 ? void 0 : _a.editMode);
+                for (let c in this._cards) {
+                    div = this.root.divs[c];
+                    card = this._cards[c];
+                    if (!div || !card)
+                        continue;
+                    conx.glo.removeChildren(div);
+                    if (div.lastChild === card)
+                        continue;
+                    if (false == editMode)
+                        div.appendChild(card);
+                    else {
+                        const wrapper = document.createElement("hui-card-options");
+                        wrapper.hass = this.hass;
+                        wrapper.lovelace = this.lovelace;
+                        wrapper.path = [this.index, c];
+                        card.editMode = true;
+                        wrapper.appendChild(card);
+                        div.appendChild(wrapper);
+                    }
+                }
+            }
+            get lovelace() { return this._lovelace; }
+            set lovelace(lovelace) {
+                this._lovelace = lovelace;
+                this.refreshCards();
+            }
+            get index() { return this._index; }
+            set index(index) {
+                this._index = index;
+                this.refreshCards();
+            }
+            get cards() { return this._cards; }
+            set cards(cards) {
+                if (this._cards !== cards) {
+                    this._cards = cards;
+                    this.refreshCards();
+                }
+            }
+            get badges() { return this._badges; }
+            set badges(badges) {
+                this._badges = badges;
+            }
+        }
+        cards_1.View = View;
+    })(cards = conx.cards || (conx.cards = {}));
+})(conx || (conx = {}));
+customElements.define('conx-view', conx.cards.View);
+conx.glo.wnd.customCards = conx.glo.wnd.customCards || [];
+conx.glo.wnd.customCards.push({
+    type: 'conx-view',
+    name: 'conx-view',
+    description: 'grid view',
+});
 /// <reference path="conx/cards/title.ts" />
 /// <reference path="conx/cards/dimmer.ts" />
 /// <reference path="conx/cards/swatch.ts" />
@@ -1879,6 +1973,7 @@ conx.glo.wnd.customCards.push({
 /// <reference path="conx/cards/softkeys.ts" />
 /// <reference path="conx/cards/live.ts" />
 /// <reference path="conx/cards/log.ts" />
+/// <reference path="conx/cards/view.ts" />
 /// <reference path="svg.ts" />
 var conx;
 (function (conx) {

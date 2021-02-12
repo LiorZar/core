@@ -47,6 +47,7 @@ from .const import (
     WRITE_STATE_TS,
     clamp,
     zclamp,
+    fract,
     mix,
     Del,
 )
@@ -118,7 +119,7 @@ class Effect(Twe):
         Twe.__init__(self, **data)
 
     def setFract(self, f: float, c: float):
-        v = self.fx[FX.base] + self.fx[FX.amplitude] * self.fn.value(c)
+        v = zclamp(self.fx[FX.base] + self.fx[FX.amplitude] * self.fn.value(c))
         self.cval = mix(f, self.sval, v)
 
     def setState(self):

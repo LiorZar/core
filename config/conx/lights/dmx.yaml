@@ -2,43 +2,18 @@
   dmx:
   - dmxName: dmx1
     channel: 1
-    name: dim_;1>10
+    name: dim_;1>100
     fixture: dim
     fadeOn: 4
     fadeOff: 2
     type: dimmer
 
   - dmxName: dmx1
-    channel: 11
+    channel: 101
     name: rgb_;1>10
     fixture: rgb
     fadeOn: 4
     fadeOff: 2
     type: rgb
 
-  automata:
-  - boxName: autoBox2
-    name: dim21
-    channel: 1
-    fixture: dim21
-
-  - boxName: autoBox2
-    name: dim22
-    channel: 2
-    fixture: dim22
-
-  - boxName: autoBox2
-    name: dim23
-    channel: 3
-    fixture: dim23
-
-  - boxName: autoBox2
-    name: dim24
-    channel: 4
-    fixture: dim24
-
-  - boxName: autoBox2
-    name: dim25
-    channel: 5
-    fixture: dim25
 
