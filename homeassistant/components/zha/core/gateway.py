@@ -569,7 +569,7 @@ class ZHAGateway:
             )
             await self._async_device_joined(zha_device)
 
-        device_info = zha_device.device_info
+        device_info = zha_device.zha_device_info
         device_info[DEVICE_PAIRING_STATUS] = DevicePairingStatus.INITIALIZED.name
         async_dispatcher_send(
             self._hass,
@@ -634,7 +634,7 @@ class ZHAGateway:
                 tasks = []
                 for member in members:
                     _LOGGER.debug(
-                        "Adding member with IEEE: %s and endpoint id: %s to group: %s:0x%04x",
+                        "Adding member with IEEE: %s and endpoint ID: %s to group: %s:0x%04x",
                         member.ieee,
                         member.endpoint_id,
                         name,

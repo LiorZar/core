@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from copy import deepcopy
 import unittest
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 import voluptuous as vol
@@ -26,7 +27,6 @@ from homeassistant.helpers import (
 import homeassistant.helpers.config_validation as cv
 from homeassistant.setup import async_setup_component
 
-from tests.async_mock import AsyncMock, Mock, patch
 from tests.common import (
     MockEntity,
     get_test_home_assistant,
@@ -93,7 +93,7 @@ def area_mock(hass):
     hass.states.async_set("light.Kitchen", STATE_OFF)
 
     device_in_area = dev_reg.DeviceEntry(area_id="test-area")
-    device_no_area = dev_reg.DeviceEntry()
+    device_no_area = dev_reg.DeviceEntry(id="device-no-area-id")
     device_diff_area = dev_reg.DeviceEntry(area_id="diff-area")
 
     mock_device_registry(
@@ -947,3 +947,53 @@ async def test_extract_from_service_area_id(hass, area_mock):
         "light.diff_area",
         "light.in_area",
     ]
+
+    call = ha.ServiceCall(
+        "light",
+        "turn_on",
+        {"area_id": ["test-area", "diff-area"], "device_id": "device-no-area-id"},
+    )
+    extracted = await service.async_extract_entities(hass, entities, call)
+    assert len(extracted) == 3
+    assert sorted(ent.entity_id for ent in extracted) == [
+        "light.diff_area",
+        "light.in_area",
+        "light.no_area",
+    ]
+
+
+async def test_entity_service_call_warn_referenced(hass, caplog):
+    """Test we only warn for referenced entities in entity_service_call."""
+    call = ha.ServiceCall(
+        "light",
+        "turn_on",
+        {
+            "area_id": "non-existent-area",
+            "entity_id": "non.existent",
+            "device_id": "non-existent-device",
+        },
+    )
+    await service.entity_service_call(hass, {}, "", call)
+    assert (
+        "Unable to find referenced areas non-existent-area, devices non-existent-device, entities non.existent"
+        in caplog.text
+    )
+
+
+async def test_async_extract_entities_warn_referenced(hass, caplog):
+    """Test we only warn for referenced entities in async_extract_entities."""
+    call = ha.ServiceCall(
+        "light",
+        "turn_on",
+        {
+            "area_id": "non-existent-area",
+            "entity_id": "non.existent",
+            "device_id": "non-existent-device",
+        },
+    )
+    extracted = await service.async_extract_entities(hass, {}, call)
+    assert len(extracted) == 0
+    assert (
+        "Unable to find referenced areas non-existent-area, devices non-existent-device, entities non.existent"
+        in caplog.text
+    )
