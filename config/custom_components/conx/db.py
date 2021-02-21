@@ -47,6 +47,7 @@ class DB:
                 load_yaml(self.hass.config.path("custom_components/conx/fn.yaml"))
             )
             self.Get("cues", True)
+            self.Get("timelines", True)
             self.Get("sk", True)
             self.hass.bus.async_fire(EVENT_DB_RELOAD)
         except Exception as e:
@@ -209,6 +210,12 @@ class DB:
         if None == sk:
             raise Exception("There is no softkey")
 
+        rv: str = self._PlaySK(sk)
+        if None == rv:
+            raise Exception("There is no legal softkey type")
+        return rv
+
+    def _PlaySK(self, sk: Any) -> str:
         type: str = sk["type"]
         data: Any = sk["data"]
         if "script" == type:
@@ -223,7 +230,10 @@ class DB:
             self.setSelection(data)
             return "OK"
 
-        raise Exception("There is no legal softkey type")
+        if "delay" == type:
+            return "OK"
+
+        return None
 
     def getEntity(self, entity_id: str) -> Entity:
         if "$" == entity_id[0]:

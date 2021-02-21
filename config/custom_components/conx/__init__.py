@@ -149,6 +149,12 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "cueplay", self.cue.Play)
         self.hass.services.async_register(DOMAIN, "cuedelete", self.cue.Delete)
 
+        self.hass.services.async_register(
+            DOMAIN, "timelinestart", self.cue.TimelineStart
+        )
+        self.hass.services.async_register(DOMAIN, "timelinestop", self.cue.TimelineStop)
+        self.hass.services.async_register(DOMAIN, "timelinego", self.cue.TimelineGo)
+
         self.hass.services.async_register(DOMAIN, "automata_send", self.automata.send)
         self.hass.services.async_register(DOMAIN, "kincony_send", self.kincony.send)
 

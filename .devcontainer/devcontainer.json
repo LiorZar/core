@@ -5,15 +5,8 @@
   "postCreateCommand": "script/setup",
   "postStartCommand": "script/bootstrap",
   "containerEnv": { "DEVCONTAINER": "1" },
-   "appPort": [
-        8123,
-        "10103:10103/udp"
-    ],
-    "forwardPorts": [
-        6545,
-        10101,
-        10102
-    ],
+  "appPort": [8123, "10103:10103/udp"],
+  "forwardPorts": [6545, 10101, 10102],
   "runArgs": ["-e", "GIT_EDITOR=code --wait"],
   "extensions": [
     "ms-python.vscode-pylance",

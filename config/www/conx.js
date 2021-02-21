@@ -1578,6 +1578,9 @@ var conx;
                         switch (scr) {
                             case "conx.light": return "mdi:lightning-bolt";
                             case "conx.cueplay": return "mdi:play-box";
+                            case "conx.timelinestart": return "mdi:play-circle-outline";
+                            case "conx.timelinestop": return "mdi:stop-circle-outline";
+                            case "conx.timelinego": return "mdi:skip-next-circle-outline";
                             default: return "mdi:map-marker-question";
                         }
                 }

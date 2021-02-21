@@ -47,26 +47,26 @@ light:
   description: run a light state by parameter.
   fields:
     entity_id:
-      description:  The entity id or selection light_;1>10|3 - 10>4
+      description: The entity id or selection light_;1>10|3 - 10>4
       example: "light.kitchen"
     transition:
       description: Duration in seconds it takes to fade in to this state (timein)
       example: 10
     intensity:
-      description: Optional. supply any parameter [intensity,hue,saturation,red,green,blue] and value/effect. all values are 0.0-1.0,
-                   for effect you need to supply the parameters
-                   fn. any function in fn.yaml [one,linear,up,down,mirror,sin,cos,step]. this will run the effect function
-                   sel. any function in fn.yaml [one,linear,up,down,mirror,sin,cos,step]. this will be the selection function
-                   base. in 0.0-1.0,
-                   size. in 0.0-1.0,
-                   cycle. in seconds
-                   up. not working at the moment
-                   offset. in 0.0-1.0. 0 means no offset, 1.0 means full offset of the cycle
-                   ease. same as fade
-                   loop. 0 means forever
-                   delay. in seconds
+      description:
+        Optional. supply any parameter [intensity,hue,saturation,red,green,blue] and value/effect. all values are 0.0-1.0,
+        for effect you need to supply the parameters
+        fn. any function in fn.yaml [one,linear,up,down,mirror,sin,cos,step]. this will run the effect function
+        sel. any function in fn.yaml [one,linear,up,down,mirror,sin,cos,step]. this will be the selection function
+        base. in 0.0-1.0,
+        size. in 0.0-1.0,
+        cycle. in seconds
+        up. not working at the moment
+        offset. in 0.0-1.0. 0 means no offset, 1.0 means full offset of the cycle
+        ease. same as fade
+        loop. 0 means forever
+        delay. in seconds
       example: "{fn: sin, cycle: 4}"
-
 
 fade:
   description: fade any entity with any service
@@ -94,7 +94,6 @@ fade:
     loop:
       description: Optional. how many loops to repeat. default is 1, 0 is endless loop
 
-
 cuestore:
   description: store entities into a cue
   fields:
@@ -107,7 +106,6 @@ cuestore:
     entity_id:
       description: The entity id or selection light_;1>10|3 - 10>4
       example: light.kitchen_main_lamp
-
 
 cueplay:
   description: store entities into a cue
@@ -126,7 +124,29 @@ cuedelete:
       description: the name of cue to delete
       example: cue5
 
+timelinestart:
+  description: start a timeline
+  fields:
+    name:
+      description: the name of timeline to start. if not exists will take from editor
+    index:
+      description: the index of the script to run. if not exists will start at the begininng (cue 0)
+    loop:
+      description: how many loops this timeline will do. 0 means always. default is 0
 
+timelinestop:
+  description: stop a timeline
+  fields:
+    name:
+      description: the name of timeline to stop. if not exists will take from editor
+
+timelinego:
+  description: advance the timeline to next script
+  fields:
+    name:
+      description: the name of timeline to advance. if not exists will take from editor
+    index:
+      description: the index of the script to run. if not exists will jump to the next one
 
 patch:
   description: will load the config/lights/conx.yaml and add the new patch to its dmx part
@@ -174,4 +194,3 @@ kincony_send:
     data:
       description: data to send
       example: "RELAY-GET_INPUT-255"
-
