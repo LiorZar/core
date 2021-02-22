@@ -518,11 +518,18 @@ var conx;
                 if ("PointerEvent" in window)
                     this.root.addEventListener("pointerdown", this._onPointerdown);
             }
+            get isVertical() {
+                var _a;
+                return 1 == ((_a = this === null || this === void 0 ? void 0 : this.locals) === null || _a === void 0 ? void 0 : _a.align);
+            }
             checkMove(x, y) {
-                return Math.abs(this._pouchX - x) > this._minMove || Math.abs(this._pouchY - y) > this._minMove;
+                if (false == this.isVertical)
+                    return Math.abs(this._pouchX - x) > this._minMove;
+                return Math.abs(this._pouchY - y) > this._minMove;
             }
             Move(e, x, y) {
                 if (this._moved) {
+                    e.preventDefault();
                     this._pouchX = this._touchX;
                     this._pouchY = this._touchY;
                     this._touchX = x;
@@ -548,7 +555,7 @@ var conx;
                 return this.dtY / conx.glo.DPI;
             }
             _onPointerdown(e) {
-                e.preventDefault();
+                //e.preventDefault();
                 this._moved = false;
                 this._pouchX = e.clientX;
                 this._pouchY = e.clientY;
@@ -561,7 +568,7 @@ var conx;
                 this.onPointer(e, "down");
             }
             _onPointermove(e) {
-                e.preventDefault();
+                //e.preventDefault();
                 this.Move(e, e.clientX, e.clientY);
             }
             _onPointerup(e) {
@@ -584,7 +591,7 @@ var conx;
                 this.onPointer(e, "down");
             }
             _onMousemove(e) {
-                e.preventDefault();
+                //e.preventDefault();
                 this.Move(e, e.clientX, e.clientY);
             }
             _onMouseup(e) {
@@ -595,7 +602,7 @@ var conx;
                 this.onPointer(e, "up");
             }
             _onTouchstart(e) {
-                e.preventDefault();
+                //e.preventDefault();
                 this._moved = false;
                 this._pouchX = e.changedTouches[0].clientX;
                 this._pouchY = e.changedTouches[0].clientY;
@@ -607,7 +614,7 @@ var conx;
                 this.onPointer(e, "down");
             }
             _onTouchmove(e) {
-                e.preventDefault();
+                //e.preventDefault();
                 this.Move(e, e.targetTouches[0].clientX, e.targetTouches[0].clientY);
             }
             _onTouchend(e) {
@@ -732,7 +739,7 @@ var conx;
                 conx.glo.update(this);
             }
             updateByAlign(upd) {
-                if (0 == this.locals.align) {
+                if (false == this.isVertical) {
                     this.params.text.style.transform = "";
                     this.params.text.style.transformOrigin = "";
                 }
@@ -755,7 +762,7 @@ var conx;
                 let length;
                 if (undefined === this.clientRect)
                     return;
-                if (0 == this.locals.align)
+                if (false == this.isVertical)
                     length = this.clientRect.width;
                 else
                     length = this.clientRect.height;
@@ -766,7 +773,7 @@ var conx;
                 if (this.locals.percent)
                     text += ` ${value}%`;
                 this.params.text.textContent = text;
-                if (0 == this.locals.align) {
+                if (false == this.isVertical) {
                     this.params.progress.width = `${value}%`;
                     this.params.progress.height = "100%";
                     this.params.thumb.width = `${this.locals.thumb}%`;
@@ -796,13 +803,13 @@ var conx;
                         this._pval = this._val;
                         let rect = this.bg.getBoundingClientRect();
                         if (false == conx.glo.isMobile) {
-                            if (this.locals.align == 0)
+                            if (false == this.isVertical)
                                 this._val = (this._touchX - rect.left) / rect.width;
                             else
                                 this._val = (rect.bottom - this._touchY) / rect.height;
                         }
                         else {
-                            if (this.locals.align == 0)
+                            if (false == this.isVertical)
                                 this._val = conx.glo.zclamp(this._val + this.dtX / rect.width);
                             else
                                 this._val = conx.glo.zclamp(this._val + this.dtY / rect.height);
