@@ -555,7 +555,7 @@ var conx;
                 return this.dtY / conx.glo.DPI;
             }
             _onPointerdown(e) {
-                //e.preventDefault();
+                e.preventDefault();
                 this._moved = false;
                 this._pouchX = e.clientX;
                 this._pouchY = e.clientY;
@@ -581,6 +581,7 @@ var conx;
                 this.onPointer(e, "up");
             }
             _onMousedown(e) {
+                e.preventDefault();
                 this._moved = false;
                 this._pouchX = e.clientX;
                 this._pouchY = e.clientY;
@@ -602,7 +603,7 @@ var conx;
                 this.onPointer(e, "up");
             }
             _onTouchstart(e) {
-                //e.preventDefault();
+                e.preventDefault();
                 this._moved = false;
                 this._pouchX = e.changedTouches[0].clientX;
                 this._pouchY = e.changedTouches[0].clientY;
