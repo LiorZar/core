@@ -143,6 +143,9 @@ var conx;
         static clamp(val, minVal, maxVal) {
             return Math.max(minVal, Math.min(maxVal, val));
         }
+        static zclamp(val) {
+            return this.clamp(val, 0, 1);
+        }
         static JSON(data) {
             if (!!data)
                 return JSON.parse(data);
@@ -304,6 +307,8 @@ var conx;
             return names;
         }
     }
+    glo.isMobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    glo.DPI = window.devicePixelRatio;
     conx.glo = glo;
 })(conx || (conx = {}));
 var conx;
@@ -457,6 +462,8 @@ var conx;
             constructor() {
                 super();
                 this.connected = false;
+                this._minMove = 10 * conx.glo.DPI;
+                this._moved = false;
                 this.locals = {};
                 this.params = { root: {} };
                 this._onMousedown = this._onMousedown.bind(this);
@@ -511,8 +518,40 @@ var conx;
                 if ("PointerEvent" in window)
                     this.root.addEventListener("pointerdown", this._onPointerdown);
             }
+            checkMove(x, y) {
+                return Math.abs(this._pouchX - x) > this._minMove || Math.abs(this._pouchY - y) > this._minMove;
+            }
+            Move(e, x, y) {
+                if (this._moved) {
+                    this._pouchX = this._touchX;
+                    this._pouchY = this._touchY;
+                    this._touchX = x;
+                    this._touchY = y;
+                    this.onPointer(e, "move");
+                    return;
+                }
+                if (this.checkMove(x, y))
+                    this._moved = true;
+                this._touchX = x;
+                this._touchY = y;
+            }
+            get dtX() {
+                return this._touchX - this._pouchX;
+            }
+            get dtY() {
+                return this._touchY - this._pouchY;
+            }
+            get dtIX() {
+                return this.dtX / conx.glo.DPI;
+            }
+            get dtIY() {
+                return this.dtY / conx.glo.DPI;
+            }
             _onPointerdown(e) {
                 e.preventDefault();
+                this._moved = false;
+                this._pouchX = e.clientX;
+                this._pouchY = e.clientY;
                 this._touchX = e.clientX;
                 this._touchY = e.clientY;
                 this.setPointerCapture(e.pointerId);
@@ -523,12 +562,11 @@ var conx;
             }
             _onPointermove(e) {
                 e.preventDefault();
-                this._touchX = e.clientX;
-                this._touchY = e.clientY;
-                this.onPointer(e, "move");
+                this.Move(e, e.clientX, e.clientY);
             }
             _onPointerup(e) {
                 e.preventDefault();
+                this._moved = false;
                 this.releasePointerCapture(e.pointerId);
                 this.removeEventListener("pointermove", this._onPointermove);
                 this.removeEventListener("pointerup", this._onPointerup);
@@ -536,6 +574,9 @@ var conx;
                 this.onPointer(e, "up");
             }
             _onMousedown(e) {
+                this._moved = false;
+                this._pouchX = e.clientX;
+                this._pouchY = e.clientY;
                 this._touchX = e.clientX;
                 this._touchY = e.clientY;
                 document.addEventListener("mousemove", this._onMousemove);
@@ -544,18 +585,20 @@ var conx;
             }
             _onMousemove(e) {
                 e.preventDefault();
-                this._touchX = e.clientX;
-                this._touchY = e.clientY;
-                this.onPointer(e, "move");
+                this.Move(e, e.clientX, e.clientY);
             }
             _onMouseup(e) {
                 e.preventDefault();
+                this._moved = false;
                 document.removeEventListener("mousemove", this._onMousemove);
                 document.removeEventListener("mouseup", this._onMouseup);
                 this.onPointer(e, "up");
             }
             _onTouchstart(e) {
                 e.preventDefault();
+                this._moved = false;
+                this._pouchX = e.changedTouches[0].clientX;
+                this._pouchY = e.changedTouches[0].clientY;
                 this._touchX = e.changedTouches[0].clientX;
                 this._touchY = e.changedTouches[0].clientY;
                 this.addEventListener("touchmove", this._onTouchmove);
@@ -565,12 +608,11 @@ var conx;
             }
             _onTouchmove(e) {
                 e.preventDefault();
-                this._touchX = e.targetTouches[0].clientX;
-                this._touchY = e.targetTouches[0].clientY;
-                this.onPointer(e, "move");
+                this.Move(e, e.targetTouches[0].clientX, e.targetTouches[0].clientY);
             }
             _onTouchend(e) {
                 e.preventDefault();
+                this._moved = false;
                 this.removeEventListener("touchmove", this._onTouchmove);
                 this.removeEventListener("touchend", this._onTouchend);
                 this.removeEventListener("touchcancel", this._onTouchend);
@@ -753,10 +795,18 @@ var conx;
                             return;
                         this._pval = this._val;
                         let rect = this.bg.getBoundingClientRect();
-                        if (this.locals.align == 0)
-                            this._val = (this._touchX - rect.left) / rect.width;
-                        else
-                            this._val = (rect.bottom - this._touchY) / rect.height;
+                        if (false == conx.glo.isMobile) {
+                            if (this.locals.align == 0)
+                                this._val = (this._touchX - rect.left) / rect.width;
+                            else
+                                this._val = (rect.bottom - this._touchY) / rect.height;
+                        }
+                        else {
+                            if (this.locals.align == 0)
+                                this._val = conx.glo.zclamp(this._val + this.dtX / rect.width);
+                            else
+                                this._val = conx.glo.zclamp(this._val + this.dtY / rect.height);
+                        }
                         this.updateByValue();
                         if (this.onChange)
                             this.onChange(this.id, this._val, this._pval);
