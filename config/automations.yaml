@@ -1,1 +1,19 @@
-[]
+- id: '1614409396136'
+  alias: 1-5 -> 6-10
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - light.dim_1
+    - light.dim_2
+    - light.dim_3
+    - light.dim_4
+  condition: []
+  action:
+  - service: "light.turn_{{trigger.to_state.state}}      \n"
+    data:
+      entity_id: "{% for item in [\"light.dim_1\", \"light.dim_2\", \"light.dim_3\"\
+        , \"light.dim_4\"] %}\n  {% if trigger.entity_id == item -%}\n    {{ [\"light.dim_5\"\
+        , \"light.dim_6\", \"light.dim_7\", \"light.dim_8\"][loop.index0] }}\n  {%-\
+        \ endif %}\n{% endfor %}"
+  mode: single

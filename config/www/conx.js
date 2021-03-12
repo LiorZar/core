@@ -307,6 +307,7 @@ var conx;
             return names;
         }
     }
+    //static isMobile: boolean = true;
     glo.isMobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     glo.DPI = window.devicePixelRatio;
     conx.glo = glo;
@@ -515,19 +516,19 @@ var conx;
             enablePointer() {
                 this.root.addEventListener("touchstart", this._onTouchstart);
                 this.root.addEventListener("mousedown", this._onMousedown);
-                if ("PointerEvent" in window)
-                    this.root.addEventListener("pointerdown", this._onPointerdown);
+                //if ("PointerEvent" in window)
+                //    this.root.addEventListener("pointerdown", this._onPointerdown);
             }
             get isVertical() {
                 var _a;
                 return 1 == ((_a = this === null || this === void 0 ? void 0 : this.locals) === null || _a === void 0 ? void 0 : _a.align);
             }
-            checkMove(x, y) {
-                if (false == this.isVertical)
+            checkMove(x, y, vertical) {
+                if (false == vertical)
                     return Math.abs(this._pouchX - x) > this._minMove;
                 return Math.abs(this._pouchY - y) > this._minMove;
             }
-            Move(e, x, y) {
+            Move(e, type, x, y) {
                 if (this._moved) {
                     e.preventDefault();
                     this._pouchX = this._touchX;
@@ -537,10 +538,27 @@ var conx;
                     this.onPointer(e, "move");
                     return;
                 }
-                if (this.checkMove(x, y))
+                if (this.checkMove(x, y, !this.isVertical)) {
+                    this._cancelMove(e, type);
+                    return;
+                }
+                if (this.checkMove(x, y, this.isVertical))
                     this._moved = true;
                 this._touchX = x;
                 this._touchY = y;
+            }
+            _cancelMove(e, type) {
+                switch (type) {
+                    case "pointer":
+                        this._cancelPointer(e);
+                        break;
+                    case "mouse":
+                        this._cancelMouse();
+                        break;
+                    case "touch":
+                        this._cancelTouch();
+                        break;
+                }
             }
             get dtX() {
                 return this._touchX - this._pouchX;
@@ -569,16 +587,19 @@ var conx;
             }
             _onPointermove(e) {
                 //e.preventDefault();
-                this.Move(e, e.clientX, e.clientY);
+                this.Move(e, "pointer", e.clientX, e.clientY);
             }
             _onPointerup(e) {
                 e.preventDefault();
+                this._cancelPointer(e);
+                this.onPointer(e, "up");
+            }
+            _cancelPointer(e) {
                 this._moved = false;
                 this.releasePointerCapture(e.pointerId);
                 this.removeEventListener("pointermove", this._onPointermove);
                 this.removeEventListener("pointerup", this._onPointerup);
                 this.removeEventListener("pointercancel", this._onPointerup);
-                this.onPointer(e, "up");
             }
             _onMousedown(e) {
                 e.preventDefault();
@@ -593,17 +614,20 @@ var conx;
             }
             _onMousemove(e) {
                 //e.preventDefault();
-                this.Move(e, e.clientX, e.clientY);
+                this.Move(e, "mouse", e.clientX, e.clientY);
             }
             _onMouseup(e) {
                 e.preventDefault();
+                this._cancelMouse();
+                this.onPointer(e, "up");
+            }
+            _cancelMouse() {
                 this._moved = false;
                 document.removeEventListener("mousemove", this._onMousemove);
                 document.removeEventListener("mouseup", this._onMouseup);
-                this.onPointer(e, "up");
             }
             _onTouchstart(e) {
-                e.preventDefault();
+                //e.preventDefault();
                 this._moved = false;
                 this._pouchX = e.changedTouches[0].clientX;
                 this._pouchY = e.changedTouches[0].clientY;
@@ -616,15 +640,18 @@ var conx;
             }
             _onTouchmove(e) {
                 //e.preventDefault();
-                this.Move(e, e.targetTouches[0].clientX, e.targetTouches[0].clientY);
+                this.Move(e, "touch", e.targetTouches[0].clientX, e.targetTouches[0].clientY);
             }
             _onTouchend(e) {
-                e.preventDefault();
+                //e.preventDefault();
+                this._cancelTouch();
+                this.onPointer(e, "up");
+            }
+            _cancelTouch() {
                 this._moved = false;
                 this.removeEventListener("touchmove", this._onTouchmove);
                 this.removeEventListener("touchend", this._onTouchend);
                 this.removeEventListener("touchcancel", this._onTouchend);
-                this.onPointer(e, "up");
             }
         }
         controls.Element = Element;
@@ -794,6 +821,7 @@ var conx;
             }
             onPointer(e, type) {
                 //super.onPointer(e,type);
+                //glo.trace("x", this, this.id, type, this.movable, this._val, this._pval);
                 switch (type) {
                     case "down":
                         this.movable = true;
@@ -1307,6 +1335,8 @@ var conx;
                     this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
                     this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
                     this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
+                    this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
+                    this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.rgbToHex(this.root.red._val, this.root.green._val, this.root.blue._val);
                     this.root.intensity.updateByValue();
                     this.root.hue.updateByValue();
                     this.root.saturation.updateByValue();
