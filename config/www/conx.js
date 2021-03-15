@@ -1275,6 +1275,10 @@ var conx;
     var cards;
     (function (cards) {
         class Light_CLR extends cards.HACard {
+            constructor() {
+                super(...arguments);
+                this.lastHSV = undefined;
+            }
             create() {
                 super.create();
                 let local = window.location.origin;
@@ -1313,6 +1317,7 @@ var conx;
                 this.root.blue.locals.title = "";
             }
             refreshColors(hsv) {
+                this.lastHSV = hsv;
                 if (hsv) {
                     let rgb = conx.glo.HSVtoRGB(this.root.hue._val, this.root.saturation._val, this.root.intensity._val);
                     this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
@@ -1351,7 +1356,7 @@ var conx;
                 this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
                 this.root.green._val = this.state.attributes.rgb_color[1] / 255.0;
                 this.root.blue._val = this.state.attributes.rgb_color[2] / 255.0;
-                this.refreshColors(true);
+                this.refreshColors(this.lastHSV);
                 this.root.intensity.updateByValue();
                 this.root.hue.updateByValue();
                 this.root.saturation.updateByValue();
