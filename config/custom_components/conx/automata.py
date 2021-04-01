@@ -151,8 +151,12 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
     def on_box_change(self, event):
         if self._channel != event.data["channel"]:
             return
-        self._on = event.data["on"]
+        b = event.data["on"]
+        if self._invert:
+            b = True if False == b else True
+        self._on = b
         self.async_write_ha_state()
+        self.match()
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -413,6 +417,7 @@ class AutomataSensor(BinarySensorEntity):
         self._box: AutomataBox = self._automata.boxes[self._boxName]
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
+        self._match: str = config.get("match")
         self._on = False
 
         conx.hass.bus.async_listen(
@@ -424,6 +429,15 @@ class AutomataSensor(BinarySensorEntity):
             return
         self._on = event.data["on"]
         self.async_write_ha_state()
+        self.match()
+
+    def match(self):
+        if None == self._match or len(self._match) <= 0:
+            return
+
+        entities: list = self._db.GetEntities(self._match)
+        for e in entities:
+            self._fde.async_turn(e["entity"], self._on)
 
     @property
     def name(self):
