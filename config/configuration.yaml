@@ -41,8 +41,14 @@ conx: !include conx/devices.yaml
 switch automata: !include conx/switches/automata.yaml
 light dmx: !include conx/lights/dmx.yaml
 #switch kincony: !include conx/switches/kincony.yaml
-#sensor automata: !include conx/sensors/automata.yaml
+sensor automata: !include conx/sensors/automata.yaml
 #sensor udp: !include conx/sensors/udp.yaml
+
+
+logger:
+  default: info
+  logs:
+    homeassistant.components.cloud: debug
 
 
 logger:

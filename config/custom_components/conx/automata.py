@@ -411,6 +411,7 @@ class AutomataSensor(BinarySensorEntity):
     def __init__(self, conx, config):
         self._conx = conx
         self._db: DB = conx.db
+        self._fde: FDE = conx.fde
         self._automata: Automata = conx.automata
 
         self._boxName = config.get("boxName")
@@ -445,10 +446,6 @@ class AutomataSensor(BinarySensorEntity):
 
     @property
     def is_on(self):
-        return self._on
-
-    @property
-    def state(self):
         return self._on
 
     @property
