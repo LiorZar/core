@@ -43,7 +43,7 @@ class AutomataBox:
         self.type = config["type"]
 
         self.tcp.Connect(
-            self.name, self.ip, self.port, self.onNetworkMessage, 12, 6, b"[STATUS]"
+            self.name, self.ip, self.port, self.onNetworkMessage, 18, 6, b"[OK]"
         )
 
     def onNetworkMessage(self, cmd: str, data: bytearray):
@@ -165,6 +165,7 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
 
         state = await self.async_get_last_state()
         self._on = state and state.state == STATE_ON
+        self.refreshBox()
 
     @property
     def should_poll(self) -> bool:
@@ -180,21 +181,22 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
 
     async def async_turn_on(self, **kwargs):
         self._on = True
-        if False == self._invert:
-            self._box.SendON(self._channel)
-        else:
-            self._box.SendOFF(self._channel)
+        self.refreshBox()
         self.async_write_ha_state()
         self.match()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
-        if False == self._invert:
-            self._box.SendOFF(self._channel)
-        else:
-            self._box.SendON(self._channel)
+        self.refreshBox()
         self.async_write_ha_state()
         self.match()
+
+    def refreshBox(self):
+        on = self._on if False == self._invert else not self._on
+        if True == on:
+            self._box.SendON(self._channel)
+        else:
+            self._box.SendOFF(self._channel)
 
     def match(self):
         if None == self._match or len(self._match) <= 0:
