@@ -43,10 +43,19 @@ class Universe:
         self.channels = [self.level] * self.channelCount
         self.duration = 0
         self.update = True
-        self.keepTime = 10.0
+        self.keepTime = 60.0
         self.keepDuration = 0
         self.keepDirty = True
         self.seq = 1
+
+        state = self.db.Get("dmx/" + self.name)
+        if state == None:
+            return
+
+        for i in range(0, len(state), 2):
+            j = i // 2
+            if j < self.channelCount:
+                self.channels[j] = int(state[i : i + 2], 16)
 
     def getVal(self, i: int, cnt: int, vnt: int, vals: list) -> int:
         f: float = float(i) / float(cnt - 1)  # [0,1]
@@ -256,9 +265,8 @@ class DMX:
             unv.seq = 1
 
     def keep(self, unv: Universe):
-        # state = "".join("{:02x}".format(x) for x in unv.channels)
-        # self.db.setData("dmx", unv.name, state)
-        pass
+        state = "".join("{:02x}".format(x) for x in unv.channels)
+        self.db.Set("dmx/" + unv.name, state)
 
     def onStop(self):
         pass
