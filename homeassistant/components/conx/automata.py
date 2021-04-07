@@ -153,7 +153,7 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
             return
         b = event.data["on"]
         if self._invert:
-            b = True if False == b else True
+            b = not b
         self._on = b
         self.async_write_ha_state()
         self.match()
@@ -236,6 +236,7 @@ class AutomataLight(LightEntity, RestoreEntity):
 
         state = await self.async_get_last_state()
         self._on = state and state.state == STATE_ON
+        self.refreshBox()
 
     @property
     def name(self):
@@ -257,22 +258,21 @@ class AutomataLight(LightEntity, RestoreEntity):
     def should_poll(self):
         return False
 
+    def refreshBox(self):
+        on = self._on if False == self._invert else not self._on
+        if True == on:
+            self._box.SendON(self._channel)
+        else:
+            self._box.SendOFF(self._channel)
+
     async def async_turn_on(self, **kwargs):
         self._on = True
-        if self._box is not None:
-            if False == self._invert:
-                self._box.SendON(self._channel)
-            else:
-                self._box.SendOFF(self._channel)
+        self.refreshBox()
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         self._on = False
-        if self._box is not None:
-            if False == self._invert:
-                self._box.SendOFF(self._channel)
-            else:
-                self._box.SendON(self._channel)
+        self.refreshBox()
         self.async_write_ha_state()
 
     def async_update(self):
@@ -409,7 +409,7 @@ class Automata4ColorLight(LightEntity, RestoreEntity):
         pass
 
 
-class AutomataSensor(BinarySensorEntity):
+class AutomataSensor(BinarySensorEntity, RestoreEntity):
     def __init__(self, conx, config):
         self._conx = conx
         self._db: DB = conx.db
@@ -420,8 +420,9 @@ class AutomataSensor(BinarySensorEntity):
         self._box: AutomataBox = self._automata.boxes[self._boxName]
         self._channel = config.get("channel")
         self._name = config.get(CONF_NAME)
+        self._invert: bool = config.get("invert")
         self._match: str = config.get("match")
-        self._on = False
+        self._on = None
 
         conx.hass.bus.async_listen(
             EVENT_AUTOMATA_BOX_CHANGE + self._boxName, self.on_box_change
@@ -430,9 +431,20 @@ class AutomataSensor(BinarySensorEntity):
     def on_box_change(self, event):
         if self._channel != event.data["channel"]:
             return
-        self._on = event.data["on"]
+        b = event.data["on"]
+        if self._invert:
+            b = not b
+        self._on = b
         self.async_write_ha_state()
         self.match()
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        if self._on is not None:
+            return
+
+        state = await self.async_get_last_state()
+        self._on = state and state.state == STATE_ON
 
     def match(self):
         if None == self._match or len(self._match) <= 0:
