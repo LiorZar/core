@@ -43,9 +43,7 @@ class DB:
     def Reload(self, call):
         try:
             self.data: Dict[str, Any] = load_yaml(self.hass.config.path("db.yaml"))
-            gFN.Parse(
-                load_yaml(self.hass.config.path("custom_components/conx/fn.yaml"))
-            )
+            gFN.Parse(load_yaml(self.hass.config.path("fn.yaml")))
             self.Get("cues", True)
             self.Get("timelines", True)
             self.Get("sk", True)
