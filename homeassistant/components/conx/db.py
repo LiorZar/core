@@ -47,6 +47,7 @@ class DB:
             self.Get("cues", True)
             self.Get("timelines", True)
             self.Get("sk", True)
+            self.Get("dmx", True)
             self.hass.bus.async_fire(EVENT_DB_RELOAD)
         except Exception as e:
             print(e)
