@@ -8,7 +8,7 @@ from homeassistant.const import CONF_NAME, CONF_TYPE
 from homeassistant.helpers import entity_platform
 import homeassistant.helpers.config_validation as cv
 
-from .const import DOMAIN, EVENT_AUTOMATA_BOX_CHANGE
+from .const import DOMAIN
 from .automata import AutomataSensor, AutomataWGSensor
 from .net import UDPSensor
 

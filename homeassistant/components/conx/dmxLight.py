@@ -42,7 +42,7 @@ from .tween import FX, Twe
 from .fn import Fn, gFN
 from .const import (
     DOMAIN,
-    EVENT_UNIVERSE_CHANGE,
+    EVENT_CONX_UNIVERSE_CHANGE,
     EPS,
     WRITE_STATE_TS,
     clamp,
@@ -165,9 +165,7 @@ class DMXLight(LightEntity, RestoreEntity):
         for a in self._patch:
             self._channels += [channel for channel in range(a, a + self._channel_count)]
 
-        conx.hass.bus.async_listen(
-            EVENT_UNIVERSE_CHANGE + self._dmxName, self.on_universe_change
-        )
+        conx.hass.bus.async_listen(EVENT_CONX_UNIVERSE_CHANGE, self.on_universe_change)
         if None != self._fixture:
             self._db.addFixture(self._fixture, self)
         self.haTS = timer()
@@ -436,6 +434,8 @@ class DMXLight(LightEntity, RestoreEntity):
         self.writeState()
 
     def on_universe_change(self, event):
+        if self._dmxName != event.data["dmx"]:
+            return
         self.read_values()
         self.writeState()
 

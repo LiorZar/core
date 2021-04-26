@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from typing import Any, Dict, Callable
 
-from .const import DOMAIN, Del, EVENT_DB_RELOAD
+from .const import DOMAIN, Del, EVENT_CONX_DB_RELOAD
 from .db import DB
 from .fde import FDE
 
@@ -109,7 +109,7 @@ class CUE:
         self.fde: FDE = conx.fde
         self.cues: Dict[str, cue] = {}
         self.loadData()
-        self.hass.bus.async_listen(EVENT_DB_RELOAD, self.loadData)
+        self.hass.bus.async_listen(EVENT_CONX_DB_RELOAD, self.loadData)
 
     def loadData(self, event=None):
         self.cues = {}

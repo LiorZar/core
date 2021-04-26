@@ -8,7 +8,7 @@ from homeassistant.util.yaml import load_yaml, save_yaml
 from typing import Any, Dict
 
 from .db import DB
-from .const import DOMAIN, EVENT_UNIVERSE_CHANGE, fract
+from .const import DOMAIN, EVENT_CONX_UNIVERSE_CHANGE, fract
 
 CONF_LIGHT_TYPE_DIMMER = "dimmer"
 CONF_LIGHT_TYPE_RGB = "rgb"
@@ -87,7 +87,7 @@ class Universe:
             if j < self.channelCount:
                 self.channels[j] = v
 
-        self.hass.bus.async_fire(EVENT_UNIVERSE_CHANGE + self.name)
+        self.hass.bus.async_fire(EVENT_CONX_UNIVERSE_CHANGE, {"dmx": self.name})
         self.update = True
         self.keepDirty = True
 

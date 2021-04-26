@@ -3,12 +3,13 @@
     - boxName: autoBox1
       channel: 11
       name: conxSensor1
+      invert: True
 
     - boxName: autoBox1
       channel: 12
       name: conxSensor2
+      match: light.dim_;21>23
 
     - boxName: autoBox1
       channel: 13
       name: conxSensor3
-

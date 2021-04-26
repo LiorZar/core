@@ -10,7 +10,7 @@ from typing import Any, Dict
 from attr import has
 from homeassistant.util.yaml import load_yaml, save_yaml
 
-from .const import DOMAIN, EVENT_DB_RELOAD, EVENT_DB_CHANGE
+from .const import DOMAIN, EVENT_CONX_DB_RELOAD, EVENT_CONX_DB_CHANGE
 from .fn import gFN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
@@ -48,7 +48,7 @@ class DB:
             self.Get("timelines", True)
             self.Get("sk", True)
             self.Get("dmx", True)
-            self.hass.bus.async_fire(EVENT_DB_RELOAD)
+            self.hass.bus.async_fire(EVENT_CONX_DB_RELOAD)
         except Exception as e:
             print(e)
             self.data: Dict[str, Any] = {}
@@ -139,7 +139,7 @@ class DB:
 
         self.dataDirty = True
         self.hard = self.hard or hard
-        self.Log(path, EVENT_DB_CHANGE)
+        self.Log(path, EVENT_CONX_DB_CHANGE)
         return True
 
     def Del(self, path: str, hard: bool = False):
@@ -155,7 +155,7 @@ class DB:
 
         self.dataDirty = True
         self.hard = self.hard or hard
-        self.Log(path, EVENT_DB_CHANGE)
+        self.Log(path, EVENT_CONX_DB_CHANGE)
 
     def LastService(self, domain: str, service: str, data: any):
         if True == data.get("soft"):

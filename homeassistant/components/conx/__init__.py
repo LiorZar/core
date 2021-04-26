@@ -9,7 +9,7 @@ from homeassistant.const import EVENT_HOMEASSISTANT_STOP, EVENT_STATE_CHANGED
 from homeassistant.components import websocket_api
 
 
-from .const import DOMAIN, LISTEN_DOMAINS
+from .const import DOMAIN, LISTEN_DOMAINS, EVENT_CONX_PROXY
 from .db import DB
 from .net import UDP, TCP
 from .ext import EXT
@@ -108,7 +108,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
             and event.data.get("entity_id").split(".")[0] in LISTEN_DOMAINS
         ):
             hass.bus.async_fire(
-                "conx_proxy",
+                EVENT_CONX_PROXY,
                 {"entity_id": event.data.get("entity_id")},
             )
 

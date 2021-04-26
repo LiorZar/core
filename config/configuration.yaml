@@ -10,13 +10,17 @@ default_config:
 #logbook:
 #sun:
 
-
 # Example filter to include specified domains and exclude specified entities
 recorder:
   purge_keep_days: 1
   include:
     domains:
       - switch
+  exclude:
+    event_types:
+      - conx_universe_change
+      - conx_automata_box_change
+      - conx_kicony_box_change
 
 history:
   use_include_order: true
@@ -24,11 +28,8 @@ history:
     domains:
       - switch
 
-
 # Text to speech
 # Example configuration.yaml entry for Google Translate TTS service
-
-
 
 group: !include groups.yaml
 automation: !include_dir_list automation/
@@ -44,15 +45,7 @@ light dmx: !include conx/lights/dmx.yaml
 sensor automata: !include conx/sensors/automata.yaml
 #sensor udp: !include conx/sensors/udp.yaml
 
-
 logger:
   default: info
   logs:
     homeassistant.components.cloud: debug
-
-
-logger:
-  default: info
-  logs:
-    homeassistant.components.cloud: debug
-

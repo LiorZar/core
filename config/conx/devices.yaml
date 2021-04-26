@@ -1,20 +1,17 @@
 dmx:
   - name: "dmx1"
-    ip: "192.168.1.23"
+    ip: "192.168.1.12"
     universe: 0
     channels: 512
     fps: 0
 
 automata:
   - name: "autoBox1"
-    ip: "192.168.1.23"
+    ip: "192.168.1.12"
     port: 1001
     type: "input"
 
   - name: "autoBox2"
-    ip: "192.168.1.23"
+    ip: "192.168.1.12"
     port: 1002
     type: "output"
-
-
-

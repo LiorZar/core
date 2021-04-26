@@ -3,7 +3,7 @@ import logging
 import threading
 from typing import Any, Dict
 
-from .const import DOMAIN, EVENT_KINCONY_BOX_CHANGE
+from .const import DOMAIN, EVENT_CONX_KINCONY_BOX_CHANGE
 from .db import DB
 from .net import TCP
 from homeassistant.core import HomeAssistant
@@ -67,8 +67,8 @@ class KinconyBox:
         data[:] = []
 
         self.hass.bus.async_fire(
-            EVENT_KINCONY_BOX_CHANGE + self.name,
-            {"cmd": cmd, "channel": channel, "value": value},
+            EVENT_CONX_KINCONY_BOX_CHANGE,
+            {"box": self.name, "cmd": cmd, "channel": channel, "value": value},
         )
         return True
 
@@ -125,12 +125,10 @@ class KinconySwitch(SwitchEntity, RestoreEntity):
         self._name = config.get(CONF_NAME)
         self._on = None
 
-        conx.hass.bus.async_listen(
-            EVENT_KINCONY_BOX_CHANGE + self._boxName, self.on_box_change
-        )
+        conx.hass.bus.async_listen(EVENT_CONX_KINCONY_BOX_CHANGE, self.on_box_change)
 
     def on_box_change(self, event):
-        if self._channel != event.data["channel"]:
+        if self.name != event.data["box"] or self._channel != event.data["channel"]:
             return
         self._on = 1 == int(event.data["value"])
         self.async_write_ha_state()

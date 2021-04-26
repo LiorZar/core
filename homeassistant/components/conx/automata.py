@@ -4,7 +4,7 @@ import threading
 from typing import Any, Dict
 from timeit import default_timer as timer
 
-from .const import DOMAIN, EVENT_AUTOMATA_BOX_CHANGE
+from .const import DOMAIN, EVENT_CONX_AUTOMATA_BOX_CHANGE
 from .db import DB
 from .net import TCP
 from .fde import FDE
@@ -84,7 +84,8 @@ class AutomataBox:
         channel: int = int(data[0])
         on: bool = "ON" == data[1]
         self.hass.bus.async_fire(
-            EVENT_AUTOMATA_BOX_CHANGE + self.name, {"channel": channel, "on": on}
+            EVENT_CONX_AUTOMATA_BOX_CHANGE,
+            {"box": self.name, "channel": channel, "on": on},
         )
         return True
 
@@ -144,12 +145,10 @@ class AutomataSwitch(SwitchEntity, RestoreEntity):
         self._invert: bool = config.get("invert")
         self._match: str = config.get("match")
 
-        conx.hass.bus.async_listen(
-            EVENT_AUTOMATA_BOX_CHANGE + self._boxName, self.on_box_change
-        )
+        conx.hass.bus.async_listen(EVENT_CONX_AUTOMATA_BOX_CHANGE, self.on_box_change)
 
     def on_box_change(self, event):
-        if self._channel != event.data["channel"]:
+        if self._boxName != event.data["box"] or self._channel != event.data["channel"]:
             return
         b = event.data["on"]
         if self._invert:
@@ -424,12 +423,10 @@ class AutomataSensor(BinarySensorEntity, RestoreEntity):
         self._match: str = config.get("match")
         self._on = None
 
-        conx.hass.bus.async_listen(
-            EVENT_AUTOMATA_BOX_CHANGE + self._boxName, self.on_box_change
-        )
+        conx.hass.bus.async_listen(EVENT_CONX_AUTOMATA_BOX_CHANGE, self.on_box_change)
 
     def on_box_change(self, event):
-        if self._channel != event.data["channel"]:
+        if self._boxName != event.data["box"] or self._channel != event.data["channel"]:
             return
         b = event.data["on"]
         if self._invert:
