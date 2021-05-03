@@ -2,6 +2,7 @@ import time
 import asyncio
 import socket
 import select
+import binascii
 import logging
 import threading
 from timeit import default_timer as timer
@@ -289,6 +290,25 @@ class UDP:
     def onError(self, data, addr):
         print("onError ", data, addr)
 
+    def sendto(self, call):
+        entities = None
+        try:
+            print("sendto", call)
+            entities = self.db.GetEntities(call.data.get("entity_id"))
+            if None == entities:
+                return False
+
+            ip = call.data.get("ip")
+            port = call.data.get("port")
+            data = call.data.get("data")
+
+            for e in entities:
+                en = e["entity"]
+                if hasattr(en, "sendTo"):
+                    en.sendTo((ip, port), data)
+        except Exception as ex:
+            print("sendto fail", ex)
+
 
 class UDPServerProtocol:
     def __init__(self, parent, loop, sock):
@@ -357,6 +377,14 @@ class UDPSensor(Entity):
         self.async_write_ha_state()
         if self.echo:
             self.sock.sendto(data, addr)
+
+    def sendTo(self, addr, data):
+        if "0x" != data[:2]:
+            byteData = data.encode("utf-8")
+        else:
+            byteData = bytes.fromhex(data[2:])
+
+        self.sock.sendto(byteData, addr)
 
     @property
     def name(self):

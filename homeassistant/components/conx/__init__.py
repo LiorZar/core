@@ -136,6 +136,7 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "test", self.test)
         self.hass.services.async_register(DOMAIN, "channel", self.dmx.set_channel)
         self.hass.services.async_register(DOMAIN, "universe", self.dmx.set_universe)
+        self.hass.services.async_register(DOMAIN, "sendto", self.udp.sendto)
         self.hass.services.async_register(DOMAIN, "patch", self.dmx.patch)
         self.hass.services.async_register(DOMAIN, "fade", self.fde.fade)
         self.hass.services.async_register(DOMAIN, "reload", self.db.Reload)

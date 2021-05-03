@@ -43,6 +43,22 @@ universe:
       description: the frame per second to send artnet. 0 means only on change
       example: 25
 
+sendto:
+  description: send udp packet via udp sensor
+  fields:
+    entity_id:
+      description: The entity id or selection light_;1>10|3 - 10>4
+      example: "sensor.kitchen"
+    ip:
+      description: the ip address
+      example: 127.0.0.1
+    port:
+      description: the port
+      example: 10102
+    data:
+      description: a string or hex data, hex will be with '0x' at the start e.g ('hello', '0xA1FF80')
+      example: "'0x48656C6C6F0C0A4D6F7368696B6F0C0A'"
+
 light:
   description: run a light state by parameter.
   fields:
