@@ -1392,7 +1392,7 @@ var conx;
             constructor() {
                 super(...arguments);
                 this.names = [
-                    "$fix", "$rgb", "$sw", "C", "CE",
+                    "$fix", "$rgb", "$sw", "C", "Clear",
                     "7", "8", "9", "+", "Store",
                     "4", "5", "6", "-", "Play",
                     "1", "2", "3", "|", "Delete",
@@ -1415,7 +1415,9 @@ var conx;
                 html += `<label>selection:</label>`;
                 html += `<input type="text" id="selection" style="grid-column: 2/6;">`;
                 html += `<label>name:</label>`;
-                html += `<input type="text" id="name" style="grid-column: 2/5;">`;
+                html += `<input type="text" id="name">`;
+                html += `<label>timeline:</label>`;
+                html += `<input type="text" id="timeline">`;
                 html += `<input type="number" id="tran" min="0">`;
                 html += `<label>cycle:</label>`;
                 html += `<input type="number" id="cycle"  min="0" step="0.5" value="4">`;
@@ -1430,6 +1432,8 @@ var conx;
                 this.root.sel.onchange = this.onChange.bind(this, "sel");
                 this.root.name = conx.glo.findChild(this.root, "name");
                 this.root.name.onchange = this.onChange.bind(this, "name");
+                this.root.timeline = conx.glo.findChild(this.root, "timeline");
+                this.root.timeline.onchange = this.onChange.bind(this, "timeline");
                 this.root.tran = conx.glo.findChild(this.root, "tran");
                 this.root.tran.onchange = this.onChange.bind(this, "tran");
                 this.root.cycle = conx.glo.findChild(this.root, "cycle");
@@ -1439,12 +1443,13 @@ var conx;
                 for (let i = 0; i < 25; ++i) {
                     bt = conx.glo.findChild(this.root, `bn${i}`);
                     this.root[`bn${i}`] = bt;
-                    bt.textContent = this.names[i];
                     bt.onclick = this.onButton.bind(this, i, this.names[i]);
                 }
                 this.checkState("conx.selection", this.root.sel, false);
                 this.checkState("conx.name", this.root.name, false);
+                this.checkState("conx.timeline", this.root.timeline, false);
                 this.checkState("conx.transition", this.root.tran, false);
+                this.refreshNames();
             }
             postCreate() {
                 super.postCreate();
@@ -1454,6 +1459,7 @@ var conx;
                     return false;
                 this.checkState("conx.selection", this.root.sel);
                 this.checkState("conx.name", this.root.name);
+                this.checkState("conx.timeline", this.root.timeline, false);
                 this.checkState("conx.transition", this.root.tran);
                 return true;
             }
@@ -1470,6 +1476,10 @@ var conx;
                     case "name":
                         this._hass.callService("conx", "name", { name: this.root.name.value });
                         break;
+                    case "timeline":
+                        this._hass.callService("conx", "timeline", { timeline: this.root.timeline.value });
+                        this.refreshNames();
+                        break;
                     case "tran":
                         this._hass.callService("conx", "transition", { value: Number(this.root.tran.value) });
                         break;
@@ -1481,17 +1491,43 @@ var conx;
                         break;
                 }
             }
+            refreshNames() {
+                var _a;
+                let s = "";
+                if (((_a = this.root.timeline.value) === null || _a === void 0 ? void 0 : _a.length) > 0)
+                    s = "T";
+                this.names[9] = "Store" + s;
+                this.names[14] = "Play" + s;
+                this.names[19] = "Delete" + s;
+                this.refreshButtonNames();
+            }
+            refreshButtonNames() {
+                let bt;
+                for (let i = 0; i < 25; ++i) {
+                    bt = this.root[`bn${i}`];
+                    bt.textContent = this.names[i];
+                }
+            }
             onButton(i, name) {
                 let sel = this.root.sel.value;
                 switch (name) {
                     case 'Store':
-                        this._hass.callService("conx", "cuestore", {});
+                        if ("StoreT" == this.names[i])
+                            this._hass.callService("conx", "TimelineStore", {});
+                        else
+                            this._hass.callService("conx", "cuestore", {});
                         break;
                     case 'Play':
-                        this._hass.callService("conx", "cueplay", {});
+                        if ("PlayT" == this.names[i])
+                            this._hass.callService("conx", "TimelineStart", { name: this.root.timeline.value });
+                        else
+                            this._hass.callService("conx", "cueplay", {});
                         break;
                     case 'Delete':
-                        this._hass.callService("conx", "cuedelete", {});
+                        if ("DeleteT" == this.names[i])
+                            this._hass.callService("conx", "TimelineDelete", {});
+                        else
+                            this._hass.callService("conx", "cuedelete", {});
                         break;
                     case 'Name':
                         this._hass.callService("conx", "name", { name: this.root.name.value });
@@ -1503,9 +1539,12 @@ var conx;
                         this.root.sel.value = sel.substr(0, sel.length - 1);
                         this.onChange("sel");
                         break;
-                    case 'CE':
+                    case 'Clear':
                         this.root.sel.value = "";
                         this.onChange("sel");
+                        //this.root.timeline.value = "";
+                        //this.onChange("timeline");
+                        this._hass.callService("conx", "clear", {});
                         break;
                     default:
                         this.root.sel.value = sel + name;

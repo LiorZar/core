@@ -32,10 +32,12 @@ class DB:
         self.saveDuration = 0
         self.selection = ""
         self.name = ""
+        self.timeline = ""
         self.lastCall: Any = None
         self.transition: float = 2
         self.hass.states.async_set("conx.selection", "")
         self.hass.states.async_set("conx.name", "")
+        self.hass.states.async_set("conx.timeline", "")
         self.hass.states.async_set("conx.transition", 2)
 
         self.Reload(None)
@@ -86,6 +88,13 @@ class DB:
     def setName(self, sel: str):
         self.name = sel
         self.hass.states.async_set("conx.name", self.name)
+
+    def Timeline(self, call):
+        self.setTimeline(call.data.get("timeline"))
+
+    def setTimeline(self, sel: str):
+        self.timeline = sel
+        self.hass.states.async_set("conx.timeline", self.timeline)
 
     def Transition(self, call):
         self.setTransition(call.data.get("value"))
@@ -158,9 +167,12 @@ class DB:
         self.Log(path, EVENT_CONX_DB_CHANGE)
 
     def LastService(self, domain: str, service: str, data: any):
-        if True == data.get("soft"):
+        if True == data.get("soft") and len(self.timeline) <= 0:
             return
         self.lastCall = {"domain": domain, "service": service, "data": data}
+
+    def Clear(self, call):
+        self.lastCall = None
 
     def SaveSK(self, path: str, type: str, idx: int):
         data: Any = None

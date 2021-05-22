@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import threading
+import copy
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from typing import Any, Dict, Callable
@@ -46,6 +47,31 @@ class tme:
         self.loopIdx: int = 0
         self.elapsed: float = 0
         self.duration: float = 0.01
+
+        for sk in self.seq:
+            data = sk["data"]
+            if None != data:
+                data = data.get("data")
+                if None != data:
+                    data["soft"] = True
+
+    def Append(self, newSK):
+        for i in range(len(self.seq)):
+            sk = self.seq[i]
+            if newSK["name"] == sk["name"]:
+                self.seq[i] = newSK
+                return
+
+        self.seq.append(newSK)
+
+    def Delete(self, name):
+        for i in range(len(self.seq)):
+            sk = self.seq[i]
+            if name == sk["name"]:
+                del self.seq[i]
+
+    def Save(self):
+        self.db.Set("timelines/" + self.name, self.seq)
 
     def onTick(self, elapse: float):
         if False == self.active:
@@ -209,6 +235,71 @@ class CUE:
         except Exception as ex:
             print("Delete fail", ex)
             self.db.Log(f"cue {name} delete fail ({str(ex)})")
+
+    def TimelineStore(self, call):
+        timeline = ""
+        sk = {"name": "", "type": "script", "duration": 1}
+        try:
+            data = call.data
+            sk["name"] = data.get("name") or self.db.name
+            timeline = data.get("timeline") or self.db.timeline
+            sk["duration"] = float(data.get("transition") or self.db.transition)
+            if (
+                None == sk["name"]
+                or len(sk["name"]) <= 0
+                or None == timeline
+                or len(timeline) <= 0
+            ):
+                raise Exception(f"bad names t={timeline}, n={sk['name']}")
+
+            if None == self.db.lastCall:
+                sk["type"] = "delay"
+                data = {}
+            else:
+                data = copy.deepcopy(self.db.lastCall)
+                data["data"]["soft"] = True
+
+            t: tme = self.timelines.get(timeline)
+            if None == t:
+                t = tme(self.db, timeline, [])
+                self.timelines[timeline] = t
+
+            sk["data"] = data
+            t.Append(sk)
+            t.Save()
+            self.db.Log(f"Timeline {timeline} saved")
+
+        except Exception as ex:
+            print("TimelineStore fail", ex)
+            self.db.Log(f"Timeline {timeline} store fail ({str(ex)})")
+
+    def TimelineDelete(self, call):
+        name = ""
+        timeline = ""
+        try:
+            data = call.data
+            name = data.get("name") or self.db.name
+            timeline = data.get("timeline") or self.db.timeline
+            if None == timeline or len(timeline) <= 0:
+                raise Exception(f"bad names t={timeline}, n={name}")
+
+            t: tme = self.timelines.get(timeline)
+            if None == t:
+                raise Exception(f"no timeline name {timeline}")
+
+            if len(name) > 0:
+                t.Delete(name)
+                t.Save()
+                if len(t.seq) > 0:
+                    self.db.Log(f"Timeline {timeline}/{name} deleted")
+            else:
+                del self.timelines[timeline]
+                self.db.Del("timelines/" + timeline)
+                self.db.Log(f"Timeline {timeline} deleted")
+
+        except Exception as ex:
+            print("TimelineStore fail", ex)
+            self.db.Log(f"Timeline {timeline} store fail ({str(ex)})")
 
     def TimelineStart(self, call):
         name = ""

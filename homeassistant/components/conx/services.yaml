@@ -140,6 +140,29 @@ cuedelete:
       description: the name of cue to delete
       example: cue5
 
+clear:
+  description: clears the last service call
+
+timelinestore:
+  description: store last service call on a timeline
+  fields:
+    timeline:
+      description: the name of timeline to start. if not exists will take from editor
+    name:
+      description: the name of you like to call this event
+    transition:
+      description: the transition time
+
+timelinedelete:
+  description: delete an event from a timeline
+  fields:
+    timeline:
+      description: the name of timeline to start. if not exists will take from editor
+    name:
+      description: the name of the event to delete, if not supplied will delete the entire timeline
+    transition:
+      description: the transition time
+
 timelinestart:
   description: start a timeline
   fields:

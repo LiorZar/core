@@ -142,7 +142,9 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "reload", self.db.Reload)
 
         self.hass.services.async_register(DOMAIN, "select", self.db.Select)
+        self.hass.services.async_register(DOMAIN, "clear", self.db.Clear)
         self.hass.services.async_register(DOMAIN, "name", self.db.Name)
+        self.hass.services.async_register(DOMAIN, "timeline", self.db.Timeline)
         self.hass.services.async_register(DOMAIN, "transition", self.db.Transition)
 
         self.hass.services.async_register(DOMAIN, "light", self.fde.light)
@@ -150,6 +152,12 @@ class ConX(threading.Thread):
         self.hass.services.async_register(DOMAIN, "cueplay", self.cue.Play)
         self.hass.services.async_register(DOMAIN, "cuedelete", self.cue.Delete)
 
+        self.hass.services.async_register(
+            DOMAIN, "timelinestore", self.cue.TimelineStore
+        )
+        self.hass.services.async_register(
+            DOMAIN, "timelinedelete", self.cue.TimelineDelete
+        )
         self.hass.services.async_register(
             DOMAIN, "timelinestart", self.cue.TimelineStart
         )
