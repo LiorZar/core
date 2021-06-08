@@ -43,7 +43,7 @@ switch automata: !include conx/switches/automata.yaml
 light dmx: !include conx/lights/dmx.yaml
 #switch kincony: !include conx/switches/kincony.yaml
 sensor automata: !include conx/sensors/automata.yaml
-#sensor udp: !include conx/sensors/udp.yaml
+sensor udp: !include conx/sensors/udp.yaml
 
 logger:
   default: info

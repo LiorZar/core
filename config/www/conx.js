@@ -310,6 +310,7 @@ var conx;
     //static isMobile: boolean = true;
     glo.isMobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     glo.DPI = window.devicePixelRatio;
+    glo.MPI = 100.0 / (76.0 * window.devicePixelRatio / 2.54);
     conx.glo = glo;
 })(conx || (conx = {}));
 var conx;
@@ -567,10 +568,10 @@ var conx;
                 return this._touchY - this._pouchY;
             }
             get dtIX() {
-                return this.dtX / conx.glo.DPI;
+                return this.dtX * conx.glo.MPI;
             }
             get dtIY() {
-                return this.dtY / conx.glo.DPI;
+                return this.dtY * conx.glo.MPI;
             }
             _onPointerdown(e) {
                 e.preventDefault();
@@ -838,10 +839,11 @@ var conx;
                                 this._val = (rect.bottom - this._touchY) / rect.height;
                         }
                         else {
+                            console.log(conx.glo.DPI, conx.glo.MPI);
                             if (false == this.isVertical)
-                                this._val = conx.glo.zclamp(this._val + this.dtX / rect.width);
+                                this._val = conx.glo.zclamp(this._val + this.dtIX / rect.width);
                             else
-                                this._val = conx.glo.zclamp(this._val + this.dtY / rect.height);
+                                this._val = conx.glo.zclamp(this._val + this.dtIX / rect.height);
                         }
                         this.updateByValue();
                         if (this.onChange)
@@ -869,6 +871,8 @@ var conx;
                 this.states = [];
                 this.entities = [];
                 this.connected = false;
+                this.timestamp = 0;
+                this.timeCheckDelta = 500;
             }
             create() {
             }
@@ -882,6 +886,8 @@ var conx;
                 if (!this.root || !this.connected || this.entities.length > 1 || this.entities.length <= 0 || !this.state)
                     return false;
                 if (check && false == this.checkStateChanged(0))
+                    return false;
+                if (check && (conx.glo.time - this.timestamp) < this.timeCheckDelta)
                     return false;
                 return true;
             }
@@ -950,14 +956,19 @@ var conx;
                 var _a, _b, _c, _d;
                 return ((_b = (_a = this.phass) === null || _a === void 0 ? void 0 : _a.states) === null || _b === void 0 ? void 0 : _b[entity]) !== ((_d = (_c = this._hass) === null || _c === void 0 ? void 0 : _c.states) === null || _d === void 0 ? void 0 : _d[entity]);
             }
+            stampChange() {
+                this.timestamp = conx.glo.time;
+            }
             ConxLight(data) {
                 this._hass.callService("conx", "light", data);
+                this.stampChange();
             }
             Get(unq, path, create = false) {
                 this.conx(unq, "db.Get", { path: path, create: create });
             }
             Set(unq, path, value) {
                 this.conx(unq, "db.Set", { path: path, value: value });
+                this.stampChange();
             }
             conx(unq, cmd, data) {
                 this._hass.connection.sendMessagePromise({
@@ -1322,47 +1333,46 @@ var conx;
                     let rgb = conx.glo.HSVtoRGB(this.root.hue._val, this.root.saturation._val, this.root.intensity._val);
                     this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
                     this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.rgbToHex(rgb[0], rgb[1], rgb[2]);
-                    this.root.red._val = rgb[0];
-                    this.root.green._val = rgb[1];
-                    this.root.blue._val = rgb[2];
-                    this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
-                    this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
-                    this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
-                    this.root.red.updateByValue();
-                    this.root.green.updateByValue();
-                    this.root.blue.updateByValue();
+                    this.refreshRGB(rgb);
                 }
                 else {
                     let hsv = conx.glo.RGBtoHSV(this.root.red._val, this.root.green._val, this.root.blue._val);
-                    this.root.intensity._val = hsv[2];
-                    this.root.hue._val = hsv[0];
-                    this.root.saturation._val = hsv[1];
                     this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
                     this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
                     this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
-                    this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
-                    this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.rgbToHex(this.root.red._val, this.root.green._val, this.root.blue._val);
-                    this.root.intensity.updateByValue();
-                    this.root.hue.updateByValue();
-                    this.root.saturation.updateByValue();
+                    this.refreshHSV(hsv);
                 }
+            }
+            refreshRGB(rgb) {
+                this.root.red._val = rgb[0];
+                this.root.green._val = rgb[1];
+                this.root.blue._val = rgb[2];
+                this.root.red.params.bg.style.fill = this.root.red.bg.style.fill = conx.glo.RGBAtoHEX(1, 0, 0, this.root.red._val);
+                this.root.green.params.bg.style.fill = this.root.green.bg.style.fill = conx.glo.RGBAtoHEX(0, 1, 0, this.root.green._val);
+                this.root.blue.params.bg.style.fill = this.root.blue.bg.style.fill = conx.glo.RGBAtoHEX(0, 0, 1, this.root.blue._val);
+                this.root.red.updateByValue();
+                this.root.green.updateByValue();
+                this.root.blue.updateByValue();
+            }
+            refreshHSV(hsv) {
+                this.root.intensity._val = hsv[2];
+                this.root.hue._val = hsv[0];
+                this.root.saturation._val = hsv[1];
+                this.root.saturation.params.bg.style.fill = this.root.saturation.bg.style.fill = conx.glo.HSVtoHEX(this.root.hue._val, this.root.saturation._val, 1);
+                this.root.intensity.params.bg.style.fill = this.root.intensity.bg.style.fill = conx.glo.rgbToHex(this.root.red._val, this.root.green._val, this.root.blue._val);
+                this.root.intensity.updateByValue();
+                this.root.hue.updateByValue();
+                this.root.saturation.updateByValue();
             }
             updateState(check) {
                 if (false === super.updateState(check))
                     return false;
-                this.root.intensity._val = this.state.attributes.brightness / 255.0;
-                this.root.hue._val = this.state.attributes.hs_color[0] / 360.0;
-                this.root.saturation._val = this.state.attributes.hs_color[1] / 100.0;
-                this.root.red._val = this.state.attributes.rgb_color[0] / 255.0;
-                this.root.green._val = this.state.attributes.rgb_color[1] / 255.0;
-                this.root.blue._val = this.state.attributes.rgb_color[2] / 255.0;
-                this.refreshColors(this.lastHSV);
-                this.root.intensity.updateByValue();
-                this.root.hue.updateByValue();
-                this.root.saturation.updateByValue();
-                this.root.red.updateByValue();
-                this.root.green.updateByValue();
-                this.root.blue.updateByValue();
+                let rgba = this.stateToColor(this.state);
+                let hsv = conx.glo.RGBtoHSV(rgba[0], rgba[1], rgba[2]);
+                hsv[2] = rgba[3];
+                let rgb = conx.glo.HSVtoRGB(hsv[0], hsv[1], hsv[2]);
+                this.refreshRGB(rgb);
+                this.refreshHSV(hsv);
                 return true;
             }
             onChange(id, value, pvalue) {

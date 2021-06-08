@@ -1,6 +1,6 @@
 - platform: conx
   udp:
     - name: udpSensor
-      ip: "192.168.1.36"
+      ip: "192.168.1.12"
       port: 10103
       echo: True
