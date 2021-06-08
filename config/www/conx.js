@@ -839,7 +839,6 @@ var conx;
                                 this._val = (rect.bottom - this._touchY) / rect.height;
                         }
                         else {
-                            console.log(conx.glo.DPI, conx.glo.MPI);
                             if (false == this.isVertical)
                                 this._val = conx.glo.zclamp(this._val + this.dtIX / rect.width);
                             else
@@ -959,6 +958,9 @@ var conx;
             stampChange() {
                 this.timestamp = conx.glo.time;
             }
+            stampClear() {
+                this.timestamp = -this.timeCheckDelta;
+            }
             ConxLight(data) {
                 this._hass.callService("conx", "light", data);
                 this.stampChange();
@@ -1076,6 +1078,7 @@ var conx;
                 switch (name) {
                     case "toggle":
                         this.ConxLight({ entity_id: this.entities, intensity: this.root.intensity._val > 0 ? 0.0 : 1.0 });
+                        this.stampClear();
                         break;
                 }
             }
