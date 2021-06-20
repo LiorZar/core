@@ -306,6 +306,12 @@ var conx;
             }
             return names;
         }
+        static Guid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
     }
     //static isMobile: boolean = true;
     glo.isMobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -865,6 +871,7 @@ var conx;
         class HACard extends HTMLElement {
             constructor() {
                 super(...arguments);
+                this.guid = conx.glo.Guid();
                 this.phass = {};
                 this.ptates = [];
                 this.states = [];
@@ -882,12 +889,14 @@ var conx;
                     conx.glo.update(this.root, this.html);
             }
             updateState(check) {
+                var _a;
                 if (!this.root || !this.connected || this.entities.length > 1 || this.entities.length <= 0 || !this.state)
                     return false;
                 if (check && false == this.checkStateChanged(0))
                     return false;
-                if (check && (conx.glo.time - this.timestamp) < this.timeCheckDelta)
+                if (check && this.guid === ((_a = this.state) === null || _a === void 0 ? void 0 : _a.attributes.lc))
                     return false;
+                //if (check && (glo.time - this.timestamp) < this.timeCheckDelta)                return false;
                 return true;
             }
             get hass() { return this._hass; }
@@ -947,6 +956,19 @@ var conx;
                 }
                 return [R, G, B, A];
             }
+            colorToState(rgba) {
+                var _a;
+                const state = this.state;
+                if (!state)
+                    return;
+                state.attributes.brightness = rgba[3] * 255.0;
+                if (!!((_a = state.attributes) === null || _a === void 0 ? void 0 : _a.rgb_color)) {
+                    state.attributes.rgb_color[0] = rgba[0] * 255.0;
+                    state.attributes.rgb_color[1] = rgba[1] * 255.0;
+                    state.attributes.rgb_color[2] = rgba[2] * 255.0;
+                }
+                state.state = (rgba[3] <= 0) ? "off" : "on";
+            }
             checkStateChanged(idx) {
                 var _a, _b;
                 return ((_a = this.ptates) === null || _a === void 0 ? void 0 : _a[idx]) !== ((_b = this.states) === null || _b === void 0 ? void 0 : _b[idx]);
@@ -962,6 +984,7 @@ var conx;
                 this.timestamp = -this.timeCheckDelta;
             }
             ConxLight(data) {
+                data.lc = this.guid;
                 this._hass.callService("conx", "light", data);
                 this.stampChange();
             }
@@ -1070,6 +1093,8 @@ var conx;
                 if (!this.rgba)
                     return;
                 this.rgba[3] = value;
+                this.colorToState(this.rgba);
+                this.rgba = this.stateToColor(this.state);
                 this.refreshColors();
             }
             onCommand(name) {
@@ -1077,7 +1102,13 @@ var conx;
                 let bt;
                 switch (name) {
                     case "toggle":
-                        this.ConxLight({ entity_id: this.entities, intensity: this.root.intensity._val > 0 ? 0.0 : 1.0 });
+                        this.rgba[3] = this.root.intensity._val > 0 ? 0.0 : 1.0;
+                        this.colorToState(this.rgba);
+                        this.rgba = this.stateToColor(this.state);
+                        this.refreshColors();
+                        this.root.intensity._val = this.rgba[3];
+                        this.root.intensity.updateByValue();
+                        this.ConxLight({ entity_id: this.entities, intensity: this.rgba[3] });
                         this.stampClear();
                         break;
                 }

@@ -42,6 +42,7 @@ from .tween import FX, Twe
 from .fn import Fn, gFN
 from .const import (
     DOMAIN,
+    ATTR_LAST_CONTROL,
     EVENT_CONX_UNIVERSE_CHANGE,
     EPS,
     WRITE_STATE_TS,
@@ -160,6 +161,7 @@ class DMXLight(LightEntity, RestoreEntity):
         self.values: Dict[Parameter, float] = copy.copy(self.parameters)
 
         self._channel_count = CHANNEL_COUNT_MAP.get(self._type, 1)
+        self._lc = ""
 
         self._channels = []
         for a in self._patch:
@@ -229,6 +231,8 @@ class DMXLight(LightEntity, RestoreEntity):
         for p in self.parameters:
             if isinstance(self.parameters[p], dict):
                 data[p.name] = self.parameters[p]
+
+        data[ATTR_LAST_CONTROL] = self._lc
 
         return {key: val for key, val in data.items() if val is not None}
 
@@ -357,6 +361,11 @@ class DMXLight(LightEntity, RestoreEntity):
             fade = kwargs[ATTR_TRANSITION]
             del kwargs[ATTR_TRANSITION]
 
+        if ATTR_LAST_CONTROL in kwargs:
+            self._lc = kwargs[ATTR_LAST_CONTROL]
+        else:
+            self._lc = ""
+
         data = self.convertToParameters(kwargs)
         self.setParameters(data, fade, index)
 
@@ -371,6 +380,9 @@ class DMXLight(LightEntity, RestoreEntity):
             fade = kwargs[ATTR_TRANSITION]
             del kwargs[ATTR_TRANSITION]
 
+        if ATTR_LAST_CONTROL in kwargs:
+            self._lc = kwargs[ATTR_LAST_CONTROL]
+
         data = self.convertHAToParameters(kwargs)
         self.setParameters(data, fade, None)
 
@@ -384,6 +396,9 @@ class DMXLight(LightEntity, RestoreEntity):
         if ATTR_TRANSITION in kwargs:
             fade = kwargs[ATTR_TRANSITION]
             del kwargs[ATTR_TRANSITION]
+
+        if ATTR_LAST_CONTROL in kwargs:
+            self._lc = kwargs[ATTR_LAST_CONTROL]
 
         data = self.convertHAToParameters(kwargs)
         self.setParameters(data, fade, None)

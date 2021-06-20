@@ -3,6 +3,8 @@
 DOMAIN = "conx"
 LISTEN_DOMAINS = ["light", "switch", "sensor", "cover"]
 
+ATTR_LAST_CONTROL = "lc"
+
 EVENT_CONX_PROXY = "conx_proxy"
 EVENT_CONX_DB_RELOAD = "db_reload"
 EVENT_CONX_DB_CHANGE = "db_change"
@@ -11,7 +13,7 @@ EVENT_CONX_AUTOMATA_BOX_CHANGE = "conx_automata_box_change"
 EVENT_CONX_KINCONY_BOX_CHANGE = "conx_kicony_box_change"
 
 EPS: float = 0.0001
-WRITE_STATE_TS: float = 0.333
+WRITE_STATE_TS: float = 0.125
 
 from voluptuous import Invalid
 
