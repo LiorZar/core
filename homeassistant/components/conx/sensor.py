@@ -45,7 +45,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
             [
                 {
                     vol.Required(CONF_NAME): cv.string,
-                    vol.Required("ip"): cv.string,
+                    vol.Optional("ip", default=""): cv.string,
                     vol.Required("port"): cv.port,
                     vol.Optional("echo", default=False): cv.boolean,
                 }

@@ -346,13 +346,13 @@ class UDPSensor(Entity):
         self.hass = conx.hass
         self.tcp: TCP = conx.tcp
         self._name = config.get(CONF_NAME)
-        self.ip = config.get("ip")
+        self.ip: str = config.get("ip")
         self.port = config.get("port")
         self.echo: bool = config.get("echo")
 
         self._state: str = ""
 
-        host_ip_addr = get_local_ip()
+        self.host_ip_addr = get_local_ip()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setblocking(False)
 
@@ -360,7 +360,7 @@ class UDPSensor(Entity):
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-        self.sock.bind((host_ip_addr, self.port))
+        self.sock.bind((self.host_ip_addr, self.port))
         self.listen = self.hass.loop.create_datagram_endpoint(
             lambda: UDPServerProtocol(self, self.hass.loop, self.sock), sock=self.sock
         )
@@ -373,17 +373,23 @@ class UDPSensor(Entity):
 
     def onMessage(self, data, addr):
         print("onMessage ", data, addr)
+        if "" != self.ip and self.ip != addr[0]:
+            return
         self._state = data.decode("utf-8")
         self.async_write_ha_state()
         if self.echo:
             self.sock.sendto(data, addr)
 
     def sendTo(self, addr, data):
+        if self.host_ip_addr == addr[0]:
+            return
         if "0x" != data[:2]:
             byteData = data.encode("utf-8")
         else:
             byteData = bytes.fromhex(data[2:])
 
+        if None == addr[1]:
+            addr = (addr[0], self.port)
         self.sock.sendto(byteData, addr)
 
     @property
