@@ -80,8 +80,6 @@ build.json @home-assistant/supervisor
 /tests/components/airzone/ @Noltari
 /homeassistant/components/airzone_cloud/ @Noltari
 /tests/components/airzone_cloud/ @Noltari
-/homeassistant/components/aladdin_connect/ @swcloudgenie
-/tests/components/aladdin_connect/ @swcloudgenie
 /homeassistant/components/alarm_control_panel/ @home-assistant/core
 /tests/components/alarm_control_panel/ @home-assistant/core
 /homeassistant/components/alert/ @home-assistant/core @frenck
@@ -779,6 +777,8 @@ build.json @home-assistant/supervisor
 /tests/components/lg_netcast/ @Drafteed @splinter98
 /homeassistant/components/lidarr/ @tkdrob
 /tests/components/lidarr/ @tkdrob
+/homeassistant/components/lifx/ @Djelibeybi
+/tests/components/lifx/ @Djelibeybi
 /homeassistant/components/light/ @home-assistant/core
 /tests/components/light/ @home-assistant/core
 /homeassistant/components/linear_garage_door/ @IceBotYT
@@ -997,6 +997,7 @@ build.json @home-assistant/supervisor
 /tests/components/ondilo_ico/ @JeromeHXP
 /homeassistant/components/onewire/ @garbled1 @epenet
 /tests/components/onewire/ @garbled1 @epenet
+/homeassistant/components/onkyo/ @arturpragacz
 /homeassistant/components/onvif/ @hunterjm
 /tests/components/onvif/ @hunterjm
 /homeassistant/components/open_meteo/ @frenck
@@ -1459,8 +1460,8 @@ build.json @home-assistant/supervisor
 /tests/components/tomorrowio/ @raman325 @lymanepp
 /homeassistant/components/totalconnect/ @austinmroczek
 /tests/components/totalconnect/ @austinmroczek
-/homeassistant/components/tplink/ @rytilahti @thegardenmonkey @bdraco @sdb9696
-/tests/components/tplink/ @rytilahti @thegardenmonkey @bdraco @sdb9696
+/homeassistant/components/tplink/ @rytilahti @bdraco @sdb9696
+/tests/components/tplink/ @rytilahti @bdraco @sdb9696
 /homeassistant/components/tplink_omada/ @MarkGodwin
 /tests/components/tplink_omada/ @MarkGodwin
 /homeassistant/components/traccar/ @ludeeus
