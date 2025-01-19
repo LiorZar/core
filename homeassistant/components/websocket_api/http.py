@@ -23,6 +23,7 @@ from homeassistant.util.json import json_loads
 from .auth import AUTH_REQUIRED_MESSAGE, AuthPhase
 from .const import (
     DATA_CONNECTIONS,
+    DATA_USER_CONNECTIONS,
     MAX_PENDING_MSG,
     PENDING_MSG_MAX_FORCE_READY,
     PENDING_MSG_PEAK,
@@ -359,9 +360,14 @@ class WebSocketHandler:
             #
             # We only start the writer queue after the auth phase is completed
             # since there is no need to queue messages before the auth phase
+            print("connection: ", connection)
             self._connection = connection
             self._writer_task = create_eager_task(self._writer(send_bytes_text))
             hass.data[DATA_CONNECTIONS] = hass.data.get(DATA_CONNECTIONS, 0) + 1
+            user_conn = hass.data.get(DATA_USER_CONNECTIONS)
+            if user_conn is None:
+                user_conn = hass.data[DATA_USER_CONNECTIONS] = {}
+            user_conn[connection.user.id] = connection
             async_dispatcher_send(hass, SIGNAL_WEBSOCKET_CONNECTED)
 
             self._authenticated = True
@@ -486,6 +492,9 @@ class WebSocketHandler:
                     if connection is not None:
                         hass.data[DATA_CONNECTIONS] -= 1
                         self._connection = None
+                        user_conn = hass.data.get(DATA_USER_CONNECTIONS)
+                        if user_conn is not None:
+                            user_conn.pop(connection.user.id, None)
 
                     async_dispatcher_send(hass, SIGNAL_WEBSOCKET_DISCONNECTED)
 

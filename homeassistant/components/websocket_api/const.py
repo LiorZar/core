@@ -57,4 +57,6 @@ SIGNAL_WEBSOCKET_DISCONNECTED: Final = "websocket_disconnected"
 # Data used to store the current connection list
 DATA_CONNECTIONS: Final = f"{DOMAIN}.connections"
 
+DATA_USER_CONNECTIONS: Final = f"user_connections"
+
 FEATURE_COALESCE_MESSAGES = "coalesce_messages"

@@ -305,13 +305,28 @@ async def handle_call_service(
         connection.send_error(msg["id"], const.ERR_UNKNOWN_ERROR, str(err))
 
 
+def entity_non_admin_perm(state: State, userId: int) -> bool:
+    print(state.entity_id)
+    if state.domain not in ("automation", "script") or userId in state.attributes.get(
+        "allowed_users", []
+    ):
+        return True
+    return False
+
+
 @callback
 def _async_get_allowed_states(
     hass: HomeAssistant, connection: ActiveConnection
 ) -> list[State]:
     user = connection.user
-    if user.is_admin or user.permissions.access_all_entities(POLICY_READ):
+    if user.is_admin:
         return hass.states.async_all()
+    if user.permissions.access_all_entities(POLICY_READ):
+        return [
+            state
+            for state in hass.states.async_all()
+            if entity_non_admin_perm(state, user.id)
+        ]
     entity_perm = connection.user.permissions.check_entity
     return [
         state

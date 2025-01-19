@@ -2652,8 +2652,8 @@ class ServiceRegistry:
         service_data = service_data or {}
 
         try:
-            user = await self._hass.auth.async_get_user(context.user_id)
-            print(user)
+            # user = await self._hass.auth.async_get_user(context.user_id)
+            # print(user)
             handler = self._services[domain][service]
         except KeyError:
             # Almost all calls are already lower case, so we avoid
