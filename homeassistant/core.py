@@ -2652,8 +2652,15 @@ class ServiceRegistry:
         service_data = service_data or {}
 
         try:
-            # user = await self._hass.auth.async_get_user(context.user_id)
-            # print(user)
+            if (
+                domain == "script"
+                and context is not None
+                and context.user_id is not None
+            ):
+                user = await self._hass.auth.async_get_user(context.user_id)
+                if user is not None and not user.is_admin:
+                    raise ServiceNotFound(domain, service) from None
+
             handler = self._services[domain][service]
         except KeyError:
             # Almost all calls are already lower case, so we avoid

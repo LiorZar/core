@@ -67,8 +67,6 @@ class AuthPhase:
         self._request = request
         # send_bytes_text will directly send a message to the client.
         self._send_bytes_text = send_bytes_text
-        user_agent = request.headers.get("User-Agent", "")
-        print(f"User-Agent: {user_agent}")
 
     async def async_handle(self, msg: JsonValueType) -> ActiveConnection:
         """Handle authentication."""
