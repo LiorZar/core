@@ -11,16 +11,14 @@ from roborock.exceptions import RoborockException
 from roborock.version_1_apis.roborock_client_v1 import AttributeCache
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, EntityCategory
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import slugify
 
-from . import RoborockCoordinators
-from .const import DOMAIN
+from . import DOMAIN, RoborockConfigEntry
 from .coordinator import RoborockDataUpdateCoordinator
-from .device import RoborockEntityV1
+from .entity import RoborockEntityV1
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,16 +49,15 @@ NUMBER_DESCRIPTIONS: list[RoborockNumberDescription] = [
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
+    config_entry: RoborockConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roborock number platform."""
-    coordinators: RoborockCoordinators = hass.data[DOMAIN][config_entry.entry_id]
     possible_entities: list[
         tuple[RoborockDataUpdateCoordinator, RoborockNumberDescription]
     ] = [
         (coordinator, description)
-        for coordinator in coordinators.v1
+        for coordinator in config_entry.runtime_data.v1
         for description in NUMBER_DESCRIPTIONS
     ]
     # We need to check if this function is supported by the device.
@@ -80,7 +77,7 @@ async def async_setup_entry(
         else:
             valid_entities.append(
                 RoborockNumberEntity(
-                    f"{description.key}_{slugify(coordinator.duid)}",
+                    f"{description.key}_{coordinator.duid_slug}",
                     coordinator,
                     description,
                 )
@@ -111,6 +108,12 @@ class RoborockNumberEntity(RoborockEntityV1, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Set number value."""
-        await self.entity_description.update_value(
-            self.get_cache(self.entity_description.cache_key), value
-        )
+        try:
+            await self.entity_description.update_value(
+                self.get_cache(self.entity_description.cache_key), value
+            )
+        except RoborockException as err:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="update_options_failed",
+            ) from err

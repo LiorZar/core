@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Generator, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-
-from typing_extensions import Generator
 
 from .util.event_type import EventType
 
@@ -266,6 +264,25 @@ class ServiceNotFound(ServiceValidationError):
             translation_domain="homeassistant",
             translation_key="service_not_found",
             translation_placeholders={"domain": domain, "service": service},
+        )
+        self.domain = domain
+        self.service = service
+        self.generate_message = True
+
+
+class ServiceNotSupported(ServiceValidationError):
+    """Raised when an entity action is not supported."""
+
+    def __init__(self, domain: str, service: str, entity_id: str) -> None:
+        """Initialize ServiceNotSupported exception."""
+        super().__init__(
+            translation_domain="homeassistant",
+            translation_key="service_not_supported",
+            translation_placeholders={
+                "domain": domain,
+                "service": service,
+                "entity_id": entity_id,
+            },
         )
         self.domain = domain
         self.service = service

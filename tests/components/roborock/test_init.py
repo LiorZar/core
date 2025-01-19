@@ -4,7 +4,12 @@ from copy import deepcopy
 from unittest.mock import patch
 
 import pytest
-from roborock import RoborockException, RoborockInvalidCredentials
+from roborock import (
+    RoborockException,
+    RoborockInvalidCredentials,
+    RoborockInvalidUserAgreement,
+    RoborockNoUserAgreement,
+)
 
 from homeassistant.components.roborock.const import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
@@ -29,7 +34,6 @@ async def test_unload_entry(
         await hass.async_block_till_done()
         assert mock_disconnect.call_count == 2
         assert setup_entry.state is ConfigEntryState.NOT_LOADED
-        assert not hass.data.get(DOMAIN)
 
 
 async def test_config_entry_not_ready(
@@ -177,3 +181,53 @@ async def test_not_supported_protocol(
         await async_setup_component(hass, DOMAIN, {})
         await hass.async_block_till_done()
     assert "because its protocol version random" in caplog.text
+
+
+async def test_not_supported_a01_device(
+    hass: HomeAssistant,
+    bypass_api_fixture,
+    mock_roborock_entry: MockConfigEntry,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test that we output a message on incorrect category."""
+    home_data_copy = deepcopy(HOME_DATA)
+    home_data_copy.products[2].category = "random"
+    with patch(
+        "homeassistant.components.roborock.RoborockApiClient.get_home_data_v2",
+        return_value=home_data_copy,
+    ):
+        await async_setup_component(hass, DOMAIN, {})
+        await hass.async_block_till_done()
+    assert "The device you added is not yet supported" in caplog.text
+
+
+async def test_invalid_user_agreement(
+    hass: HomeAssistant,
+    bypass_api_fixture,
+    mock_roborock_entry: MockConfigEntry,
+) -> None:
+    """Test that we fail setting up if the user agreement is out of date."""
+    with patch(
+        "homeassistant.components.roborock.RoborockApiClient.get_home_data_v2",
+        side_effect=RoborockInvalidUserAgreement(),
+    ):
+        await hass.config_entries.async_setup(mock_roborock_entry.entry_id)
+        assert mock_roborock_entry.state is ConfigEntryState.SETUP_RETRY
+        assert (
+            mock_roborock_entry.error_reason_translation_key == "invalid_user_agreement"
+        )
+
+
+async def test_no_user_agreement(
+    hass: HomeAssistant,
+    bypass_api_fixture,
+    mock_roborock_entry: MockConfigEntry,
+) -> None:
+    """Test that we fail setting up if the user has no agreement."""
+    with patch(
+        "homeassistant.components.roborock.RoborockApiClient.get_home_data_v2",
+        side_effect=RoborockNoUserAgreement(),
+    ):
+        await hass.config_entries.async_setup(mock_roborock_entry.entry_id)
+        assert mock_roborock_entry.state is ConfigEntryState.SETUP_RETRY
+        assert mock_roborock_entry.error_reason_translation_key == "no_user_agreement"

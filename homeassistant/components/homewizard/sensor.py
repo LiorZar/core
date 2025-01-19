@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Final
 
-from homewizard_energy.models import Data, ExternalDevice
+from homewizard_energy.v1.models import Data, ExternalDevice
 
 from homeassistant.components.sensor import (
     DEVICE_CLASS_UNITS,
@@ -15,27 +15,26 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_VIA_DEVICE,
     PERCENTAGE,
-    POWER_VOLT_AMPERE_REACTIVE,
     EntityCategory,
-    Platform,
     UnitOfApparentPower,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
     UnitOfFrequency,
     UnitOfPower,
+    UnitOfReactivePower,
     UnitOfVolume,
+    UnitOfVolumeFlowRate,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
+from . import HomeWizardConfigEntry
 from .const import DOMAIN
 from .coordinator import HWEnergyDeviceUpdateCoordinator
 from .entity import HomeWizardEntity
@@ -404,7 +403,7 @@ SENSORS: Final[tuple[HomeWizardSensorEntityDescription, ...]] = (
     ),
     HomeWizardSensorEntityDescription(
         key="active_reactive_power_var",
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
@@ -415,7 +414,7 @@ SENSORS: Final[tuple[HomeWizardSensorEntityDescription, ...]] = (
         key="active_reactive_power_l1_var",
         translation_key="active_reactive_power_phase_var",
         translation_placeholders={"phase": "1"},
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
@@ -426,7 +425,7 @@ SENSORS: Final[tuple[HomeWizardSensorEntityDescription, ...]] = (
         key="active_reactive_power_l2_var",
         translation_key="active_reactive_power_phase_var",
         translation_placeholders={"phase": "2"},
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
@@ -437,7 +436,7 @@ SENSORS: Final[tuple[HomeWizardSensorEntityDescription, ...]] = (
         key="active_reactive_power_l3_var",
         translation_key="active_reactive_power_phase_var",
         translation_placeholders={"phase": "3"},
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
@@ -567,7 +566,7 @@ SENSORS: Final[tuple[HomeWizardSensorEntityDescription, ...]] = (
     HomeWizardSensorEntityDescription(
         key="active_liter_lpm",
         translation_key="active_liter_lpm",
-        native_unit_of_measurement="l/min",
+        native_unit_of_measurement=UnitOfVolumeFlowRate.LITERS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
         has_fn=lambda data: data.active_liter_lpm is not None,
         value_fn=lambda data: data.active_liter_lpm,
@@ -619,57 +618,30 @@ EXTERNAL_SENSORS = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: HomeWizardConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Initialize sensors."""
-    coordinator: HWEnergyDeviceUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    # Migrate original gas meter sensor to ExternalDevice
-    # This is sensor that was directly linked to the P1 Meter
-    # Migration can be removed after 2024.8.0
-    ent_reg = er.async_get(hass)
-
-    if (
-        entity_id := ent_reg.async_get_entity_id(
-            Platform.SENSOR, DOMAIN, f"{entry.unique_id}_total_gas_m3"
-        )
-    ) and coordinator.data.data.gas_unique_id is not None:
-        ent_reg.async_update_entity(
-            entity_id,
-            new_unique_id=f"{DOMAIN}_gas_meter_{coordinator.data.data.gas_unique_id}",
-        )
-
-    # Remove old gas_unique_id sensor
-    if entity_id := ent_reg.async_get_entity_id(
-        Platform.SENSOR, DOMAIN, f"{entry.unique_id}_gas_unique_id"
-    ):
-        ent_reg.async_remove(entity_id)
+    data = entry.runtime_data.data.data
 
     # Initialize default sensors
     entities: list = [
-        HomeWizardSensorEntity(coordinator, description)
+        HomeWizardSensorEntity(entry.runtime_data, description)
         for description in SENSORS
-        if description.has_fn(coordinator.data.data)
+        if description.has_fn(data)
     ]
 
     # Initialize external devices
-    if coordinator.data.data.external_devices is not None:
-        for unique_id, device in coordinator.data.data.external_devices.items():
+    if data.external_devices is not None:
+        for unique_id, device in data.external_devices.items():
             if description := EXTERNAL_SENSORS.get(device.meter_type):
-                # Migrate external devices to new unique_id
-                # This is to ensure that devices with same id but different type are unique
-                # Migration can be removed after 2024.11.0
-                if entity_id := ent_reg.async_get_entity_id(
-                    Platform.SENSOR, DOMAIN, f"{DOMAIN}_{device.unique_id}"
-                ):
-                    ent_reg.async_update_entity(
-                        entity_id,
-                        new_unique_id=f"{DOMAIN}_{unique_id}",
-                    )
-
                 # Add external device
                 entities.append(
-                    HomeWizardExternalSensorEntity(coordinator, description, unique_id)
+                    HomeWizardExternalSensorEntity(
+                        entry.runtime_data, description, unique_id
+                    )
                 )
 
     async_add_entities(entities)

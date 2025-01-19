@@ -54,7 +54,8 @@ async def async_setup_entry(
 ) -> None:
     """Set up climate device."""
     if get_device_entry_gen(config_entry) in RPC_GENERATIONS:
-        return async_setup_rpc_entry(hass, config_entry, async_add_entities)
+        async_setup_rpc_entry(hass, config_entry, async_add_entities)
+        return
 
     coordinator = config_entry.runtime_data.block
     assert coordinator
@@ -171,7 +172,6 @@ class BlockSleepingClimate(
     )
     _attr_target_temperature_step = SHTRV_01_TEMPERATURE_SETTINGS["step"]
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
-    _enable_turn_on_off_backwards_compatibility = False
 
     def __init__(
         self,
@@ -455,7 +455,6 @@ class RpcClimate(ShellyRpcEntity, ClimateEntity):
     )
     _attr_target_temperature_step = RPC_THERMOSTAT_SETTINGS["step"]
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
-    _enable_turn_on_off_backwards_compatibility = False
 
     def __init__(self, coordinator: ShellyRpcCoordinator, id_: int) -> None:
         """Initialize."""

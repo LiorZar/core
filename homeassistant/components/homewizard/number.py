@@ -3,27 +3,27 @@
 from __future__ import annotations
 
 from homeassistant.components.number import NumberEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.color import brightness_to_value, value_to_brightness
 
-from .const import DOMAIN
+from . import HomeWizardConfigEntry
 from .coordinator import HWEnergyDeviceUpdateCoordinator
 from .entity import HomeWizardEntity
 from .helpers import homewizard_exception_handler
 
+PARALLEL_UPDATES = 1
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: HomeWizardConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up numbers for device."""
-    coordinator: HWEnergyDeviceUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
-    if coordinator.supports_state():
-        async_add_entities([HWEnergyNumberEntity(coordinator)])
+    if entry.runtime_data.supports_state():
+        async_add_entities([HWEnergyNumberEntity(entry.runtime_data)])
 
 
 class HWEnergyNumberEntity(HomeWizardEntity, NumberEntity):
@@ -64,4 +64,4 @@ class HWEnergyNumberEntity(HomeWizardEntity, NumberEntity):
             or (brightness := self.coordinator.data.state.brightness) is None
         ):
             return None
-        return brightness_to_value((0, 100), brightness)
+        return round(brightness_to_value((0, 100), brightness))

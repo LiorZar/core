@@ -1,7 +1,9 @@
 """Test the Google Maps Travel Time sensors."""
 
-from unittest.mock import patch
+from collections.abc import Generator
+from unittest.mock import MagicMock, patch
 
+from googlemaps.exceptions import ApiError, Timeout, TransportError
 import pytest
 
 from homeassistant.components.google_travel_time.config_flow import default_options
@@ -12,7 +14,9 @@ from homeassistant.components.google_travel_time.const import (
     UNITS_IMPERIAL,
     UNITS_METRIC,
 )
+from homeassistant.components.google_travel_time.sensor import SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 from homeassistant.util.unit_system import (
     METRIC_SYSTEM,
     US_CUSTOMARY_SYSTEM,
@@ -21,11 +25,11 @@ from homeassistant.util.unit_system import (
 
 from .const import MOCK_CONFIG
 
-from tests.common import MockConfigEntry
+from tests.common import MockConfigEntry, async_fire_time_changed
 
 
 @pytest.fixture(name="mock_update")
-def mock_update_fixture():
+def mock_update_fixture() -> Generator[MagicMock]:
     """Mock an update to the sensor."""
     with (
         patch("homeassistant.components.google_travel_time.sensor.Client"),
@@ -56,7 +60,7 @@ def mock_update_fixture():
 
 
 @pytest.fixture(name="mock_update_duration")
-def mock_update_duration_fixture(mock_update):
+def mock_update_duration_fixture(mock_update: MagicMock) -> MagicMock:
     """Mock an update to the sensor returning no duration_in_traffic."""
     mock_update.return_value = {
         "rows": [
@@ -77,7 +81,7 @@ def mock_update_duration_fixture(mock_update):
 
 
 @pytest.fixture(name="mock_update_empty")
-def mock_update_empty_fixture(mock_update):
+def mock_update_empty_fixture(mock_update: MagicMock) -> MagicMock:
     """Mock an update to the sensor with an empty response."""
     mock_update.return_value = None
     return mock_update
@@ -239,3 +243,25 @@ async def test_sensor_unit_system(
 
     distance_matrix_mock.assert_called_once()
     assert distance_matrix_mock.call_args.kwargs["units"] == expected_unit_option
+
+
+@pytest.mark.parametrize(
+    ("exception"),
+    [(ApiError), (TransportError), (Timeout)],
+)
+@pytest.mark.parametrize(
+    ("data", "options"),
+    [(MOCK_CONFIG, {})],
+)
+async def test_sensor_exception(
+    hass: HomeAssistant,
+    caplog: pytest.LogCaptureFixture,
+    mock_update: MagicMock,
+    mock_config: MagicMock,
+    exception: Exception,
+) -> None:
+    """Test that exception gets caught."""
+    mock_update.side_effect = exception("Errormessage")
+    async_fire_time_changed(hass, dt_util.utcnow() + SCAN_INTERVAL)
+    await hass.async_block_till_done()
+    assert "Error getting travel time" in caplog.text

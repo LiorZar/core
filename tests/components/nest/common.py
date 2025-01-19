@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Generator
 import copy
-from dataclasses import dataclass, field
-import time
+from dataclasses import dataclass
 from typing import Any
 
 from google_nest_sdm.auth import AbstractAuth
@@ -14,7 +13,6 @@ from google_nest_sdm.device_manager import DeviceManager
 from google_nest_sdm.event import EventMessage
 from google_nest_sdm.event_media import CachePolicy
 from google_nest_sdm.google_nest_subscriber import GoogleNestSubscriber
-from typing_extensions import Generator
 
 from homeassistant.components.application_credentials import ClientCredential
 from homeassistant.components.nest import DOMAIN
@@ -31,13 +29,13 @@ CLIENT_ID = "some-client-id"
 CLIENT_SECRET = "some-client-secret"
 CLOUD_PROJECT_ID = "cloud-id-9876"
 SUBSCRIBER_ID = "projects/cloud-id-9876/subscriptions/subscriber-id-9876"
+SUBSCRIPTION_NAME = "projects/cloud-id-9876/subscriptions/subscriber-id-9876"
 
 
 @dataclass
 class NestTestConfig:
     """Holder for integration configuration."""
 
-    config: dict[str, Any] = field(default_factory=dict)
     config_entry_data: dict[str, Any] | None = None
     credential: ClientCredential | None = None
 
@@ -54,37 +52,18 @@ TEST_CONFIG_APP_CREDS = NestTestConfig(
     credential=ClientCredential(CLIENT_ID, CLIENT_SECRET),
 )
 TEST_CONFIGFLOW_APP_CREDS = NestTestConfig(
-    config=TEST_CONFIG_APP_CREDS.config,
     credential=ClientCredential(CLIENT_ID, CLIENT_SECRET),
 )
 
-TEST_CONFIG_LEGACY = NestTestConfig(
-    config={
-        "nest": {
-            "client_id": "some-client-id",
-            "client_secret": "some-client-secret",
-        },
-    },
+TEST_CONFIG_NEW_SUBSCRIPTION = NestTestConfig(
     config_entry_data={
-        "auth_implementation": "local",
-        "tokens": {
-            "expires_at": time.time() + 86400,
-            "access_token": {
-                "token": "some-token",
-            },
-        },
+        "sdm": {},
+        "project_id": PROJECT_ID,
+        "cloud_project_id": CLOUD_PROJECT_ID,
+        "subscription_name": SUBSCRIPTION_NAME,
+        "auth_implementation": "imported-cred",
     },
-)
-TEST_CONFIG_ENTRY_LEGACY = NestTestConfig(
-    config_entry_data={
-        "auth_implementation": "local",
-        "tokens": {
-            "expires_at": time.time() + 86400,
-            "access_token": {
-                "token": "some-token",
-            },
-        },
-    },
+    credential=ClientCredential(CLIENT_ID, CLIENT_SECRET),
 )
 
 
@@ -93,9 +72,10 @@ class FakeSubscriber(GoogleNestSubscriber):
 
     stop_calls = 0
 
-    def __init__(self):  # pylint: disable=super-init-not-called
+    def __init__(self) -> None:  # pylint: disable=super-init-not-called
         """Initialize Fake Subscriber."""
         self._device_manager = DeviceManager()
+        self._subscriber_name = "fake-name"
 
     def set_update_callback(self, target: Callable[[EventMessage], Awaitable[None]]):
         """Capture the callback set by Home Assistant."""

@@ -70,6 +70,7 @@ from .const import (
     REQUIRED_NEXT_PYTHON_VER,
     SIGNAL_BOOTSTRAP_INTEGRATIONS,
 )
+from .core_config import async_process_ha_core_config
 from .exceptions import HomeAssistantError
 from .helpers import (
     area_registry,
@@ -104,7 +105,8 @@ from .setup import (
 from .util.async_ import create_eager_task
 from .util.hass_dict import HassKey
 from .util.logging import async_activate_log_queue_handler
-from .util.package import async_get_user_site, is_virtual_env
+from .util.package import async_get_user_site, is_docker_env, is_virtual_env
+from .util.system_info import is_official_image
 
 with contextlib.suppress(ImportError):
     # Ensure anyio backend is imported to avoid it being imported in the event loop
@@ -223,8 +225,10 @@ CRITICAL_INTEGRATIONS = {
 SETUP_ORDER = (
     # Load logging and http deps as soon as possible
     ("logging, http deps", LOGGING_AND_HTTP_DEPS_INTEGRATIONS),
-    # Setup frontend and recorder
-    ("frontend, recorder", {*FRONTEND_INTEGRATIONS, *RECORDER_INTEGRATIONS}),
+    # Setup frontend
+    ("frontend", FRONTEND_INTEGRATIONS),
+    # Setup recorder
+    ("recorder", RECORDER_INTEGRATIONS),
     # Start up debuggers. Start these first in case they want to wait.
     ("debugger", DEBUGGER_INTEGRATIONS),
 )
@@ -249,6 +253,7 @@ PRELOAD_STORAGE = [
     "assist_pipeline.pipelines",
     "core.analytics",
     "auth_module.totp",
+    "backup",
 ]
 
 
@@ -407,6 +412,10 @@ def _init_blocking_io_modules_in_executor() -> None:
     # Initialize the mimetypes module to avoid blocking calls
     # to the filesystem to load the mime.types file.
     mimetypes.init()
+    # Initialize is_official_image and is_docker_env to avoid blocking calls
+    # to the filesystem.
+    is_official_image()
+    is_docker_env()
 
 
 async def async_load_base_functionality(hass: core.HomeAssistant) -> None:
@@ -473,7 +482,7 @@ async def async_from_config_dict(
     core_config = config.get(core.DOMAIN, {})
 
     try:
-        await conf_util.async_process_ha_core_config(hass, core_config)
+        await async_process_ha_core_config(hass, core_config)
     except vol.Invalid as config_err:
         conf_util.async_log_schema_error(config_err, core.DOMAIN, core_config, hass)
         async_notify_setup_error(hass, core.DOMAIN)
@@ -508,7 +517,7 @@ async def async_from_config_dict(
         issue_registry.async_create_issue(
             hass,
             core.DOMAIN,
-            "python_version",
+            f"python_version_{required_python_version}",
             is_fixable=False,
             severity=issue_registry.IssueSeverity.WARNING,
             breaks_in_ha_version=REQUIRED_NEXT_PYTHON_HA_RELEASE,
@@ -580,10 +589,10 @@ async def async_enable_logging(
     logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
 
-    sys.excepthook = lambda *args: logging.getLogger(None).exception(
+    sys.excepthook = lambda *args: logging.getLogger().exception(
         "Uncaught exception", exc_info=args
     )
-    threading.excepthook = lambda args: logging.getLogger(None).exception(
+    threading.excepthook = lambda args: logging.getLogger().exception(
         "Uncaught thread exception",
         exc_info=(  # type: ignore[arg-type]
             args.exc_type,
@@ -610,10 +619,9 @@ async def async_enable_logging(
             _create_log_file, err_log_path, log_rotate_days
         )
 
-        err_handler.setLevel(logging.INFO if verbose else logging.WARNING)
         err_handler.setFormatter(logging.Formatter(fmt, datefmt=FORMAT_DATETIME))
 
-        logger = logging.getLogger("")
+        logger = logging.getLogger()
         logger.addHandler(err_handler)
         logger.setLevel(logging.INFO if verbose else logging.WARNING)
 
@@ -902,7 +910,13 @@ async def _async_resolve_domains_to_setup(
             await asyncio.gather(*resolve_dependencies_tasks)
 
         for itg in integrations_to_process:
-            for dep in itg.all_dependencies:
+            try:
+                all_deps = itg.all_dependencies
+            except RuntimeError:
+                # Integration.all_dependencies raises RuntimeError if
+                # dependencies could not be resolved
+                continue
+            for dep in all_deps:
                 if dep in domains_to_setup:
                     continue
                 domains_to_setup.add(dep)

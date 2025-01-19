@@ -14,7 +14,6 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     PERCENTAGE,
-    POWER_VOLT_AMPERE_REACTIVE,
     EntityCategory,
     UnitOfApparentPower,
     UnitOfElectricCurrent,
@@ -22,6 +21,7 @@ from homeassistant.const import (
     UnitOfEnergy,
     UnitOfFrequency,
     UnitOfPower,
+    UnitOfReactivePower,
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant, callback
@@ -33,6 +33,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
+    INVERTER_ERROR_CODES,
     SOLAR_NET_DISCOVERY_NEW,
     InverterStatusCodeOption,
     MeterLocationCodeOption,
@@ -53,6 +54,9 @@ if TYPE_CHECKING:
         FroniusPowerFlowUpdateCoordinator,
         FroniusStorageUpdateCoordinator,
     )
+
+
+PARALLEL_UPDATES = 0
 
 ENERGY_VOLT_AMPERE_REACTIVE_HOUR: Final = "varh"
 
@@ -202,6 +206,15 @@ INVERTER_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [
     FroniusSensorEntityDescription(
         key="error_code",
         entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+    ),
+    FroniusSensorEntityDescription(
+        key="error_message",
+        response_key="error_code",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        device_class=SensorDeviceClass.ENUM,
+        options=list(dict.fromkeys(INVERTER_ERROR_CODES.values())),
+        value_fn=INVERTER_ERROR_CODES.get,  # type: ignore[arg-type]
     ),
     FroniusSensorEntityDescription(
         key="status_code",
@@ -381,28 +394,28 @@ METER_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [
     ),
     FroniusSensorEntityDescription(
         key="power_reactive_phase_1",
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
     ),
     FroniusSensorEntityDescription(
         key="power_reactive_phase_2",
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
     ),
     FroniusSensorEntityDescription(
         key="power_reactive_phase_3",
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
     ),
     FroniusSensorEntityDescription(
         key="power_reactive",
-        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,
+        native_unit_of_measurement=UnitOfReactivePower.VOLT_AMPERE_REACTIVE,
         device_class=SensorDeviceClass.REACTIVE_POWER,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
