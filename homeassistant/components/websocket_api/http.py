@@ -14,7 +14,7 @@ from aiohttp import WSMsgType, web
 from aiohttp.http_websocket import WebSocketWriter
 
 from homeassistant.components.http import KEY_HASS, HomeAssistantView
-from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP, EVENT_LOGGING_CHANGED
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
@@ -24,7 +24,6 @@ from homeassistant.util.json import json_loads
 from .auth import AUTH_REQUIRED_MESSAGE, AuthPhase
 from .const import (
     DATA_CONNECTIONS,
-    DATA_USER_CONNECTIONS,
     MAX_PENDING_MSG,
     PENDING_MSG_MAX_FORCE_READY,
     PENDING_MSG_PEAK,
@@ -38,6 +37,7 @@ from .messages import message_to_json_bytes
 from .util import describe_request
 
 CLOSE_MSG_TYPES = {WSMsgType.CLOSE, WSMsgType.CLOSED, WSMsgType.CLOSING}
+AUTH_MESSAGE_TIMEOUT = 10  # seconds
 
 if TYPE_CHECKING:
     from .connection import ActiveConnection
@@ -64,27 +64,28 @@ class WebSocketAdapter(logging.LoggerAdapter):
     def process(self, msg: str, kwargs: Any) -> tuple[str, Any]:
         """Add connid to websocket log messages."""
         assert self.extra is not None
-        return f'[{self.extra["connid"]}] {msg}', kwargs
+        return f"[{self.extra['connid']}] {msg}", kwargs
 
 
 class WebSocketHandler:
     """Handle an active websocket client connection."""
 
     __slots__ = (
-        "_hass",
-        "_loop",
-        "_request",
-        "_wsock",
-        "_handle_task",
-        "_writer_task",
-        "_closing",
         "_authenticated",
-        "_logger",
-        "_peak_checker_unsub",
+        "_closing",
         "_connection",
+        "_debug",
+        "_handle_task",
+        "_hass",
+        "_logger",
+        "_loop",
         "_message_queue",
+        "_peak_checker_unsub",
         "_ready_future",
         "_release_ready_queue_size",
+        "_request",
+        "_writer_task",
+        "_wsock",
     )
 
     def __init__(self, hass: HomeAssistant, request: web.Request) -> None:
@@ -108,6 +109,12 @@ class WebSocketHandler:
         self._message_queue: deque[bytes] = deque()
         self._ready_future: asyncio.Future[int] | None = None
         self._release_ready_queue_size: int = 0
+        self._async_logging_changed()
+
+    @callback
+    def _async_logging_changed(self, event: Event | None = None) -> None:
+        """Handle logging change."""
+        self._debug = self._logger.isEnabledFor(logging.DEBUG)
 
     def __repr__(self) -> str:
         """Return the representation."""
@@ -138,7 +145,6 @@ class WebSocketHandler:
         logger = self._logger
         wsock = self._wsock
         loop = self._loop
-        is_debug_log_enabled = partial(logger.isEnabledFor, logging.DEBUG)
         debug = logger.debug
         can_coalesce = connection.can_coalesce
         ready_message_count = len(message_queue)
@@ -158,14 +164,14 @@ class WebSocketHandler:
 
                 if not can_coalesce or ready_message_count == 1:
                     message = message_queue.popleft()
-                    if is_debug_log_enabled():
+                    if self._debug:
                         debug("%s: Sending %s", self.description, message)
                     await send_bytes_text(message)
                     continue
 
                 coalesced_messages = b"".join((b"[", b",".join(message_queue), b"]"))
                 message_queue.clear()
-                if is_debug_log_enabled():
+                if self._debug:
                     debug("%s: Sending %s", self.description, coalesced_messages)
                 await send_bytes_text(coalesced_messages)
         except asyncio.CancelledError:
@@ -198,7 +204,7 @@ class WebSocketHandler:
             # max pending messages.
             return
 
-        if type(message) is not bytes:  # noqa: E721
+        if type(message) is not bytes:
             if isinstance(message, dict):
                 message = message_to_json_bytes(message)
             elif isinstance(message, str):
@@ -326,6 +332,9 @@ class WebSocketHandler:
         unsub_stop = hass.bus.async_listen(
             EVENT_HOMEASSISTANT_STOP, self._async_handle_hass_stop
         )
+        cancel_logging_listener = hass.bus.async_listen(
+            EVENT_LOGGING_CHANGED, self._async_logging_changed
+        )
 
         writer = wsock._writer  # noqa: SLF001
         if TYPE_CHECKING:
@@ -355,6 +364,7 @@ class WebSocketHandler:
                 "%s: Unexpected error inside websocket API", self.description
             )
         finally:
+            cancel_logging_listener()
             unsub_stop()
 
             self._cancel_peak_checker()
@@ -380,22 +390,31 @@ class WebSocketHandler:
 
         # Auth Phase
         try:
-            msg = await self._wsock.receive(10)
+            msg = await self._wsock.receive(AUTH_MESSAGE_TIMEOUT)
         except TimeoutError as err:
-            raise Disconnect("Did not receive auth message within 10 seconds") from err
+            raise Disconnect(
+                f"Did not receive auth message within {AUTH_MESSAGE_TIMEOUT} seconds"
+            ) from err
 
         if msg.type in (WSMsgType.CLOSE, WSMsgType.CLOSED, WSMsgType.CLOSING):
             raise Disconnect("Received close message during auth phase")
 
         if msg.type is not WSMsgType.TEXT:
-            raise Disconnect("Received non-Text message during auth phase")
+            if msg.type is WSMsgType.ERROR:
+                # msg.data is the exception
+                raise Disconnect(
+                    f"Received error message during auth phase: {msg.data}"
+                )
+            raise Disconnect(
+                f"Received non-Text message of type {msg.type} during auth phase"
+            )
 
         try:
             auth_msg_data = json_loads(msg.data)
         except ValueError as err:
             raise Disconnect("Received invalid JSON during auth phase") from err
 
-        if self._logger.isEnabledFor(logging.DEBUG):
+        if self._debug:
             self._logger.debug("%s: Received %s", self.description, auth_msg_data)
         connection = await auth.async_handle(auth_msg_data)
         # As the webserver is now started before the start
@@ -403,14 +422,9 @@ class WebSocketHandler:
         #
         # We only start the writer queue after the auth phase is completed
         # since there is no need to queue messages before the auth phase
-        self._logger.info("connection: %s", connection)
         self._connection = connection
         self._writer_task = create_eager_task(self._writer(connection, send_bytes_text))
         self._hass.data[DATA_CONNECTIONS] = self._hass.data.get(DATA_CONNECTIONS, 0) + 1
-        user_conn = self._hass.data.get(DATA_USER_CONNECTIONS)
-        if user_conn is None:
-            user_conn = self._hass.data[DATA_USER_CONNECTIONS] = {}
-        user_conn[connection.user.id] = connection
         async_dispatcher_send(self._hass, SIGNAL_WEBSOCKET_CONNECTED)
 
         self._authenticated = True
@@ -462,7 +476,6 @@ class WebSocketHandler:
         wsock = self._wsock
         async_handle_str = connection.async_handle
         async_handle_binary = connection.async_handle_binary
-        _debug_enabled = partial(self._logger.isEnabledFor, logging.DEBUG)
 
         # Command phase
         while not wsock.closed:
@@ -483,20 +496,25 @@ class WebSocketHandler:
                 continue
 
             if msg_type is not WSMsgType.TEXT:
-                raise Disconnect("Received non-Text message.")
+                if msg_type is WSMsgType.ERROR:
+                    # msg.data is the exception
+                    raise Disconnect(
+                        f"Received error message during command phase: {msg.data}"
+                    )
+                raise Disconnect(f"Received non-Text message of type {msg_type}.")
 
             try:
                 command_msg_data = json_loads(msg_data)
             except ValueError as ex:
                 raise Disconnect("Received invalid JSON.") from ex
 
-            if _debug_enabled():
+            if self._debug:
                 self._logger.debug(
                     "%s: Received %s", self.description, command_msg_data
                 )
 
             # command_msg_data is always deserialized from JSON as a list
-            if type(command_msg_data) is not list:  # noqa: E721
+            if type(command_msg_data) is not list:
                 async_handle_str(command_msg_data)
                 continue
 
@@ -523,6 +541,14 @@ class WebSocketHandler:
             finally:
                 if disconnect_warn is None:
                     logger.debug("%s: Disconnected", self.description)
+                elif connection is None:
+                    # Auth phase disconnects (connection is None) should be logged at debug level
+                    # as they can be from random port scanners or non-legitimate connections
+                    logger.debug(
+                        "%s: Disconnected during auth phase: %s",
+                        self.description,
+                        disconnect_warn,
+                    )
                 else:
                     logger.warning(
                         "%s: Disconnected: %s", self.description, disconnect_warn
@@ -531,9 +557,6 @@ class WebSocketHandler:
                 if connection is not None:
                     hass.data[DATA_CONNECTIONS] -= 1
                     self._connection = None
-                    user_conn = hass.data.get(DATA_USER_CONNECTIONS)
-                    if user_conn is not None:
-                        user_conn.pop(connection.user.id, None)
 
                 async_dispatcher_send(hass, SIGNAL_WEBSOCKET_DISCONNECTED)
 

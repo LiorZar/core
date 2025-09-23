@@ -22,7 +22,7 @@ from homeassistant.components.climate import (
 from homeassistant.const import ATTR_ENTITY_ID, ATTR_TEMPERATURE, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-import homeassistant.helpers.entity_registry as er
+from homeassistant.helpers import entity_registry as er
 
 from . import setup_with_selected_platforms
 
@@ -89,6 +89,50 @@ async def test_climate_entity_properties(
 
     state = hass.states.get(ENTITY_ID)
     assert state.attributes["preset_mode"] == PRESET_ECO
+
+
+async def test_climate_without_current_temperature_sensor(
+    hass: HomeAssistant,
+    mock_bsblan: AsyncMock,
+    mock_config_entry: MockConfigEntry,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    """Test climate entity when current temperature sensor is not available."""
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
+
+    # Set current_temperature to None to simulate no temperature sensor
+    mock_bsblan.state.return_value.current_temperature = None
+
+    freezer.tick(timedelta(minutes=1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+
+    # Should not crash and current_temperature should be None in attributes
+    state = hass.states.get(ENTITY_ID)
+    assert state is not None
+    assert state.attributes["current_temperature"] is None
+
+
+async def test_climate_without_target_temperature_sensor(
+    hass: HomeAssistant,
+    mock_bsblan: AsyncMock,
+    mock_config_entry: MockConfigEntry,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    """Test climate entity when target temperature sensor is not available."""
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
+
+    # Set target_temperature to None to simulate no temperature sensor
+    mock_bsblan.state.return_value.target_temperature = None
+
+    freezer.tick(timedelta(minutes=1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+
+    # Should not crash and target temperature should be None in attributes
+    state = hass.states.get(ENTITY_ID)
+    assert state is not None
+    assert state.attributes["temperature"] is None
 
 
 @pytest.mark.parametrize(

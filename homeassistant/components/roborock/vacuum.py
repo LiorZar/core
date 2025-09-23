@@ -1,11 +1,15 @@
 """Support for Roborock vacuum class."""
 
-from dataclasses import asdict
 from typing import Any
 
 from roborock.code_mappings import RoborockStateCode
 from roborock.roborock_message import RoborockDataProtocol
 from roborock.roborock_typing import RoborockCommand
+from vacuum_map_parser_base.config.color import ColorsPalette
+from vacuum_map_parser_base.config.image_config import ImageConfig
+from vacuum_map_parser_base.config.size import Sizes
+from vacuum_map_parser_roborock.map_data_parser import RoborockMapDataParser
+import voluptuous as vol
 
 from homeassistant.components.vacuum import (
     StateVacuumEntity,
@@ -13,12 +17,17 @@ from homeassistant.components.vacuum import (
     VacuumEntityFeature,
 )
 from homeassistant.core import HomeAssistant, ServiceResponse, SupportsResponse
-from homeassistant.helpers import entity_platform
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import RoborockConfigEntry
-from .const import DOMAIN, GET_MAPS_SERVICE_NAME
-from .coordinator import RoborockDataUpdateCoordinator
+from .const import (
+    DOMAIN,
+    GET_MAPS_SERVICE_NAME,
+    GET_VACUUM_CURRENT_POSITION_SERVICE_NAME,
+    SET_VACUUM_GOTO_POSITION_SERVICE_NAME,
+)
+from .coordinator import RoborockConfigEntry, RoborockDataUpdateCoordinator
 from .entity import RoborockCoordinatedEntityV1
 
 STATE_CODE_TO_STATE = {
@@ -47,11 +56,13 @@ STATE_CODE_TO_STATE = {
     RoborockStateCode.device_offline: VacuumActivity.ERROR,  # "Device offline"
 }
 
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: RoborockConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Roborock sensor."""
     async_add_entities(
@@ -69,6 +80,25 @@ async def async_setup_entry(
         supports_response=SupportsResponse.ONLY,
     )
 
+    platform.async_register_entity_service(
+        GET_VACUUM_CURRENT_POSITION_SERVICE_NAME,
+        None,
+        RoborockVacuum.get_vacuum_current_position.__name__,
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    platform.async_register_entity_service(
+        SET_VACUUM_GOTO_POSITION_SERVICE_NAME,
+        cv.make_entity_service_schema(
+            {
+                vol.Required("x"): vol.Coerce(int),
+                vol.Required("y"): vol.Coerce(int),
+            },
+        ),
+        RoborockVacuum.async_set_vacuum_goto_position.__name__,
+        supports_response=SupportsResponse.NONE,
+    )
+
 
 class RoborockVacuum(RoborockCoordinatedEntityV1, StateVacuumEntity):
     """General Representation of a Roborock vacuum."""
@@ -79,7 +109,6 @@ class RoborockVacuum(RoborockCoordinatedEntityV1, StateVacuumEntity):
         | VacuumEntityFeature.STOP
         | VacuumEntityFeature.RETURN_HOME
         | VacuumEntityFeature.FAN_SPEED
-        | VacuumEntityFeature.BATTERY
         | VacuumEntityFeature.SEND_COMMAND
         | VacuumEntityFeature.LOCATE
         | VacuumEntityFeature.CLEAN_SPOT
@@ -113,21 +142,20 @@ class RoborockVacuum(RoborockCoordinatedEntityV1, StateVacuumEntity):
         return STATE_CODE_TO_STATE.get(self._device_status.state)
 
     @property
-    def battery_level(self) -> int | None:
-        """Return the battery level of the vacuum cleaner."""
-        return self._device_status.battery
-
-    @property
     def fan_speed(self) -> str | None:
         """Return the fan speed of the vacuum cleaner."""
         return self._device_status.fan_power_name
 
     async def async_start(self) -> None:
         """Start the vacuum."""
-        if self._device_status.in_cleaning == 2:
+        if self._device_status.in_returning == 1:
+            await self.send(RoborockCommand.APP_CHARGE)
+        elif self._device_status.in_cleaning == 2:
             await self.send(RoborockCommand.RESUME_ZONED_CLEAN)
         elif self._device_status.in_cleaning == 3:
             await self.send(RoborockCommand.RESUME_SEGMENT_CLEAN)
+        elif self._device_status.in_cleaning == 4:
+            await self.send(RoborockCommand.APP_RESUME_BUILD_MAP)
         else:
             await self.send(RoborockCommand.APP_START)
 
@@ -158,6 +186,10 @@ class RoborockVacuum(RoborockCoordinatedEntityV1, StateVacuumEntity):
             [self._device_status.get_fan_speed_code(fan_speed)],
         )
 
+    async def async_set_vacuum_goto_position(self, x: int, y: int) -> None:
+        """Send vacuum to a specific target point."""
+        await self.send(RoborockCommand.APP_GOTO_TARGET, [x, y])
+
     async def async_send_command(
         self,
         command: str,
@@ -171,6 +203,36 @@ class RoborockVacuum(RoborockCoordinatedEntityV1, StateVacuumEntity):
         """Get map information such as map id and room ids."""
         return {
             "maps": [
-                asdict(vacuum_map) for vacuum_map in self.coordinator.maps.values()
+                {
+                    "flag": vacuum_map.flag,
+                    "name": vacuum_map.name,
+                    # JsonValueType does not accept a int as a key - was not a
+                    # issue with previous asdict() implementation.
+                    "rooms": vacuum_map.rooms,  # type: ignore[dict-item]
+                }
+                for vacuum_map in self.coordinator.maps.values()
             ]
+        }
+
+    async def get_vacuum_current_position(self) -> ServiceResponse:
+        """Get the current position of the vacuum from the map."""
+
+        map_data = await self.coordinator.cloud_api.get_map_v1()
+        if not isinstance(map_data, bytes):
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="map_failure",
+            )
+        parser = RoborockMapDataParser(ColorsPalette(), Sizes(), [], ImageConfig(), [])
+        parsed_map = parser.parse(map_data)
+        robot_position = parsed_map.vacuum_position
+
+        if robot_position is None:
+            raise HomeAssistantError(
+                translation_domain=DOMAIN, translation_key="position_not_found"
+            )
+
+        return {
+            "x": robot_position.x,
+            "y": robot_position.y,
         }

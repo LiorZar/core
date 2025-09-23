@@ -57,8 +57,8 @@ async def test_doorbell_ring(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[0]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[0]
     )
 
     unsub = async_track_state_change_event(hass, entity_id, _capture_event)
@@ -171,8 +171,8 @@ async def test_doorbell_nfc_scanned(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
     )
 
     ulp_id = "ulp_id"
@@ -194,7 +194,7 @@ async def test_doorbell_nfc_scanned(
         metadata={"nfc": {"nfc_id": test_nfc_id, "user_id": "test_user_id"}},
     )
 
-    new_camera = doorbell.copy()
+    new_camera = doorbell.model_copy()
     new_camera.last_nfc_card_scanned_event_id = "test_event_id"
     ufp.api.bootstrap.cameras = {new_camera.id: new_camera}
     ufp.api.bootstrap.events = {event.id: event}
@@ -246,8 +246,8 @@ async def test_doorbell_nfc_scanned_ulpusr_deactivated(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
     )
 
     ulp_id = "ulp_id"
@@ -269,7 +269,7 @@ async def test_doorbell_nfc_scanned_ulpusr_deactivated(
         metadata={"nfc": {"nfc_id": test_nfc_id, "user_id": "test_user_id"}},
     )
 
-    new_camera = doorbell.copy()
+    new_camera = doorbell.model_copy()
     new_camera.last_nfc_card_scanned_event_id = "test_event_id"
     ufp.api.bootstrap.cameras = {new_camera.id: new_camera}
     ufp.api.bootstrap.events = {event.id: event}
@@ -322,8 +322,8 @@ async def test_doorbell_nfc_scanned_no_ulpusr(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
     )
 
     ulp_id = "ulp_id"
@@ -344,7 +344,7 @@ async def test_doorbell_nfc_scanned_no_ulpusr(
         metadata={"nfc": {"nfc_id": test_nfc_id, "user_id": "test_user_id"}},
     )
 
-    new_camera = doorbell.copy()
+    new_camera = doorbell.model_copy()
     new_camera.last_nfc_card_scanned_event_id = "test_event_id"
     ufp.api.bootstrap.cameras = {new_camera.id: new_camera}
     ufp.api.bootstrap.events = {event.id: event}
@@ -390,8 +390,8 @@ async def test_doorbell_nfc_scanned_no_keyring(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[1]
     )
 
     test_nfc_id = "test_nfc_id"
@@ -451,8 +451,8 @@ async def test_doorbell_fingerprint_identified(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
     )
 
     ulp_id = "ulp_id"
@@ -473,7 +473,7 @@ async def test_doorbell_fingerprint_identified(
         metadata={"fingerprint": {"ulp_id": ulp_id}},
     )
 
-    new_camera = doorbell.copy()
+    new_camera = doorbell.model_copy()
     new_camera.last_fingerprint_identified_event_id = "test_event_id"
     ufp.api.bootstrap.cameras = {new_camera.id: new_camera}
     ufp.api.bootstrap.events = {event.id: event}
@@ -519,8 +519,8 @@ async def test_doorbell_fingerprint_identified_user_deactivated(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
     )
 
     ulp_id = "ulp_id"
@@ -541,7 +541,7 @@ async def test_doorbell_fingerprint_identified_user_deactivated(
         metadata={"fingerprint": {"ulp_id": ulp_id}},
     )
 
-    new_camera = doorbell.copy()
+    new_camera = doorbell.model_copy()
     new_camera.last_fingerprint_identified_event_id = "test_event_id"
     ufp.api.bootstrap.cameras = {new_camera.id: new_camera}
     ufp.api.bootstrap.events = {event.id: event}
@@ -588,8 +588,8 @@ async def test_doorbell_fingerprint_identified_no_user(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
     )
 
     ulp_id = "ulp_id"
@@ -649,8 +649,8 @@ async def test_doorbell_fingerprint_not_identified(
     def _capture_event(event: HAEvent) -> None:
         events.append(event)
 
-    _, entity_id = ids_from_device_description(
-        Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
+    _, entity_id = await ids_from_device_description(
+        hass, Platform.EVENT, doorbell, EVENT_DESCRIPTIONS[2]
     )
 
     unsub = async_track_state_change_event(hass, entity_id, _capture_event)

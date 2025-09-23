@@ -63,8 +63,11 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, State
-from homeassistant.helpers import entityfilter, state as state_helper
-import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import (
+    config_validation as cv,
+    entityfilter,
+    state as state_helper,
+)
 from homeassistant.helpers.entity_registry import (
     EVENT_ENTITY_REGISTRY_UPDATED,
     EventEntityRegistryUpdatedData,
@@ -363,6 +366,7 @@ class PrometheusMetrics:
 
     @staticmethod
     def _sanitize_metric_name(metric: str) -> str:
+        metric.replace("\u03bc", "\u00b5")
         return "".join(
             [c if c in ALLOWED_METRIC_CHARS else f"u{hex(ord(c))}" for c in metric]
         )
@@ -744,6 +748,9 @@ class PrometheusMetrics:
             PERCENTAGE: "percent",
         }
         default = unit.replace("/", "_per_")
+        # Unit conversion for CONCENTRATION_MICROGRAMS_PER_CUBIC_METER "μg/m³"
+        # "μ" == "\u03bc" but the API uses "\u00b5"
+        default = default.replace("\u03bc", "\u00b5")
         default = default.lower()
         return units.get(unit, default)
 

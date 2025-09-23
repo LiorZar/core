@@ -6,7 +6,7 @@ from unittest.mock import Mock
 from aiohttp import ClientResponseError
 from freezegun.api import FrozenDateTimeFactory
 import pytest
-from syrupy import SnapshotAssertion
+from syrupy.assertion import SnapshotAssertion
 from yalexs.manager.activity import INITIAL_LOCK_RESYNC_TIME
 from yalexs.pubnub_async import AugustPubNub
 
@@ -23,7 +23,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceNotSupported
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.setup import async_setup_component
-import homeassistant.util.dt as dt_util
+from homeassistant.util import dt as dt_util
 
 from .mocks import (
     _create_august_with_devices,
@@ -374,7 +374,7 @@ async def test_lock_update_via_pubnub(hass: HomeAssistant) -> None:
     pubnub = AugustPubNub()
 
     activities = await _mock_activities_from_fixture(hass, "get_activity.lock.json")
-    config_entry = await _create_august_with_devices(
+    config_entry, _ = await _create_august_with_devices(
         hass, [lock_one], activities=activities, pubnub=pubnub
     )
     pubnub.connected = True

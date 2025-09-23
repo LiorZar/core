@@ -14,14 +14,19 @@ import re
 import time
 from typing import IO, Any, cast
 
-from hassil.expression import Expression, ListReference, Sequence, TextChunk
+from hassil.expression import Expression, Group, ListReference, TextChunk
+from hassil.fuzzy import FuzzyNgramMatcher, SlotCombinationInfo
 from hassil.intents import (
+    Intent,
+    IntentData,
     Intents,
     SlotList,
     TextSlotList,
     TextSlotValue,
     WildcardSlotList,
 )
+from hassil.models import MatchEntity
+from hassil.ngram import Sqlite3NgramModel
 from hassil.recognize import (
     MISSING_ENTITY,
     RecognizeResult,
@@ -30,8 +35,16 @@ from hassil.recognize import (
 )
 from hassil.string_matcher import UnmatchedRangeEntity, UnmatchedTextEntity
 from hassil.trie import Trie
-from hassil.util import merge_dict
-from home_assistant_intents import ErrorKey, get_intents, get_languages
+from hassil.util import merge_dict, remove_punctuation
+from home_assistant_intents import (
+    ErrorKey,
+    FuzzyConfig,
+    FuzzyLanguageResponses,
+    get_fuzzy_config,
+    get_fuzzy_language,
+    get_intents,
+    get_languages,
+)
 import yaml
 
 from homeassistant import core
@@ -52,8 +65,10 @@ from homeassistant.helpers import (
 )
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.event import async_track_state_added_domain
+from homeassistant.util import language as language_util
 from homeassistant.util.json import JsonObjectType, json_loads_object
 
+from .chat_log import AssistantContent, ChatLog
 from .const import (
     DATA_DEFAULT_ENTITY,
     DEFAULT_EXPOSED_ATTRIBUTES,
@@ -74,6 +89,7 @@ TRIGGER_CALLBACK_TYPE = Callable[
 ]
 METADATA_CUSTOM_SENTENCE = "hass_custom_sentence"
 METADATA_CUSTOM_FILE = "hass_custom_file"
+METADATA_FUZZY_MATCH = "hass_fuzzy_match"
 
 ERROR_SENTINEL = object()
 
@@ -92,6 +108,8 @@ class LanguageIntents:
     intent_responses: dict[str, Any]
     error_responses: dict[str, Any]
     language_variant: str | None
+    fuzzy_matcher: FuzzyNgramMatcher | None = None
+    fuzzy_responses: FuzzyLanguageResponses | None = None
 
 
 @dataclass(slots=True)
@@ -117,10 +135,13 @@ class IntentMatchingStage(Enum):
     EXPOSED_ENTITIES_ONLY = auto()
     """Match against exposed entities only."""
 
+    FUZZY = auto()
+    """Use fuzzy matching to guess intent."""
+
     UNEXPOSED_ENTITIES = auto()
     """Match against unexposed entities in Home Assistant."""
 
-    FUZZY = auto()
+    UNKNOWN_NAMES = auto()
     """Capture names that are not known to Home Assistant."""
 
 
@@ -182,21 +203,6 @@ class IntentCache:
         self.cache.clear()
 
 
-def _get_language_variations(language: str) -> Iterable[str]:
-    """Generate language codes with and without region."""
-    yield language
-
-    parts = re.split(r"([-_])", language)
-    if len(parts) == 3:
-        lang, sep, region = parts
-        if sep == "_":
-            # en_US -> en-US
-            yield f"{lang}-{region}"
-
-        # en-US -> en
-        yield lang
-
-
 async def async_setup_default_agent(
     hass: core.HomeAssistant,
     entity_component: EntityComponent[ConversationEntity],
@@ -253,6 +259,10 @@ class DefaultAgent(ConversationEntity):
 
         # LRU cache to avoid unnecessary intent matching
         self._intent_cache = IntentCache(capacity=128)
+
+        # Shared configuration for fuzzy matching
+        self.fuzzy_matching = True
+        self._fuzzy_config: FuzzyConfig | None = None
 
     @property
     def supported_languages(self) -> list[str]:
@@ -312,17 +322,15 @@ class DefaultAgent(ConversationEntity):
             _LOGGER.warning("No intents were loaded for language: %s", language)
             return None
 
-        slot_lists = self._make_slot_lists()
+        slot_lists = await self._make_slot_lists()
         intent_context = self._make_intent_context(user_input)
 
         if self._exposed_names_trie is not None:
             # Filter by input string
-            text_lower = user_input.text.strip().lower()
+            text = remove_punctuation(user_input.text).strip().lower()
             slot_lists["name"] = TextSlotList(
                 name="name",
-                values=[
-                    result[2] for result in self._exposed_names_trie.find(text_lower)
-                ],
+                values=[result[2] for result in self._exposed_names_trie.find(text)],
             )
 
         start = time.monotonic()
@@ -344,8 +352,13 @@ class DefaultAgent(ConversationEntity):
 
         return result
 
-    async def async_process(self, user_input: ConversationInput) -> ConversationResult:
-        """Process a sentence."""
+    async def _async_handle_message(
+        self,
+        user_input: ConversationInput,
+        chat_log: ChatLog,
+    ) -> ConversationResult:
+        """Handle a message."""
+        response: intent.IntentResponse | None = None
 
         # Check if a trigger matched
         if trigger_result := await self.async_recognize_sentence_trigger(user_input):
@@ -361,20 +374,32 @@ class DefaultAgent(ConversationEntity):
             response.response_type = intent.IntentResponseType.ACTION_DONE
             response.async_set_speech(response_text)
 
-            return ConversationResult(response=response)
+        if response is None:
+            # Match intents
+            intent_result = await self.async_recognize_intent(user_input)
+            response = await self._async_process_intent_result(
+                intent_result, user_input
+            )
 
-        # Match intents
-        intent_result = await self.async_recognize_intent(user_input)
-        return await self._async_process_intent_result(intent_result, user_input)
+        speech: str = response.speech.get("plain", {}).get("speech", "")
+        chat_log.async_add_assistant_content_without_tools(
+            AssistantContent(
+                agent_id=user_input.agent_id,
+                content=speech,
+            )
+        )
+
+        return ConversationResult(
+            response=response, conversation_id=chat_log.conversation_id
+        )
 
     async def _async_process_intent_result(
         self,
         result: RecognizeResult | None,
         user_input: ConversationInput,
-    ) -> ConversationResult:
+    ) -> intent.IntentResponse:
         """Process user input with intents."""
         language = user_input.language or self.hass.config.language
-        conversation_id = None  # Not supported
 
         # Intent match or failure
         lang_intents = await self.async_get_or_load_intents(language)
@@ -386,7 +411,6 @@ class DefaultAgent(ConversationEntity):
                 language,
                 intent.IntentResponseErrorCode.NO_INTENT_MATCH,
                 self._get_error_text(ErrorKey.NO_INTENT, lang_intents),
-                conversation_id,
             )
 
         if result.unmatched_entities:
@@ -408,7 +432,6 @@ class DefaultAgent(ConversationEntity):
                 self._get_error_text(
                     error_response_type, lang_intents, **error_response_args
                 ),
-                conversation_id,
             )
 
         # Will never happen because result will be None when no intents are
@@ -461,7 +484,6 @@ class DefaultAgent(ConversationEntity):
                 self._get_error_text(
                     error_response_type, lang_intents, **error_response_args
                 ),
-                conversation_id,
             )
         except intent.IntentHandleError as err:
             # Intent was valid and entities matched constraints, but an error
@@ -473,7 +495,6 @@ class DefaultAgent(ConversationEntity):
                 self._get_error_text(
                     err.response_key or ErrorKey.HANDLE_ERROR, lang_intents
                 ),
-                conversation_id,
             )
         except intent.IntentUnexpectedError:
             _LOGGER.exception("Unexpected intent error")
@@ -481,7 +502,6 @@ class DefaultAgent(ConversationEntity):
                 language,
                 intent.IntentResponseErrorCode.UNKNOWN,
                 self._get_error_text(ErrorKey.HANDLE_ERROR, lang_intents),
-                conversation_id,
             )
 
         if (
@@ -500,9 +520,7 @@ class DefaultAgent(ConversationEntity):
                 )
                 intent_response.async_set_speech(speech)
 
-        return ConversationResult(
-            response=intent_response, conversation_id=conversation_id
-        )
+        return intent_response
 
     def _recognize(
         self,
@@ -559,6 +577,36 @@ class DefaultAgent(ConversationEntity):
             # Don't try matching against all entities or doing a fuzzy match
             return None
 
+        # Use fuzzy matching
+        skip_fuzzy_match = False
+        if cache_value is not None:
+            if (cache_value.result is not None) and (
+                cache_value.stage == IntentMatchingStage.FUZZY
+            ):
+                _LOGGER.debug("Got cached result for fuzzy match")
+                return cache_value.result
+
+            # Continue with matching, but we know we won't succeed for fuzzy
+            # match.
+            skip_fuzzy_match = True
+
+        if (not skip_fuzzy_match) and self.fuzzy_matching:
+            start_time = time.monotonic()
+            fuzzy_result = self._recognize_fuzzy(lang_intents, user_input)
+
+            # Update cache
+            self._intent_cache.put(
+                cache_key,
+                IntentCacheValue(result=fuzzy_result, stage=IntentMatchingStage.FUZZY),
+            )
+
+            _LOGGER.debug(
+                "Did fuzzy match in %s second(s)", time.monotonic() - start_time
+            )
+
+            if fuzzy_result is not None:
+                return fuzzy_result
+
         # Try again with all entities (including unexposed)
         skip_unexposed_entities_match = False
         if cache_value is not None:
@@ -604,102 +652,157 @@ class DefaultAgent(ConversationEntity):
                 # This should fail the intent handling phase (async_match_targets).
                 return strict_result
 
-        # Try again with missing entities enabled
-        skip_fuzzy_match = False
+        # Check unknown names
+        skip_unknown_names = False
         if cache_value is not None:
             if (cache_value.result is not None) and (
-                cache_value.stage == IntentMatchingStage.FUZZY
+                cache_value.stage == IntentMatchingStage.UNKNOWN_NAMES
             ):
-                _LOGGER.debug("Got cached result for fuzzy match")
+                _LOGGER.debug("Got cached result for unknown names")
                 return cache_value.result
 
-            # We know we won't succeed for fuzzy matching.
-            skip_fuzzy_match = True
+            skip_unknown_names = True
 
         maybe_result: RecognizeResult | None = None
-        if not skip_fuzzy_match:
+        if not skip_unknown_names:
             start_time = time.monotonic()
-            best_num_matched_entities = 0
-            best_num_unmatched_entities = 0
-            best_num_unmatched_ranges = 0
-            for result in recognize_all(
-                user_input.text,
-                lang_intents.intents,
-                slot_lists=slot_lists,
-                intent_context=intent_context,
-                allow_unmatched_entities=True,
-            ):
-                if result.text_chunks_matched < 1:
-                    # Skip results that don't match any literal text
-                    continue
-
-                # Don't count missing entities that couldn't be filled from context
-                num_matched_entities = 0
-                for matched_entity in result.entities_list:
-                    if matched_entity.name not in result.unmatched_entities:
-                        num_matched_entities += 1
-
-                num_unmatched_entities = 0
-                num_unmatched_ranges = 0
-                for unmatched_entity in result.unmatched_entities_list:
-                    if isinstance(unmatched_entity, UnmatchedTextEntity):
-                        if unmatched_entity.text != MISSING_ENTITY:
-                            num_unmatched_entities += 1
-                    elif isinstance(unmatched_entity, UnmatchedRangeEntity):
-                        num_unmatched_ranges += 1
-                        num_unmatched_entities += 1
-                    else:
-                        num_unmatched_entities += 1
-
-                if (
-                    (maybe_result is None)  # first result
-                    or (num_matched_entities > best_num_matched_entities)
-                    or (
-                        # Fewer unmatched entities
-                        (num_matched_entities == best_num_matched_entities)
-                        and (num_unmatched_entities < best_num_unmatched_entities)
-                    )
-                    or (
-                        # Prefer unmatched ranges
-                        (num_matched_entities == best_num_matched_entities)
-                        and (num_unmatched_entities == best_num_unmatched_entities)
-                        and (num_unmatched_ranges > best_num_unmatched_ranges)
-                    )
-                    or (
-                        # More literal text matched
-                        (num_matched_entities == best_num_matched_entities)
-                        and (num_unmatched_entities == best_num_unmatched_entities)
-                        and (num_unmatched_ranges == best_num_unmatched_ranges)
-                        and (
-                            result.text_chunks_matched
-                            > maybe_result.text_chunks_matched
-                        )
-                    )
-                    or (
-                        # Prefer match failures with entities
-                        (result.text_chunks_matched == maybe_result.text_chunks_matched)
-                        and (num_unmatched_entities == best_num_unmatched_entities)
-                        and (num_unmatched_ranges == best_num_unmatched_ranges)
-                        and (
-                            ("name" in result.entities)
-                            or ("name" in result.unmatched_entities)
-                        )
-                    )
-                ):
-                    maybe_result = result
-                    best_num_matched_entities = num_matched_entities
-                    best_num_unmatched_entities = num_unmatched_entities
-                    best_num_unmatched_ranges = num_unmatched_ranges
+            maybe_result = self._recognize_unknown_names(
+                lang_intents, user_input, slot_lists, intent_context
+            )
 
             # Update cache
             self._intent_cache.put(
                 cache_key,
-                IntentCacheValue(result=maybe_result, stage=IntentMatchingStage.FUZZY),
+                IntentCacheValue(
+                    result=maybe_result, stage=IntentMatchingStage.UNKNOWN_NAMES
+                ),
             )
 
             _LOGGER.debug(
-                "Did fuzzy match in %s second(s)", time.monotonic() - start_time
+                "Did unknown names match in %s second(s)", time.monotonic() - start_time
             )
+
+        return maybe_result
+
+    def _recognize_fuzzy(
+        self, lang_intents: LanguageIntents, user_input: ConversationInput
+    ) -> RecognizeResult | None:
+        """Return fuzzy recognition from hassil."""
+        if lang_intents.fuzzy_matcher is None:
+            return None
+
+        fuzzy_result = lang_intents.fuzzy_matcher.match(user_input.text)
+        if fuzzy_result is None:
+            return None
+
+        response = "default"
+        if lang_intents.fuzzy_responses:
+            domain = ""  # no domain
+            if "name" in fuzzy_result.slots:
+                domain = fuzzy_result.name_domain
+            elif "domain" in fuzzy_result.slots:
+                domain = fuzzy_result.slots["domain"].value
+
+            slot_combo = tuple(sorted(fuzzy_result.slots))
+            if (
+                intent_responses := lang_intents.fuzzy_responses.get(
+                    fuzzy_result.intent_name
+                )
+            ) and (combo_responses := intent_responses.get(slot_combo)):
+                response = combo_responses.get(domain, response)
+
+        entities = [
+            MatchEntity(name=slot_name, value=slot_value.value, text=slot_value.text)
+            for slot_name, slot_value in fuzzy_result.slots.items()
+        ]
+
+        return RecognizeResult(
+            intent=Intent(name=fuzzy_result.intent_name),
+            intent_data=IntentData(sentence_texts=[]),
+            intent_metadata={METADATA_FUZZY_MATCH: True},
+            entities={entity.name: entity for entity in entities},
+            entities_list=entities,
+            response=response,
+        )
+
+    def _recognize_unknown_names(
+        self,
+        lang_intents: LanguageIntents,
+        user_input: ConversationInput,
+        slot_lists: dict[str, SlotList],
+        intent_context: dict[str, Any] | None,
+    ) -> RecognizeResult | None:
+        """Return result with unknown names for an error message."""
+        maybe_result: RecognizeResult | None = None
+
+        best_num_matched_entities = 0
+        best_num_unmatched_entities = 0
+        best_num_unmatched_ranges = 0
+        for result in recognize_all(
+            user_input.text,
+            lang_intents.intents,
+            slot_lists=slot_lists,
+            intent_context=intent_context,
+            allow_unmatched_entities=True,
+        ):
+            if result.text_chunks_matched < 1:
+                # Skip results that don't match any literal text
+                continue
+
+            # Don't count missing entities that couldn't be filled from context
+            num_matched_entities = 0
+            for matched_entity in result.entities_list:
+                if matched_entity.name not in result.unmatched_entities:
+                    num_matched_entities += 1
+
+            num_unmatched_entities = 0
+            num_unmatched_ranges = 0
+            for unmatched_entity in result.unmatched_entities_list:
+                if isinstance(unmatched_entity, UnmatchedTextEntity):
+                    if unmatched_entity.text != MISSING_ENTITY:
+                        num_unmatched_entities += 1
+                elif isinstance(unmatched_entity, UnmatchedRangeEntity):
+                    num_unmatched_ranges += 1
+                    num_unmatched_entities += 1
+                else:
+                    num_unmatched_entities += 1
+
+            if (
+                (maybe_result is None)  # first result
+                or (
+                    # More literal text matched
+                    result.text_chunks_matched > maybe_result.text_chunks_matched
+                )
+                or (
+                    # More entities matched
+                    num_matched_entities > best_num_matched_entities
+                )
+                or (
+                    # Fewer unmatched entities
+                    (num_matched_entities == best_num_matched_entities)
+                    and (num_unmatched_entities < best_num_unmatched_entities)
+                )
+                or (
+                    # Prefer unmatched ranges
+                    (num_matched_entities == best_num_matched_entities)
+                    and (num_unmatched_entities == best_num_unmatched_entities)
+                    and (num_unmatched_ranges > best_num_unmatched_ranges)
+                )
+                or (
+                    # Prefer match failures with entities
+                    (result.text_chunks_matched == maybe_result.text_chunks_matched)
+                    and (num_unmatched_entities == best_num_unmatched_entities)
+                    and (num_unmatched_ranges == best_num_unmatched_ranges)
+                    and (
+                        ("name" in result.entities)
+                        or ("name" in result.unmatched_entities)
+                    )
+                )
+            ):
+                maybe_result = result
+                best_num_matched_entities = num_matched_entities
+                best_num_unmatched_entities = num_unmatched_entities
+                best_num_unmatched_ranges = num_unmatched_ranges
 
         return maybe_result
 
@@ -787,36 +890,13 @@ class DefaultAgent(ConversationEntity):
         intent_response: intent.IntentResponse,
         recognize_result: RecognizeResult,
     ) -> str:
-        # Make copies of the states here so we can add translated names for responses.
-        matched = [
-            state_copy
-            for state in intent_response.matched_states
-            if (state_copy := core.State.from_dict(state.as_dict()))
-        ]
-        unmatched = [
-            state_copy
-            for state in intent_response.unmatched_states
-            if (state_copy := core.State.from_dict(state.as_dict()))
-        ]
-        all_states = matched + unmatched
-        domains = {state.domain for state in all_states}
-        translations = await translation.async_get_translations(
-            self.hass, language, "entity_component", domains
-        )
-
-        # Use translated state names
-        for state in all_states:
-            device_class = state.attributes.get("device_class", "_")
-            key = f"component.{state.domain}.entity_component.{device_class}.state.{state.state}"
-            state.state = translations.get(key, state.state)
-
         # Get first matched or unmatched state.
         # This is available in the response template as "state".
         state1: core.State | None = None
         if intent_response.matched_states:
-            state1 = matched[0]
+            state1 = intent_response.matched_states[0]
         elif intent_response.unmatched_states:
-            state1 = unmatched[0]
+            state1 = intent_response.unmatched_states[0]
 
         # Render response template
         speech_slots = {
@@ -838,11 +918,13 @@ class DefaultAgent(ConversationEntity):
                 "query": {
                     # Entity states that matched the query (e.g, "on")
                     "matched": [
-                        template.TemplateState(self.hass, state) for state in matched
+                        template.TemplateState(self.hass, state)
+                        for state in intent_response.matched_states
                     ],
                     # Entity states that did not match the query
                     "unmatched": [
-                        template.TemplateState(self.hass, state) for state in unmatched
+                        template.TemplateState(self.hass, state)
+                        for state in intent_response.unmatched_states
                     ],
                 },
             }
@@ -878,7 +960,7 @@ class DefaultAgent(ConversationEntity):
         if lang_intents is None:
             return
 
-        self._make_slot_lists()
+        await self._make_slot_lists()
 
     async def async_get_or_load_intents(self, language: str) -> LanguageIntents | None:
         """Load all intents of a language with lock."""
@@ -920,25 +1002,19 @@ class DefaultAgent(ConversationEntity):
     def _load_intents(self, language: str) -> LanguageIntents | None:
         """Load all intents for language (run inside executor)."""
         intents_dict: dict[str, Any] = {}
-        language_variant: str | None = None
         supported_langs = set(get_languages())
 
         # Choose a language variant upfront and commit to it for custom
         # sentences, etc.
-        all_language_variants = {lang.lower(): lang for lang in supported_langs}
+        lang_matches = language_util.matches(language, supported_langs)
 
-        # en-US, en_US, en, ...
-        for maybe_variant in _get_language_variations(language):
-            matching_variant = all_language_variants.get(maybe_variant.lower())
-            if matching_variant:
-                language_variant = matching_variant
-                break
-
-        if not language_variant:
+        if not lang_matches:
             _LOGGER.warning(
                 "Unable to find supported language variant for %s", language
             )
             return None
+
+        language_variant = lang_matches[0]
 
         # Load intents for this language variant
         lang_variant_intents = get_intents(language_variant, json_load=json_load)
@@ -1035,12 +1111,85 @@ class DefaultAgent(ConversationEntity):
         intent_responses = responses_dict.get("intents", {})
         error_responses = responses_dict.get("errors", {})
 
+        if not self.fuzzy_matching:
+            _LOGGER.debug("Fuzzy matching is disabled")
+            return LanguageIntents(
+                intents,
+                intents_dict,
+                intent_responses,
+                error_responses,
+                language_variant,
+            )
+
+        # Load fuzzy
+        fuzzy_info = get_fuzzy_language(language_variant, json_load=json_load)
+        if fuzzy_info is None:
+            _LOGGER.debug(
+                "Fuzzy matching not available for language: %s", language_variant
+            )
+            return LanguageIntents(
+                intents,
+                intents_dict,
+                intent_responses,
+                error_responses,
+                language_variant,
+            )
+
+        if self._fuzzy_config is None:
+            # Load shared config
+            self._fuzzy_config = get_fuzzy_config(json_load=json_load)
+            _LOGGER.debug("Loaded shared fuzzy matching config")
+
+        assert self._fuzzy_config is not None
+
+        fuzzy_matcher: FuzzyNgramMatcher | None = None
+        fuzzy_responses: FuzzyLanguageResponses | None = None
+
+        start_time = time.monotonic()
+        fuzzy_responses = fuzzy_info.responses
+        fuzzy_matcher = FuzzyNgramMatcher(
+            intents=intents,
+            intent_models={
+                intent_name: Sqlite3NgramModel(
+                    order=fuzzy_model.order,
+                    words={
+                        word: str(word_id)
+                        for word, word_id in fuzzy_model.words.items()
+                    },
+                    database_path=fuzzy_model.database_path,
+                )
+                for intent_name, fuzzy_model in fuzzy_info.ngram_models.items()
+            },
+            intent_slot_list_names=self._fuzzy_config.slot_list_names,
+            slot_combinations={
+                intent_name: {
+                    combo_key: [
+                        SlotCombinationInfo(
+                            name_domains=(set(name_domains) if name_domains else None)
+                        )
+                    ]
+                    for combo_key, name_domains in intent_combos.items()
+                }
+                for intent_name, intent_combos in self._fuzzy_config.slot_combinations.items()
+            },
+            domain_keywords=fuzzy_info.domain_keywords,
+            stop_words=fuzzy_info.stop_words,
+        )
+        _LOGGER.debug(
+            "Loaded fuzzy matcher in %s second(s): language=%s, intents=%s",
+            time.monotonic() - start_time,
+            language_variant,
+            sorted(fuzzy_matcher.intent_models.keys()),
+        )
+
         return LanguageIntents(
             intents,
             intents_dict,
             intent_responses,
             error_responses,
             language_variant,
+            fuzzy_matcher=fuzzy_matcher,
+            fuzzy_responses=fuzzy_responses,
         )
 
     @core.callback
@@ -1060,8 +1209,7 @@ class DefaultAgent(ConversationEntity):
         # Slot lists have changed, so we must clear the cache
         self._intent_cache.clear()
 
-    @core.callback
-    def _make_slot_lists(self) -> dict[str, SlotList]:
+    async def _make_slot_lists(self) -> dict[str, SlotList]:
         """Create slot lists with areas and entity names/aliases."""
         if self._slot_lists is not None:
             return self._slot_lists
@@ -1113,7 +1261,7 @@ class DefaultAgent(ConversationEntity):
         name_list = TextSlotList.from_tuples(exposed_entity_names, allow_template=False)
         for name_value in name_list.values:
             assert isinstance(name_value.text_in, TextChunk)
-            name_text = name_value.text_in.text.strip().lower()
+            name_text = remove_punctuation(name_value.text_in.text).strip().lower()
             self._exposed_names_trie.insert(name_text, name_value)
 
         self._slot_lists = {
@@ -1121,6 +1269,10 @@ class DefaultAgent(ConversationEntity):
             "name": name_list,
             "floor": TextSlotList.from_tuples(floor_names, allow_template=False),
         }
+
+        # Reload fuzzy matchers with new slot lists
+        if self.fuzzy_matching:
+            await self.hass.async_add_executor_job(self._load_fuzzy_matchers)
 
         self._listen_clear_slot_list()
 
@@ -1130,6 +1282,25 @@ class DefaultAgent(ConversationEntity):
         )
 
         return self._slot_lists
+
+    def _load_fuzzy_matchers(self) -> None:
+        """Reload fuzzy matchers for all loaded languages."""
+        for lang_intents in self._lang_intents.values():
+            if (not isinstance(lang_intents, LanguageIntents)) or (
+                lang_intents.fuzzy_matcher is None
+            ):
+                continue
+
+            lang_matcher = lang_intents.fuzzy_matcher
+            lang_intents.fuzzy_matcher = FuzzyNgramMatcher(
+                intents=lang_matcher.intents,
+                intent_models=lang_matcher.intent_models,
+                intent_slot_list_names=lang_matcher.intent_slot_list_names,
+                slot_combinations=lang_matcher.slot_combinations,
+                domain_keywords=lang_matcher.domain_keywords,
+                stop_words=lang_matcher.stop_words,
+                slot_lists=self._slot_lists,
+            )
 
     def _make_intent_context(
         self, user_input: ConversationInput
@@ -1216,7 +1387,7 @@ class DefaultAgent(ConversationEntity):
         for trigger_intent in trigger_intents.intents.values():
             for intent_data in trigger_intent.data:
                 for sentence in intent_data.sentences:
-                    _collect_list_references(sentence, wildcard_names)
+                    _collect_list_references(sentence.expression, wildcard_names)
 
         for wildcard_name in wildcard_names:
             trigger_intents.slot_lists[wildcard_name] = WildcardSlotList(wildcard_name)
@@ -1335,33 +1506,44 @@ class DefaultAgent(ConversationEntity):
     async def async_handle_intents(
         self,
         user_input: ConversationInput,
+        *,
+        intent_filter: Callable[[RecognizeResult], bool] | None = None,
     ) -> intent.IntentResponse | None:
         """Try to match sentence against registered intents and return response.
 
         Only performs strict matching with exposed entities and exact wording.
-        Returns None if no match occurred.
+        Returns None if no match or a matching error occurred.
         """
         result = await self.async_recognize_intent(user_input, strict_intents_only=True)
-        if not isinstance(result, RecognizeResult):
+        if not isinstance(result, RecognizeResult) or (
+            intent_filter is not None and intent_filter(result)
+        ):
             # No error message on failed match
             return None
 
-        conversation_result = await self._async_process_intent_result(
-            result, user_input
-        )
-        return conversation_result.response
+        response = await self._async_process_intent_result(result, user_input)
+        if (
+            response.response_type == intent.IntentResponseType.ERROR
+            and response.error_code
+            not in (
+                intent.IntentResponseErrorCode.FAILED_TO_HANDLE,
+                intent.IntentResponseErrorCode.UNKNOWN,
+            )
+        ):
+            # We ignore no matching errors
+            return None
+        return response
 
 
 def _make_error_result(
     language: str,
     error_code: intent.IntentResponseErrorCode,
     response_text: str,
-    conversation_id: str | None = None,
-) -> ConversationResult:
+) -> intent.IntentResponse:
     """Create conversation result with error code and text."""
     response = intent.IntentResponse(language=language)
     response.async_set_error(error_code, response_text)
-    return ConversationResult(response, conversation_id)
+    return response
 
 
 def _get_unmatched_response(result: RecognizeResult) -> tuple[ErrorKey, dict[str, Any]]:
@@ -1488,12 +1670,6 @@ def _get_match_error_response(
         # Entity is not in correct state
         assert constraints.states
         state = next(iter(constraints.states))
-        if constraints.domains:
-            # Translate if domain is available
-            domain = next(iter(constraints.domains))
-            state = translation.async_translate_state(
-                hass, state, domain, None, None, None
-            )
 
         return ErrorKey.ENTITY_WRONG_STATE, {"state": state}
 
@@ -1548,11 +1724,9 @@ def _get_match_error_response(
 
 def _collect_list_references(expression: Expression, list_names: set[str]) -> None:
     """Collect list reference names recursively."""
-    if isinstance(expression, Sequence):
-        seq: Sequence = expression
-        for item in seq.items:
+    if isinstance(expression, Group):
+        for item in expression.items:
             _collect_list_references(item, list_names)
     elif isinstance(expression, ListReference):
         # {list}
-        list_ref: ListReference = expression
-        list_names.add(list_ref.slot_name)
+        list_names.add(expression.slot_name)

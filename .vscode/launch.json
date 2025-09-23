@@ -18,8 +18,7 @@
             "request": "launch",
             "module": "homeassistant",
             "justMyCode": false,
-            "args": ["--debug", "-c", "config", "--skip-pip"],
-            "preLaunchTask": "Compile English translations"
+            "args": ["--debug", "-c", "config", "--skip-pip"]
         },
         {
             "name": "Home Assistant: Changed tests",
@@ -27,7 +26,15 @@
             "request": "launch",
             "module": "pytest",
             "justMyCode": false,
-            "args": ["--timeout=10", "--picked"]
+            "args": ["--picked"]
+        },
+        {
+            "name": "Home Assistant: Debug Current Test File",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "console": "integratedTerminal",
+            "args": ["-vv", "${file}"]
         },
         {
             // Debug by attaching to local Home Assistant server using Remote Python Debugger.
