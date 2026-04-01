@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "..\\"
+		}
+    ],
+    "settings": {
+        "html.format.wrapLineLength": 240,
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 240,
+        "debug.javascript.unmapMissingSources": true,
+        "cSpell.words": [
+            "conx",
+            "gcols",
+            "hass",
+            "pval",
+            "pvalue",
+            "skbuttons",
+            "skdata",
+            "talue",
+            "zclamp"
+        ]
+    }
+}

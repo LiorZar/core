@@ -1,0 +1,223 @@
+{
+  "version": 1,
+  "sessions": [
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775033747486,
+      "costUsd": 0.12855475,
+      "inputTokens": 120628,
+      "outputTokens": 21,
+      "turnCount": 5,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775033797775,
+      "costUsd": 0.142055,
+      "inputTokens": 145535,
+      "outputTokens": 23,
+      "turnCount": 6,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775033903676,
+      "costUsd": 0.2563545,
+      "inputTokens": 328861,
+      "outputTokens": 267,
+      "turnCount": 13,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775034175277,
+      "costUsd": 0.34379525,
+      "inputTokens": 495057,
+      "outputTokens": 379,
+      "turnCount": 19,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775034319122,
+      "costUsd": 0.45933075,
+      "inputTokens": 648150,
+      "outputTokens": 531,
+      "turnCount": 24,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775034563134,
+      "costUsd": 0.51992075,
+      "inputTokens": 749041,
+      "outputTokens": 614,
+      "turnCount": 27,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775034600530,
+      "costUsd": 0.573453,
+      "inputTokens": 820269,
+      "outputTokens": 662,
+      "turnCount": 29,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775034764517,
+      "costUsd": 0.8286100000000001,
+      "inputTokens": 1296024,
+      "outputTokens": 772,
+      "turnCount": 41,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775034818144,
+      "costUsd": 0.89185525,
+      "inputTokens": 1530765,
+      "outputTokens": 893,
+      "turnCount": 46,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775035219042,
+      "costUsd": 1.2800490000000002,
+      "inputTokens": 2454779,
+      "outputTokens": 1319,
+      "turnCount": 64,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775035499388,
+      "costUsd": 2.701341,
+      "inputTokens": 6029286,
+      "outputTokens": 2877,
+      "turnCount": 118,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775036521295,
+      "costUsd": 5.122466750000001,
+      "inputTokens": 13168030,
+      "outputTokens": 4362,
+      "turnCount": 200,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775036526091,
+      "costUsd": 5.175563000000001,
+      "inputTokens": 13267210,
+      "outputTokens": 4363,
+      "turnCount": 201,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775036530424,
+      "costUsd": 5.227141500000001,
+      "inputTokens": 13366614,
+      "outputTokens": 4364,
+      "turnCount": 202,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "241e1cf1-afa7-4884-b35f-63f3c01d4f54",
+      "projectId": "core",
+      "endedAt": 1775037403077,
+      "costUsd": 0.17592225,
+      "inputTokens": 332908,
+      "outputTokens": 330,
+      "turnCount": 13,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775037465279,
+      "costUsd": 5.962487650000003,
+      "inputTokens": 15358129,
+      "outputTokens": 4741,
+      "turnCount": 235,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "241e1cf1-afa7-4884-b35f-63f3c01d4f54",
+      "projectId": "core",
+      "endedAt": 1775037555803,
+      "costUsd": 0.23371975,
+      "inputTokens": 443429,
+      "outputTokens": 447,
+      "turnCount": 17,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "31a16608-b282-4ae5-95b3-c0bfc807047f",
+      "projectId": "core",
+      "endedAt": 1775037560085,
+      "costUsd": 6.029356650000002,
+      "inputTokens": 15586817,
+      "outputTokens": 4797,
+      "turnCount": 237,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "4add46ed-caf9-429b-bd4d-6ae18b0a3b20",
+      "projectId": "core",
+      "endedAt": 1775040166497,
+      "costUsd": 18.7310831,
+      "inputTokens": 45169335,
+      "outputTokens": 16220,
+      "turnCount": 510,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "4add46ed-caf9-429b-bd4d-6ae18b0a3b20",
+      "projectId": "core",
+      "endedAt": 1775040170790,
+      "costUsd": 18.808302599999998,
+      "inputTokens": 45313416,
+      "outputTokens": 16222,
+      "turnCount": 511,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "4add46ed-caf9-429b-bd4d-6ae18b0a3b20",
+      "projectId": "core",
+      "endedAt": 1775040175203,
+      "costUsd": 18.883831599999997,
+      "inputTokens": 45457717,
+      "outputTokens": 16226,
+      "turnCount": 512,
+      "model": "claude-opus-4-6"
+    }
+  ],
+  "dailyAggregates": {
+    "2026-04-01": {
+      "costUsd": 92.4751941,
+      "inputTokens": 222082000,
+      "outputTokens": 80430,
+      "sessionCount": 21
+    }
+  }
+}

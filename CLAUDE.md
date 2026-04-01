@@ -76,8 +76,8 @@ A build automatically updates what HA serves. No manual copy needed.
 
 | Field | Value |
 |-------|-------|
-| HA Version | **2025.9.4** |
-| Docker image | `liorzar/conx:2025.01.1` |
+| HA Version | **2026.3.4** |
+| Docker image | `liorzar/conx:2026.3.4` |
 | Platform | `linux/arm64` (aarch64) |
 
 **Claude handles HA version upgrades** when asked. Two-step workflow:

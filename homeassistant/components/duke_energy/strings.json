@@ -1,5 +1,6 @@
 {
   "config": {
+<<<<<<<< HEAD:homeassistant/components/chacon_dio/strings.json
     "step": {
       "user": {
         "data": {
@@ -7,14 +8,28 @@
           "password": "[%key:common::config_flow::data::password%]"
         }
       }
+========
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+>>>>>>>> 2026.3.4:homeassistant/components/duke_energy/strings.json
     },
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
       "unknown": "[%key:common::config_flow::error::unknown%]"
     },
+<<<<<<<< HEAD:homeassistant/components/chacon_dio/strings.json
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+========
+    "step": {
+      "user": {
+        "data": {
+          "password": "[%key:common::config_flow::data::password%]",
+          "username": "[%key:common::config_flow::data::username%]"
+        }
+      }
+>>>>>>>> 2026.3.4:homeassistant/components/duke_energy/strings.json
     }
   }
 }

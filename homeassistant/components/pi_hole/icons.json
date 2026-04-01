@@ -6,6 +6,9 @@
       }
     },
     "sensor": {
+      "ads_blocked": {
+        "default": "mdi:close-octagon-outline"
+      },
       "ads_blocked_today": {
         "default": "mdi:close-octagon-outline"
       },
@@ -21,6 +24,9 @@
       "clients_ever_seen": {
         "default": "mdi:account-outline"
       },
+      "dns_queries": {
+        "default": "mdi:comment-question-outline"
+      },
       "dns_queries_today": {
         "default": "mdi:comment-question-outline"
       },
@@ -29,6 +35,9 @@
       },
       "domains_being_blocked": {
         "default": "mdi:block-helper"
+      },
+      "percent_ads_blocked": {
+        "default": "mdi:close-octagon-outline"
       },
       "queries_cached": {
         "default": "mdi:comment-question-outline"

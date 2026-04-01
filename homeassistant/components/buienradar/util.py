@@ -199,7 +199,15 @@ class BrData:
         """Return the temperature, or None."""
         try:
             return float(self.data.get(TEMPERATURE))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
+            return None
+
+    @property
+    def feeltemperature(self):
+        """Return the feeltemperature, or None."""
+        try:
+            return float(self.data.get(FEELTEMPERATURE))
+        except ValueError, TypeError:
             return None
 
     @property
@@ -215,7 +223,7 @@ class BrData:
         """Return the pressure, or None."""
         try:
             return float(self.data.get(PRESSURE))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
     @property
@@ -223,7 +231,7 @@ class BrData:
         """Return the humidity, or None."""
         try:
             return int(self.data.get(HUMIDITY))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
     @property
@@ -231,7 +239,15 @@ class BrData:
         """Return the visibility, or None."""
         try:
             return int(self.data.get(VISIBILITY))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
+            return None
+
+    @property
+    def wind_gust(self):
+        """Return the windgust, or None."""
+        try:
+            return float(self.data.get(WINDGUST))
+        except ValueError, TypeError:
             return None
 
     @property
@@ -247,7 +263,7 @@ class BrData:
         """Return the windspeed, or None."""
         try:
             return float(self.data.get(WINDSPEED))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
     @property
@@ -255,7 +271,7 @@ class BrData:
         """Return the wind bearing, or None."""
         try:
             return int(self.data.get(WINDAZIMUTH))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             return None
 
     @property

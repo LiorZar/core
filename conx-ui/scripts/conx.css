@@ -1,0 +1,126 @@
+/* ===== conx buttons (radio style) ===== */
+:root {
+    /* keep themable base */
+    --conx-btn-bg: linear-gradient(30deg, #000000 70%, #ffffff 100%);
+    --conx-btn-bg-hover: linear-gradient(30deg, #1a1a1a 70%, #e0e0e0 100%);
+    --conx-btn-bg-active: linear-gradient(0deg, #808080 0%, #000000 50%);
+    --conx-btn-bg-selected: orange;
+    --conx-btn-fg: #ffffff;
+    --conx-btn-outline: var(--conx-btn-bg);
+    --conx-btn-radius: 30px;
+    --conx-btn-pad-y: 16px;
+    --conx-btn-pad-x: 14px;
+    --conx-btn-font: 600 14px/1.1 system-ui, Segoe UI, Roboto, sans-serif;
+    --conx-focus: 0 0 0 3px rgba(255, 165, 0, 0.35);
+}
+
+/* base */
+.conx-radio {
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    border-radius: var(--conx-btn-radius);
+    padding: var(--conx-btn-pad-y) var(--conx-btn-pad-x);
+    font: var(--conx-btn-font);
+    background: var(--conx-btn-bg);
+    color: var(--conx-btn-fg);
+    cursor: pointer;
+    transition: transform 0.05s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.conx-radio:hover {
+    background: var(--conx-btn-bg-hover);
+}
+
+/* pressed */
+.conx-radio:active {
+    background: var(--conx-btn-bg-active);
+    transform: translateY(1px);
+}
+
+/* persistent selected */
+.conx-radio.selected {
+    background: var(--conx-btn-bg-selected);
+    background-image: none;
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.conx-radio:focus-visible {
+    outline: none;
+    box-shadow: var(--conx-focus);
+}
+
+/* disabled */
+.conx-radio[disabled] {
+    opacity: 0.55;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+}
+
+.conx-dimmer-bn {
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    width: 40px;
+    height: 32px;
+    font: 600 15px/1.2 system-ui, Segoe UI, Roboto, sans-serif;
+    color: #ffffff;
+    background-color: rgb(204, 204, 204);
+    background-image: linear-gradient(30deg, #000000 30%, #ffffff 100%);
+}
+
+.conx-dimmer-bn:hover {
+    background: linear-gradient(30deg, #1f1f1f 60%, #4a4a4a 100%);
+}
+
+.conx-dimmer-bn:active {
+    background-color: #cccccc;
+    background-image: linear-gradient(0deg, #808080 0%, #000000 50%);
+    transform: translateY(1px);
+}
+
+.conx-dimmer-bn.selected {
+    background-color: orange;
+    background-image: none;
+}
+
+.conx-dimmer-bn[disabled] {
+    opacity: 0.5;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+}
+
+.conx-dimmer-bn-simple {
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    border-radius: 2px;
+    width: 40px;
+    height: 32px;
+    font: 600 15px/1.2 system-ui, Segoe UI, Roboto, sans-serif;
+    color: #ffffff;
+    background-color: rgb(204, 204, 204);
+    background-image: linear-gradient(0deg, rgb(128, 128, 128) 10%, rgb(0, 0, 0) 100%);
+}
+
+.conx-dimmer-bn-simple:hover {
+    background: linear-gradient(30deg, #1f1f1f 60%, #4a4a4a 100%);
+}
+
+.conx-dimmer-bn-simple:active {
+    background-color: #cccccc;
+    background-image: linear-gradient(0deg, #000000 0%, #808080 90%);
+    transform: translateY(1px);
+}
+
+.conx-dimmer-bn-simple[disabled] {
+    opacity: 0.5;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+}

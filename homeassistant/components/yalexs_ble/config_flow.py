@@ -26,7 +26,7 @@ from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
-    OptionsFlow,
+    OptionsFlowWithReload,
 )
 from homeassistant.const import CONF_ADDRESS
 from homeassistant.core import callback
@@ -54,7 +54,7 @@ async def async_validate_lock_or_error(
         return {CONF_SLOT: "invalid_key_index"}
     try:
         await PushLock(local_name, device.address, device, key, slot).validate()
-    except (DisconnectedError, AuthError, ValueError):
+    except DisconnectedError, AuthError, ValueError:
         return {CONF_KEY: "invalid_auth"}
     except BleakError:
         return {"base": "cannot_connect"}
@@ -360,7 +360,7 @@ class YalexsConfigFlow(ConfigFlow, domain=DOMAIN):
         return YaleXSBLEOptionsFlowHandler()
 
 
-class YaleXSBLEOptionsFlowHandler(OptionsFlow):
+class YaleXSBLEOptionsFlowHandler(OptionsFlowWithReload):
     """Handle YaleXSBLE options."""
 
     async def async_step_init(

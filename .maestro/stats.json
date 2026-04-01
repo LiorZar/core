@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "sessions": [
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772721040710,
+      "costUsd": 0.86357875,
+      "inputTokens": 2604981,
+      "outputTokens": 778,
+      "turnCount": 68,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772721650452,
+      "costUsd": 0.8885902499999999,
+      "inputTokens": 2651809,
+      "outputTokens": 780,
+      "turnCount": 69,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772723900031,
+      "costUsd": 3.77250885,
+      "inputTokens": 12069247,
+      "outputTokens": 2429,
+      "turnCount": 244,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772723942703,
+      "costUsd": 3.8193045999999997,
+      "inputTokens": 12161019,
+      "outputTokens": 2431,
+      "turnCount": 245,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772724041203,
+      "costUsd": 4.152306599999999,
+      "inputTokens": 12731684,
+      "outputTokens": 2549,
+      "turnCount": 251,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772724452051,
+      "costUsd": 4.588633849999999,
+      "inputTokens": 13812761,
+      "outputTokens": 2708,
+      "turnCount": 262,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772724639946,
+      "costUsd": 4.655738849999999,
+      "inputTokens": 13913584,
+      "outputTokens": 2710,
+      "turnCount": 263,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772725011682,
+      "costUsd": 5.3123206,
+      "inputTokens": 15399709,
+      "outputTokens": 2899,
+      "turnCount": 277,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "90563f30-5be1-4b8e-be24-f26fc54ea509",
+      "projectId": "core",
+      "endedAt": 1772911299504,
+      "costUsd": 0.6392102500000001,
+      "inputTokens": 261456,
+      "outputTokens": 19,
+      "turnCount": 3,
+      "model": "claude-opus-4-6"
+    }
+  ],
+  "dailyAggregates": {
+    "2026-03-05": {
+      "costUsd": 28.052982349999994,
+      "inputTokens": 85344794,
+      "outputTokens": 17284,
+      "sessionCount": 8
+    },
+    "2026-03-07": {
+      "costUsd": 0.6392102500000001,
+      "inputTokens": 261456,
+      "outputTokens": 19,
+      "sessionCount": 1
+    }
+  }
+}
