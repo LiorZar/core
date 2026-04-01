@@ -145,3 +145,4 @@ pytest_buckets.txt
 /homeassistant/components/conx
 /homeassistant/components/scheduler
 /homeassistant/components/websocket_api
+.maestro/
