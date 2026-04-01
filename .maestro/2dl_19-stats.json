@@ -230,14 +230,24 @@
       "outputTokens": 735,
       "turnCount": 63,
       "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "a65e5e09-27e1-4ab9-9e65-801c81af4951",
+      "projectId": "core",
+      "endedAt": 1775044601260,
+      "costUsd": 1.8084347500000004,
+      "inputTokens": 4965649,
+      "outputTokens": 1493,
+      "turnCount": 105,
+      "model": "claude-opus-4-6"
     }
   ],
   "dailyAggregates": {
     "2026-04-01": {
-      "costUsd": 94.29158324999999,
-      "inputTokens": 226330173,
-      "outputTokens": 81583,
-      "sessionCount": 23
+      "costUsd": 96.10001799999999,
+      "inputTokens": 231295822,
+      "outputTokens": 83076,
+      "sessionCount": 24
     }
   }
 }
