@@ -13,7 +13,7 @@
   // Port 5683 udp is used by Shelly integration
   "appPort": ["8123:8123", "5683:5683/udp", "10103:10103/udp", "6454:6454/udp"],
   "forwardPorts": [6454, 6545, 10101, 10102],
-  "mounts": ["source=D:\\dvx\\Apps\\HASS\\Conx,target=/conx-src,type=bind"],
+  "mounts": ["source=D:\\HASS\\core\\conx-ui,target=/conx-src,type=bind"],
   "runArgs": [
     "-e",
     "GIT_EDITOR=code --wait",
