@@ -1,4 +1,5 @@
 /config
+/conx-ui
 config2/*
 
 tests/testing_config/deps
