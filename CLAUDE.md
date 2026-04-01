@@ -10,9 +10,10 @@ fade engine, and a WebSocket command interface for a custom frontend.
 |------|----------|------|---------|
 | **Main repo** | `D:\HASS\core` | `LiorZar/core.git` (fork of `home-assistant/core`) | HA Core runtime. Do **NOT** modify unless explicitly asked. |
 | **Inner repo** | `D:\HASS\core\config` | `LiorZar/conx.git` | **All development here.** Python components, YAML configs, frontend assets. |
-| **UI** | `D:\HASS\core\conx-ui` | Folder (not its own repo) | TypeScript frontend. Compiles with `tsc` to `scripts/conx.js`. |
+| **UI** | `D:\HASS\core\config\conx-ui` | Folder inside inner repo | TypeScript frontend. Compiles with `tsc` to `scripts/conx.js`. |
 
 > **Rule:** Never modify files outside `config/` unless explicitly asked.
+> **Rule:** This repo (core) is **public**. The inner repo (config) and conx-ui contain proprietary code and must stay **private**. Never commit private code to the outer repo or expose it in public commits/PRs.
 
 ## Docker & Development Workflow
 
@@ -50,23 +51,23 @@ config/components/copy.bat
 
 ## Frontend Build
 
-Source: `D:\HASS\core\conx-ui` — TypeScript namespaces (`"module": "none"`, `"outFile"` concatenation).
+Source: `D:\HASS\core\config\conx-ui` — TypeScript namespaces (`"module": "none"`, `"outFile"` concatenation).
 
 ```bash
 # One-time build
-cd D:/HASS/core/conx-ui && tsc
+cd D:/HASS/core/config/conx-ui && tsc
 
 # Watch mode
-cd D:/HASS/core/conx-ui && tsc --watch
+cd D:/HASS/core/config/conx-ui && tsc --watch
 ```
 
-Output: `conx-ui/scripts/conx.js` + `conx.js.map`.
+Output: `config/conx-ui/scripts/conx.js` + `conx.js.map`.
 
 **Hardlinks** connect the build output to `config/www/`:
-- `conx-ui/scripts/conx.js` ↔ `config/www/conx.js`
-- `conx-ui/scripts/conx.js.map` ↔ `config/www/conx.js.map`
-- `conx-ui/scripts/conx.css` ↔ `config/www/conx.css`
-- `conx-ui/scripts/conxlib.js` ↔ `config/www/conxlib.js`
+- `config/conx-ui/scripts/conx.js` ↔ `config/www/conx.js`
+- `config/conx-ui/scripts/conx.js.map` ↔ `config/www/conx.js.map`
+- `config/conx-ui/scripts/conx.css` ↔ `config/www/conx.css`
+- `config/conx-ui/scripts/conxlib.js` ↔ `config/www/conxlib.js`
 
 A build automatically updates what HA serves. No manual copy needed.
 
@@ -210,7 +211,7 @@ Replaces the built-in `websocket_api` to add:
 - `scheduler/` — third-party (nielsfaber v3.3.9), do not modify
 - `core.py` — copy of `homeassistant/core.py` with non-admin script blocking (~line 2724)
 
-## Frontend Architecture (D:\HASS\core\conx-ui)
+## Frontend Architecture (D:\HASS\core\config\conx-ui)
 
 Namespace-based TypeScript (`conx.*`), no ES modules, no bundler.
 

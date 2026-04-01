@@ -210,14 +210,34 @@
       "outputTokens": 16226,
       "turnCount": 512,
       "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "4297796e-2614-4c64-a104-6c84bfb967fa",
+      "projectId": "core",
+      "endedAt": 1775043952376,
+      "costUsd": 0.8356869000000002,
+      "inputTokens": 1681298,
+      "outputTokens": 418,
+      "turnCount": 49,
+      "model": "claude-opus-4-6"
+    },
+    {
+      "sessionId": "a65e5e09-27e1-4ab9-9e65-801c81af4951",
+      "projectId": "core",
+      "endedAt": 1775044211481,
+      "costUsd": 0.9807022500000001,
+      "inputTokens": 2566875,
+      "outputTokens": 735,
+      "turnCount": 63,
+      "model": "claude-opus-4-6"
     }
   ],
   "dailyAggregates": {
     "2026-04-01": {
-      "costUsd": 92.4751941,
-      "inputTokens": 222082000,
-      "outputTokens": 80430,
-      "sessionCount": 21
+      "costUsd": 94.29158324999999,
+      "inputTokens": 226330173,
+      "outputTokens": 81583,
+      "sessionCount": 23
     }
   }
 }

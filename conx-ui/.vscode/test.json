@@ -1,1 +1,0 @@
-[{ "domain": "conx", "service": "light", "data": { "entity_id": "$dim;1>10", "intensity": 0.99 } }, { "data": { "entity_id": "$dim;11>20", "intensity": 0.2 } }]
