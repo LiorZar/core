@@ -35,18 +35,26 @@ fade engine, and a WebSocket command interface for a custom frontend.
   visually verify changes.
 - Check HA logs inside the container (`docker exec`, etc.) to confirm components loaded
   without errors.
-- After changing components: run `copy.bat` (copies `components/` → `custom_components/`),
-  restart HA, then verify.
+- After changing components: restart HA, then verify.
 
 ## Deploying Components
 
+`custom_components/` contains **symlinks** pointing to `components/` — edits are live, no copy step needed.
+
+Current symlinks:
+- `custom_components/conx` → `components/conx`
+- `custom_components/rdm` → `components/rdm`
+- `custom_components/scheduler` → `components/scheduler`
+- `custom_components/websocket_api` → `components/websocket_api`
+- `custom_components/core.py` → `components/core.py`
+
+To add a new component:
 ```bash
-# Copy components/ -> custom_components/ for HA to load
-config/components/copy.bat
+mklink /D custom_components\<name> components\<name>
 ```
 
 - `components/` is the **git-tracked** source of truth.
-- `custom_components/` is a **runtime copy** (gitignored).
+- `custom_components/` is gitignored (symlinks only).
 - **Always edit `components/`, never `custom_components/`.**
 
 ## Frontend Build
