@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "scripts": {
+    "index-watch": "jcodemunch-mcp watch D:\\HASS\\core --idle-timeout 1"
+  }
+}

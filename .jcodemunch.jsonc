@@ -1,0 +1,6 @@
+// jcodemunch-mcp project config for Home Assistant Core
+// Overrides global ~/.code-index/config.jsonc for this project only.
+{
+  "max_folder_files": 25000,
+  "max_index_files": 25000
+}
