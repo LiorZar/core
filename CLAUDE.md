@@ -75,11 +75,11 @@ Output: `config/conx-ui/scripts/conx.js` + `conx.js.map`.
 - `config/conx-ui/scripts/conx.js` ↔ `config/www/conx.js`
 - `config/conx-ui/scripts/conx.js.map` ↔ `config/www/conx.js.map`
 - `config/conx-ui/scripts/conx.css` ↔ `config/www/conx.css`
-- `config/conx-ui/scripts/conxlib.js` ↔ `config/www/conxlib.js`
 
 A build automatically updates what HA serves. No manual copy needed.
 
-`conxlib.js` and `conx.css` are standalone — edit directly, not part of the tsc build.
+`conx.css` is standalone — edit directly, not part of the tsc build.
+`conx-presets.html` is a standalone preset/template library in `config/www/`.
 
 ## HA Version Upgrades
 
