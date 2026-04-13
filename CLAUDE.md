@@ -17,13 +17,35 @@ fade engine, and a WebSocket command interface for a custom frontend.
 
 ## Docker & Development Workflow
 
-- The project runs inside a Docker devcontainer. **Claude handles all Docker operations** —
-  building, starting, restarting, exec-ing commands, etc. The user should never need to
-  deal with Docker directly.
-- `D:\HASS\core` is volume-mounted into the container — editing files locally automatically
-  updates them inside the container. No need to copy files in.
+- The project runs inside a Docker devcontainer (`conx-dev`). **Claude handles all Docker
+  operations** — building, starting, restarting, exec-ing commands, etc.
+- The container mounts from **WSL2 native filesystem** (`/home/lior/HASS/core`) — NOT from
+  the Windows `D:\` drive. This avoids 9P filesystem hangs that freeze HA.
 - **Always prefer changes inside our own folders** (`config/components/`, `config/conx/`,
   `config/www/`). Avoid touching HA core files unless absolutely necessary.
+
+### WSL2 Sync Workflow
+
+Windows (`D:\HASS\core`) is the git working copy. WSL2 (`/home/lior/HASS/core`) is the
+Docker runtime copy. After editing files on Windows, sync to WSL2 before restarting HA.
+
+```bash
+# Sync entire repo (Windows → WSL2)
+D:\HASS\core\sync-to-wsl.sh
+
+# Sync only config/ (from config repo)
+D:\HASS\core\config\sync-to-wsl.sh
+```
+
+The container must be created from WSL2 (not Windows bash) to use native paths:
+```bash
+wsl -d Ubuntu -- docker create --name conx-dev \
+  -p 8123:8123 -p 5683:5683/udp -p 10103:10103/udp \
+  -u vscode -w /workspaces \
+  -v /home/lior/HASS/core:/workspaces/core \
+  -v /home/lior/HASS/core/config/conx-ui:/conx-src \
+  <image> sleep infinity
+```
 
 ## Running, Viewing & Testing
 

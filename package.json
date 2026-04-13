@@ -1,6 +1,10 @@
 {
   "private": true,
   "scripts": {
-    "index-watch": "jcodemunch-mcp watch D:\\HASS\\core --idle-timeout 1"
+    "index-watch": "jcodemunch-mcp watch D:\\HASS\\core --idle-timeout 1",
+    "sync": "bash sync-to-wsl.sh",
+    "sync:config": "cd config && bash sync-to-wsl.sh",
+    "rsync": "bash rsync-from-wsl.sh",
+    "rsync:config": "cd config && bash rsync-from-wsl.sh"
   }
 }
